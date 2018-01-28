@@ -22,6 +22,14 @@ public class Depot {
     }
 
 
+    public String toString(){
+        return "Depot: " + id +
+                "\nMax Dur Route: " + this.maximumDurationOfRoute +
+                "\nMax Load Vehicle: " + this.maximumLoadOfAVehicle;
+
+    }
+
+
 
 
 

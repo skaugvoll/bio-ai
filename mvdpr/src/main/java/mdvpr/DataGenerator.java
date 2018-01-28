@@ -26,7 +26,7 @@ public class DataGenerator {
             this.readfile(is);
         }
         catch (Exception e){
-            System.out.println("Fåkk off");
+            System.out.println("Fåkk off: " + e);
         }
 
 
@@ -41,17 +41,19 @@ public class DataGenerator {
             line = line.trim();
             String[] parts = line.split(" ");
 
+            System.out.println(Arrays.toString(parts));
+
             if(counter == 1){
                 this.numVehicles = Integer.parseInt(parts[0]);
                 this.numCustomers = Integer.parseInt(parts[1]);
                 this.numDepots = Integer.parseInt(parts[2]);
             }
 
-            else if(counter > 1 && counter < this.numDepots+1){
+            else if(counter > 1 && counter <= this.numDepots+1){
                 this.depots.add(new Depot(counter-1, Integer.parseInt(parts[0]), Integer.parseInt(parts[1])));
             }
 
-            else if(counter > numDepots + 1 && counter < this.numCustomers + numDepots+1){
+            else if(counter > numDepots + 1 && counter < this.numCustomers + (numDepots+1)){
                 // create customers
             }
 
