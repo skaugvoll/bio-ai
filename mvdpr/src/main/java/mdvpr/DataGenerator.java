@@ -12,7 +12,7 @@ public class DataGenerator {
     public DataGenerator(String filename){
 
         this.dataPath = "/DataFiles/" + filename;
-        this.dataPath = "/SolutionFiles/" + filename;
+        this.dataPath = "/SolutionFiles/" + filename + ".res";
         InputStream is = DataGenerator.class.getResourceAsStream(this.dataPath);
         try{
             this.readfile(is);
