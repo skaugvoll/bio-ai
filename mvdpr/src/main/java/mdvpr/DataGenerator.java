@@ -1,10 +1,14 @@
 package mdvpr;
 
+import org.math.plot.utils.Array;
+
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class DataGenerator {
 
@@ -16,6 +20,7 @@ public class DataGenerator {
     private int numDepots;
 
     private ArrayList<Depot> depots = new ArrayList<Depot>();
+    private ArrayList<Customer> customers = new ArrayList<Customer>();
 
     public DataGenerator(String filename){
 
@@ -39,9 +44,22 @@ public class DataGenerator {
         while(scanner.hasNextLine()){
             String line = scanner.nextLine();
             line = line.trim();
-            String[] parts = line.split(" ");
+            String[] lineSplit = line.split(" ");
+            if(line.equals("")){
+                break;
+            }
+            ArrayList<String> partList = new ArrayList<>(Arrays.asList(lineSplit));
+            List<String> partsReduced = partList.stream().
+                    filter(
+                            f -> !f.equals("")
+                    ).
+                    collect(
+                            Collectors.toList()
+                    );
 
-            System.out.println(Arrays.toString(parts));
+            String[] parts = new String[partsReduced.size()];
+            parts = partsReduced.toArray(parts);
+
 
             if(counter == 1){
                 this.numVehicles = Integer.parseInt(parts[0]);
@@ -50,11 +68,12 @@ public class DataGenerator {
             }
 
             else if(counter > 1 && counter <= this.numDepots+1){
-                this.depots.add(new Depot(counter-1, Integer.parseInt(parts[0]), Integer.parseInt(parts[1])));
+                this.depots.add(new Depot(counter-1, Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), numVehicles));
             }
 
-            else if(counter > numDepots + 1 && counter < this.numCustomers + (numDepots+1)){
-                // create customers
+            else if(counter > numDepots + 1 && counter <= this.numCustomers + (numDepots+1)){
+                System.out.println(Arrays.toString(parts));
+                this.customers.add(new Customer(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]), Integer.parseInt(parts[3]), Integer.parseInt(parts[4])));
             }
 
             else{ // update depots
@@ -67,6 +86,10 @@ public class DataGenerator {
             counter++;
         }
         scanner.close();
+    }
+
+    public ArrayList<Depot> getDepots() {
+        return depots;
     }
 
     public static void main(String[] args) {
