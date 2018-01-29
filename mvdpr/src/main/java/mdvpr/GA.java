@@ -5,8 +5,8 @@ import java.util.ArrayList;
 public class GA {
 
     private Plot plotter;
-    private ArrayList<Depot> depots = new ArrayList<Depot>();
-    private ArrayList<Customer> customers = new ArrayList<Customer>();
+    private ArrayList<Depot> depots;
+    private ArrayList<Customer> customers;
 
     public GA() {
         this.plotter = new Plot();
@@ -16,6 +16,13 @@ public class GA {
 
         plotter.plotDepots(depots);
         plotter.plotCustomers(customers);
+    }
+
+
+    private void initPop(){
+        // population is alot of individual. Individual = solution. Individual = chromosone
+
+        // one solution = individual is; all customers are covered by a vehicle
     }
 
     public static void main(String[] args) {
