@@ -1,6 +1,6 @@
 package mdvpr;
 
-public class Vehcile {
+public class Vehicle {
 
     private int xPos;
     private int yPos;
@@ -9,7 +9,7 @@ public class Vehcile {
     private int maxLoad;
 
 
-    public Vehcile(int xPos, int yPos, int maxDuration, int maxLoad) {
+    public Vehicle(int xPos, int yPos, int maxDuration, int maxLoad) {
         this.xPos = xPos;
         this.yPos = yPos;
         this.maxDuration = maxDuration;

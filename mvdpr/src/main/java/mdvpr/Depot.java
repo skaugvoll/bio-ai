@@ -12,7 +12,7 @@ public class Depot {
     private int maximumLoadOfAVehicle;
     private int numVehicles;
 
-    private ArrayList<Vehcile> vehicles = new ArrayList<Vehcile>();
+    private ArrayList<Vehicle> vehicles = new ArrayList<Vehicle>();
 
 
     public Depot(int id, int maximumDurationOfRoute, int maximumLoadOfAVehicle, int numVehicles){
@@ -30,7 +30,7 @@ public class Depot {
 
     private void makeVehicles() {
         for(int i = 0; i < numVehicles; i++){
-            vehicles.add(new Vehcile(xpos, ypos, maximumDurationOfRoute, maximumLoadOfAVehicle));
+            vehicles.add(new Vehicle(xpos, ypos, maximumDurationOfRoute, maximumLoadOfAVehicle));
         }
     }
 
@@ -42,6 +42,10 @@ public class Depot {
         return ypos;
     }
 
+    public ArrayList<Vehicle> getVehicles(){
+        return this.vehicles;
+    }
+
     public String toString(){
         return "Depot: " + id +
                 "\nMax Dur Route: " + this.maximumDurationOfRoute +
@@ -50,7 +54,7 @@ public class Depot {
     }
 
 
-
-
-
+    public Vehicle getVehicle(int v) {
+        return this.vehicles.get(v);
+    }
 }
