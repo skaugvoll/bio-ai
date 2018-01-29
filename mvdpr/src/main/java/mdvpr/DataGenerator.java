@@ -37,6 +37,7 @@ public class DataGenerator {
 
     }
 
+
     private void readfile(InputStream path){
         Scanner scanner = new Scanner(path);
         int counter = 1;
@@ -90,6 +91,10 @@ public class DataGenerator {
 
     public ArrayList<Depot> getDepots() {
         return depots;
+    }
+
+    public ArrayList<Customer> getCustomers() {
+        return customers;
     }
 
     public static void main(String[] args) {

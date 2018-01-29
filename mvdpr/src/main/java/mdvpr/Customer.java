@@ -3,16 +3,24 @@ package mdvpr;
 public class Customer {
 
     private int id;
-    private int x;
-    private int y;
+    private int xpos;
+    private int ypos;
     private int serviceDuration;
     private int demand;
 
-    public Customer(int id, int x, int y, int serviceDuration, int demand) {
+    public Customer(int id, int xpos, int ypos, int serviceDuration, int demand) {
         this.id = id;
-        this.x = x;
-        this.y = y;
+        this.xpos = xpos;
+        this.ypos= ypos;
         this.serviceDuration = serviceDuration;
         this.demand = demand;
+    }
+
+    public int getXpos() {
+        return xpos;
+    }
+
+    public int getYpos() {
+        return ypos;
     }
 }
