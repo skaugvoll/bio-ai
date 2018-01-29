@@ -15,4 +15,8 @@ public class Vehicle {
         this.maxDuration = maxDuration;
         this.maxLoad = maxLoad;
     }
+
+    public int getDuration() {
+        return this.maxDuration;
+    }
 }

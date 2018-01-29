@@ -7,6 +7,7 @@ public class Customer {
     private int ypos;
     private int serviceDuration;
     private int demand;
+    private boolean satisfied;
 
     public Customer(int id, int xpos, int ypos, int serviceDuration, int demand) {
         this.id = id;
@@ -22,5 +23,13 @@ public class Customer {
 
     public int getYpos() {
         return ypos;
+    }
+
+    public boolean isSatisfied() {
+        return this.satisfied;
+    }
+
+    public void setSatisfaction(boolean satisfaction) {
+        this.satisfied = satisfaction;
     }
 }
