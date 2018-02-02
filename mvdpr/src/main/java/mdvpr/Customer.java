@@ -8,6 +8,7 @@ public class Customer {
     private int serviceDuration;
     private int demand;
     private boolean satisfied;
+    private boolean scheduled;
 
     public Customer(int id, int xpos, int ypos, int serviceDuration, int demand) {
         this.id = id;
@@ -15,6 +16,8 @@ public class Customer {
         this.ypos= ypos;
         this.serviceDuration = serviceDuration;
         this.demand = demand;
+        this.scheduled = false;
+        this.satisfied = false;
     }
 
     public int getXpos() {
@@ -25,11 +28,19 @@ public class Customer {
         return ypos;
     }
 
-    public boolean isSatisfied() {
-        return this.satisfied;
+    public boolean isScheduled() {
+        return this.scheduled;
     }
 
-    public void setSatisfaction(boolean satisfaction) {
-        this.satisfied = satisfaction;
+    public void setScheduled(boolean scheduled) {
+        this.scheduled = scheduled;
     }
+
+
+
+
+    public String toString(){
+        return "Cust. ID: " + this.id;
+    }
+
 }

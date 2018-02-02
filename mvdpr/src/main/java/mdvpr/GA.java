@@ -1,5 +1,6 @@
 package mdvpr;
 
+import javax.sound.midi.Soundbank;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -15,12 +16,14 @@ public class GA {
         this.depots = data.getDepots();
         this.customers = data.getCustomers();
 
-        plotter.plotDepots(depots);
-        plotter.plotCustomers(customers);
+        this.initPop(10);
+
+//        plotter.plotDepots(depots);
+//        plotter.plotCustomers(customers);
     }
 
 
-    private void initPop(){
+    private void initPop(int popSize){
         // population is alot of individual. Individual = solution. Individual = chromosone
         ArrayList<Chromosome> population = new ArrayList<>();
 
@@ -28,40 +31,52 @@ public class GA {
 
         Random r = new Random();
 
-        // ######### Så lenge det er kunder som ikke har blitt besøkt:
+        for(int i = 0; i < popSize; i++){
+            System.out.println("iter: " + i);
+            ArrayList<Vehicle> cars = new ArrayList<>();
 
-        // Choose a random depot
-        int d = r.nextInt(this.depots.size()); // from 0 to but not included size = 4 --> 0, 1, 2, 3
-        Depot depot = this.depots.get(d);
+            while(checkIfNewCustomerIsPossible()){
+                // Choose a random depot
+                int d = r.nextInt(this.depots.size()); // from 0 to but not included size = 4 --> 0, 1, 2, 3
+                Depot depot = this.depots.get(d);
 
-        // Choose a random vehicle
-        int v = r.nextInt(depot.getVehicles().size());
-        Vehicle vehicle = depot.getVehicle(v);
+                // Choose a random vehicle
+                int v = r.nextInt(depot.getVehicles().size());
+                Vehicle vehicle = depot.getVehicle(v);
 
-        // Find out how fare the car can travel.
-        int remainingDur = vehicle.getDuration();
 
-        // Create a route for this vehicle
-        ArrayList<Customer> carPath = new ArrayList<>();
+                int c = r.nextInt(customers.size());
+                Customer customer = this.customers.get(c);
 
-        while(remainingDur > 0 && checkIfNewCustomerIsPossible()){
-            // find a random customer
-            int c = r.nextInt(this.customers.size());
-            Customer customer = this.customers.get(c);
+                // if the customer allready has a vehicle on it's way
+                if(customer.isScheduled()){
+                    continue; // try a new random depot, vehicle, and customer || start while loop from top.
+                }
 
-            // distance til neste punkt + distansen hjem fra neste punkt er mindre enn det vi kan kjøre totalt.
-            if(getDistance() + getDistance() < remainingDur && !customer.isSatisfied()){
-                carPath.add(customer);
-                remainingDur -= getDistance();
-                customer.setSatisfaction(true);
+                // make sure this customer is not choosen again.
+                customer.setScheduled(true);
+                // add this customer to the cars rout / path.
+                vehicle.addCustomer(customer);
+                if(!cars.contains(vehicle)){
+                    cars.add(vehicle);
+                }
+            }
+            // now we have found one solution (good or bad | legal and or illegal)
+            // create chromosome.
+
+            Chromosome chromosome = new Chromosome(cars);
+            // add chromosome to population
+            population.add(chromosome);
+            // reset cars and customers
+            for(Vehicle v : cars){
+                v.resetCurrentDuration();
+                for(Customer c : v.getPath()){
+                    c.setScheduled(false);
+                }
             }
         }
 
-
-
-
-
-
+        System.out.println("population: " + population);
 
 
 
@@ -70,7 +85,13 @@ public class GA {
 
     private boolean checkIfNewCustomerIsPossible() {
         // sjekk om mulighet / nokk duration igjen til å dra til en kunde og hjem. Iterer over alle kunder / helt til funnet en som er mulig
+        for(Customer c : this.customers){
+            if(!c.isScheduled()){
+                return true;
+            }
+        }
         return false;
+
 
     }
 

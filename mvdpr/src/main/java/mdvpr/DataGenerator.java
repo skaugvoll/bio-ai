@@ -73,7 +73,7 @@ public class DataGenerator {
             }
 
             else if(counter > numDepots + 1 && counter <= this.numCustomers + (numDepots+1)){
-                System.out.println(Arrays.toString(parts));
+//                System.out.println(Arrays.toString(parts));
                 this.customers.add(new Customer(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]), Integer.parseInt(parts[3]), Integer.parseInt(parts[4])));
             }
 

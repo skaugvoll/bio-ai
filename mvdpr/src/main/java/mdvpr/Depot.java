@@ -30,7 +30,7 @@ public class Depot {
 
     private void makeVehicles() {
         for(int i = 0; i < numVehicles; i++){
-            vehicles.add(new Vehicle(xpos, ypos, maximumDurationOfRoute, maximumLoadOfAVehicle));
+            vehicles.add(new Vehicle(xpos, ypos, maximumDurationOfRoute, maximumLoadOfAVehicle, this));
         }
     }
 
