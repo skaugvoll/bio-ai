@@ -5,6 +5,7 @@ import org.math.plot.Plot2DPanel;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Plot {
 
@@ -50,6 +51,46 @@ public class Plot {
 
         this.plot.addScatterPlot("Depots", new Color(10,100,10), x, y);
         this.plot.updateUI();
+    }
+
+
+    public void plotChromosome(Chromosome chromosome){
+        Random cg = new Random(); // random color generator (cr).
+        // tegn ruten for hver bil
+
+        for(Vehicle v : chromosome.getCars()){
+            Color color = new Color(cg.nextInt(255),cg.nextInt(255),cg.nextInt(255));
+
+            if(v.getPath().size() < 1){
+                continue;
+            }
+
+            // Create two arrays to contain the x and y positions of the rout points. specific for plotting library
+            //  depot(leave) + there will be as many x positions as there is customers + depor (home)
+            double[] x = new double[v.getPath().size() + 2];
+            double[] y = new double[v.getPath().size() + 2];
+
+            double homeX = v.getDepo().getXpos();
+            double homeY = v.getDepo().getYpos();
+
+            // Add depot
+            x[0] = homeX;
+            y[0] = homeY;
+
+            // since depo takes index 0, start loop at 1, and remove 1 from the index when accessing path-array, not x/y array.
+            for (int i = 1; i < v.getPath().size() + 1; i++) {
+                x[i] = v.getPath().get(i-1).getXpos();
+                y[i] = v.getPath().get(i-1).getYpos();
+            }
+
+            // add driving home to depot as the last thing the car does.
+            x[x.length-1] = homeX;
+            y[y.length-1] = homeY;
+
+            this.plot.addLinePlot("Car route", color, x, y);
+        }
+
+
     }
 
 

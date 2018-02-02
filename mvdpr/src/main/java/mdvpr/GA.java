@@ -1,6 +1,8 @@
 package mdvpr;
 
-import javax.sound.midi.Soundbank;
+
+import com.rits.cloning.Cloner;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -18,8 +20,8 @@ public class GA {
 
         this.initPop(10);
 
-//        plotter.plotDepots(depots);
-//        plotter.plotCustomers(customers);
+        plotter.plotDepots(depots);
+        plotter.plotCustomers(customers);
     }
 
 
@@ -29,13 +31,14 @@ public class GA {
 
         // one solution = individual is; all customers are covered by a vehicle
 
-        Random r = new Random();
+
 
         for(int i = 0; i < popSize; i++){
-            System.out.println("iter: " + i);
+            Random r = new Random();
             ArrayList<Vehicle> cars = new ArrayList<>();
+            cars.clear(); // make sure we start from scratch on new solution / individual / chromosome
 
-            while(checkIfNewCustomerIsPossible()){
+            for(Customer customer : this.customers){
                 // Choose a random depot
                 int d = r.nextInt(this.depots.size()); // from 0 to but not included size = 4 --> 0, 1, 2, 3
                 Depot depot = this.depots.get(d);
@@ -44,39 +47,38 @@ public class GA {
                 int v = r.nextInt(depot.getVehicles().size());
                 Vehicle vehicle = depot.getVehicle(v);
 
-
-                int c = r.nextInt(customers.size());
-                Customer customer = this.customers.get(c);
-
-                // if the customer allready has a vehicle on it's way
-                if(customer.isScheduled()){
-                    continue; // try a new random depot, vehicle, and customer || start while loop from top.
-                }
-
-                // make sure this customer is not choosen again.
-                customer.setScheduled(true);
-                // add this customer to the cars rout / path.
+                // add the customer to the random chosen car.
                 vehicle.addCustomer(customer);
+
+                // add this car to the list of cars, if it's not there already (been chosen and added previously)
                 if(!cars.contains(vehicle)){
                     cars.add(vehicle);
                 }
+
+
             }
             // now we have found one solution (good or bad | legal and or illegal)
             // create chromosome.
 
-            Chromosome chromosome = new Chromosome(cars);
+            // now we need a deep copy, not just refrences. since we are goint to "reset" our objects for another population to use.
+            // TODO: Rewrite this into a create new object for each object method. Much more performance pleasing.
+            Cloner cloner = new Cloner();
+            ArrayList<Vehicle> carsCloned = cloner.deepClone(cars);
+
+            Chromosome chromosome = new Chromosome(carsCloned);
             // add chromosome to population
             population.add(chromosome);
             // reset cars and customers
             for(Vehicle v : cars){
                 v.resetCurrentDuration();
+                v.clearPath();
                 for(Customer c : v.getPath()){
                     c.setScheduled(false);
                 }
             }
         }
 
-        System.out.println("population: " + population);
+        this.plotter.plotChromosome(population.get(0));
 
 
 

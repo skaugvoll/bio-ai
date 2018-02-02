@@ -16,4 +16,7 @@ public class Chromosome {
         return this.cars.toString();
     }
 
+    public ArrayList<Vehicle> getCars() {
+        return cars;
+    }
 }

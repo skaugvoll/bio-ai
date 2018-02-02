@@ -15,5 +15,7 @@
     <orderEntry type="library" name="Maven: com.github.yannrichet:JMathIO:1.0" level="project" />
     <orderEntry type="library" name="Maven: com.github.yannrichet:JMathArray:1.0" level="project" />
     <orderEntry type="library" name="Maven: gov.nist.math:jama:1.0.3" level="project" />
+    <orderEntry type="library" name="Maven: uk.com.robust-it:cloning:1.9.9" level="project" />
+    <orderEntry type="library" name="Maven: org.objenesis:objenesis:2.6" level="project" />
   </component>
 </module>

@@ -33,6 +33,8 @@ public class Vehicle {
     }
 
     public void addCustomer(Customer c){
+        this.xPos = c.getXpos();
+        this.yPos = c.getYpos();
         this.path.add(c);
     }
 
@@ -44,9 +46,16 @@ public class Vehicle {
         this.currentDuration = 0;
     }
 
+    public void clearPath() {
+        this.path.clear();
+    }
 
 
     public String toString(){
         return "Vechicle: " +xPos +","+yPos + " :: " + path;
+    }
+
+    public Depot getDepo() {
+        return belongsToDepot;
     }
 }
