@@ -31,8 +31,6 @@ public class GA {
 
         // one solution = individual is; all customers are covered by a vehicle
 
-
-
         for(int i = 0; i < popSize; i++){
             Random r = new Random();
             ArrayList<Vehicle> cars = new ArrayList<>();
@@ -55,7 +53,6 @@ public class GA {
                     cars.add(vehicle);
                 }
 
-
             }
             // now we have found one solution (good or bad | legal and or illegal)
             // create chromosome.
@@ -66,8 +63,9 @@ public class GA {
             ArrayList<Vehicle> carsCloned = cloner.deepClone(cars);
 
             Chromosome chromosome = new Chromosome(carsCloned);
-            // add chromosome to population
-            population.add(chromosome);
+            this.calculateFitness(chromosome); // calculate the fitness score for this chromosome
+            population.add(chromosome);// add chromosome to population
+
             // reset cars and customers
             for(Vehicle v : cars){
                 v.resetCurrentDuration();
@@ -77,12 +75,44 @@ public class GA {
                 }
             }
         }
-
         this.plotter.plotChromosome(population.get(0));
 
+    }
 
+    private void calculateFitness(Chromosome chrome){
+        // the fitness for a solution is the total distance  (not duration) traveled. duration = criteria for route.
+        double totalDistance = 0;
 
+        for(Vehicle v : chrome.getCars()){
+            // get the "init depo/car position"
+            int lastX = v.getXPos();
+            int lastY = v.getYPos();
 
+            for(Customer c : v.getPath()){
+                int currentX = c.getXpos();
+                int currentY = c.getYpos();
+
+                totalDistance += this.getEuclideanDistance(lastX, lastY, currentX, currentY);
+                lastX = currentX;
+                lastY = currentY;
+            }
+
+            // now we need to go back home again
+            totalDistance += this.getEuclideanDistance(lastX, lastY, v.getDepo().getXpos(), v.getDepo().getYpos());
+
+            // TODO: implement some sort of stuff here...
+            // punish the illegal routes
+            if(v.getCurrentDuration() > v.getMaxDuration()){
+                System.out.println("Current duration: " + v.getCurrentDuration() + " Max duration: " + v.getMaxDuration());
+            }
+        }
+
+        // set the fitnesscore for this chromosome.
+        chrome.setFitness(totalDistance);
+    }
+
+    public double getEuclideanDistance(int x1, int y1, int x2, int y2) {
+        return Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2));
     }
 
     private boolean checkIfNewCustomerIsPossible() {
@@ -97,10 +127,6 @@ public class GA {
 
     }
 
-
-    public int getDistance() {
-        return 0;
-    }
 
     public static void main(String[] args) {
         GA ga = new GA();

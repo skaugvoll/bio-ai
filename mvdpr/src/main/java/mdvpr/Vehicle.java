@@ -10,6 +10,7 @@ public class Vehicle {
     private int maxDuration;
     private int currentDuration = 0;
     private int maxLoad;
+    private int currentLoad = 0;
     private ArrayList<Customer> path;
     private Depot belongsToDepot;
 
@@ -24,6 +25,10 @@ public class Vehicle {
         this.belongsToDepot = depot;
     }
 
+    public int getXPos() {return this.xPos;}
+    public int getYPos() {return this.yPos;}
+
+
     public int getMaxDuration() {
         return this.maxDuration;
     }
@@ -36,6 +41,7 @@ public class Vehicle {
         this.xPos = c.getXpos();
         this.yPos = c.getYpos();
         this.path.add(c);
+
     }
 
     public ArrayList<Customer> getPath() {
