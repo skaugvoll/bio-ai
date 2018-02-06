@@ -26,6 +26,7 @@ public class Chromosome {
 
 
     public String toString(){
-        return this.cars.toString();
+        return Double.toString(this.fitness);
+//        return this.cars.toString();
     }
 }

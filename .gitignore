@@ -3,4 +3,6 @@ mvdpr/.idea/workspace.xml
 mvdpr/.idea/*
 mvdpr/.DS_Store
 mvdpr/target/
+*.iml
+.xml
 

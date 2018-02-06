@@ -4,6 +4,7 @@ package mdvpr;
 import com.rits.cloning.Cloner;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 public class GA {
@@ -11,23 +12,22 @@ public class GA {
     private Plot plotter;
     private ArrayList<Depot> depots;
     private ArrayList<Customer> customers;
+    private int maxEphoch = 10;
+    // population is alot of individual. Individual = solution. Individual = chromosone
+    private ArrayList<Chromosome> population = new ArrayList<>();
 
     public GA() {
         this.plotter = new Plot();
         DataGenerator data = new DataGenerator("p01");
         this.depots = data.getDepots();
         this.customers = data.getCustomers();
-
-        this.initPop(10);
-
-        plotter.plotDepots(depots);
-        plotter.plotCustomers(customers);
+        run();
     }
 
 
+
     private void initPop(int popSize){
-        // population is alot of individual. Individual = solution. Individual = chromosone
-        ArrayList<Chromosome> population = new ArrayList<>();
+
 
         // one solution = individual is; all customers are covered by a vehicle
 
@@ -127,6 +127,24 @@ public class GA {
 
     }
 
+    public void run(){
+        this.initPop(10);
+        plotter.plotDepots(depots);
+        plotter.plotCustomers(customers);
+        int epoch = 0;
+        ArrayList<Chromosome> newPopulation = new ArrayList<>();
+        while(epoch < this.maxEphoch){
+            newPopulation = selectParents();
+            Random r = new Random();
+        }
+
+
+    }
+
+    public ArrayList<Chromosome> selectParents(){
+        Collections.sort(this.population, new SortPopulationComparator());
+        return new ArrayList<>(population.subList(0, 5));
+    }
 
     public static void main(String[] args) {
         GA ga = new GA();
