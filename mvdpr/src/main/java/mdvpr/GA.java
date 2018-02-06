@@ -5,14 +5,16 @@ import com.rits.cloning.Cloner;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class GA {
 
     private Plot plotter;
     private ArrayList<Depot> depots;
     private ArrayList<Customer> customers;
-    private int maxEphoch = 10;
+    private int maxEphoch = 1;
     // population is alot of individual. Individual = solution. Individual = chromosone
     private ArrayList<Chromosome> population = new ArrayList<>();
 
@@ -132,18 +134,43 @@ public class GA {
         plotter.plotDepots(depots);
         plotter.plotCustomers(customers);
         int epoch = 0;
-        ArrayList<Chromosome> newPopulation = new ArrayList<>();
+        ArrayList<Chromosome> newPopulation;
         while(epoch < this.maxEphoch){
             newPopulation = selectParents();
             Random r = new Random();
+            System.out.println(population.size());
+            while(newPopulation.size() < population.size()){
+                Collections.sort(population, new WeightPopulationComparator());
+                Chromosome survivor = population.get(0);
+                Chromosome bestSurvivor = newPopulation.get(r.nextInt(newPopulation.size()));
+                int leastAmoutOfVehicles = survivor.getCars().size() < bestSurvivor.getCars().size() ? survivor.getCars().size() : bestSurvivor.getCars().size();
+                int crossPoint = r.nextInt(leastAmoutOfVehicles);
+                newPopulation.add(this.crossover(survivor, bestSurvivor, crossPoint));
+                if(newPopulation.size() == population.size())
+                    break;
+                newPopulation.add(this.crossover(bestSurvivor, survivor, crossPoint));
+            }
+            Cloner cloner = new Cloner();
+            this.population = cloner.deepClone(newPopulation);
+            System.out.println(population);
+            epoch ++;
         }
+    }
 
 
+
+    private Chromosome crossover(Chromosome survivor, Chromosome bestSurvivor, int crossPoint) {
+        ArrayList<Vehicle> temp = new ArrayList<>();
+        temp.addAll(survivor.getCars().subList(0,crossPoint));
+        temp.addAll(bestSurvivor.getCars().subList(crossPoint, bestSurvivor.getCars().size()-1));
+        Chromosome kid = new Chromosome(temp);
+        this.calculateFitness(kid);
+        return kid;
     }
 
     public ArrayList<Chromosome> selectParents(){
         Collections.sort(this.population, new SortPopulationComparator());
-        return new ArrayList<>(population.subList(0, 5));
+        return new ArrayList<>(population.subList(0, population.size()/2));
     }
 
     public static void main(String[] args) {

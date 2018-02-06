@@ -34,7 +34,7 @@ public class Plot {
             x[i] = depotList.get(i).getXpos();
             y[i] = depotList.get(i).getYpos();
         }
-        System.out.println(x);
+//        System.out.println(x);
 
         this.plot.addScatterPlot("Depots", new Color(255,10,10), x, y);
         this.plot.updateUI();
@@ -47,7 +47,7 @@ public class Plot {
             x[i] = customerList.get(i).getXpos();
             y[i] = customerList.get(i).getYpos();
         }
-        System.out.println(x);
+//        System.out.println(x);
 
         this.plot.addScatterPlot("Depots", new Color(10,100,10), x, y);
         this.plot.updateUI();
