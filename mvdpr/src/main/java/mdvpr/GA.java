@@ -64,7 +64,7 @@ public class GA {
                     // add the customer to the random chosen car.
                     vehicle.addCustomer(customer);
                 }
-                
+
 
             }
 
@@ -138,18 +138,7 @@ public class GA {
         return Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2));
     }
 
-    private boolean checkIfNewCustomerIsPossible() {
-        // sjekk om mulighet / nokk duration igjen til å dra til en kunde og hjem. Iterer over alle kunder / helt til funnet en som er mulig
-        for(Customer c : this.customers){
-            if(!c.isScheduled()){
-                return true;
-            }
-        }
-        return false;
-
-
-    }
-
+  
     public void run(){
         this.initPop(100); // 2 & 3. this also evaluates the fitness
 
