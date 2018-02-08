@@ -5,9 +5,7 @@ import com.rits.cloning.Cloner;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 public class GA {
 
@@ -174,29 +172,45 @@ public class GA {
 
 
     private Chromosome crossover(Chromosome survivor1, Chromosome survivor2) {
-        ArrayList<Vehicle> temp = new Cloner().deepClone(survivor2.getCars());
+        Chromosome temp = new Cloner().deepClone(survivor2);
         ArrayList<Customer> custs = new ArrayList<>();
 
         Vehicle v1 = survivor1.getCars().get(r.nextInt(survivor1.getCars().size()));
         for (Customer c : v1.getPath()){
-            for(Vehicle v : temp){
-                for(Customer c2 : v.getPath())
+            for(Vehicle v : temp.getCars()){
+                for(Customer c2 : v.getPath()){
                     if(c.getId() == c2.getId()){
                         custs.add(v.getPath().remove(v.getPath().indexOf(c2)));
                         break;
                     }
+                }
             }
         }
 
         for(Customer cust : custs){
-            Vehicle vehic = temp.get(r.nextInt(temp.size()));
-            vehic.getPath().add(cust);
-        }
+            ArrayList<Vehicle> possibleEntries = new ArrayList<>();
+            ArrayList<Double> costs = new ArrayList<>();
+            for(Vehicle vehic: temp.getCars()){
+                vehic.getPath().add(cust);
+                if(this.isValidRoute(vehic)){
+                    possibleEntries.add(vehic);
+                    this.calculateFitness(temp);
+                    costs.add(temp.getFitness());
+                }
+                vehic.getPath().remove(cust);
+            }
 
-        Chromosome kid = new Chromosome(temp);
-        this.mutation(kid);
-        this.calculateFitness(kid);
-        return kid;
+            double k = r.nextDouble();
+            if(k <= 0.8){
+                possibleEntries.get(0).addCustomer(cust);
+            }else{
+                possibleEntries.get(costs.indexOf(Collections.min(costs))).addCustomer(cust);
+            }
+
+        }
+        this.mutation(temp);
+        this.calculateFitness(temp);
+        return temp;
     }
 
     private void mutation(Chromosome offspring){

@@ -6,6 +6,13 @@ public class SortPopulationComparator implements Comparator<Chromosome> {
 
     @Override
     public int compare(Chromosome o1, Chromosome o2) {
-        return (int) (o1.getFitness() - o2.getFitness());
+        if (o1.getFitness() < o2.getFitness())
+            return -1;
+        else if (o1.getFitness() > o2.getFitness())
+            return 1;
+        else
+            return 0;
+
+//        return (int) (o1.getFitness() - o2.getFitness());
     }
 }
