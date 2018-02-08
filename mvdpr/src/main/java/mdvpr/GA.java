@@ -14,9 +14,10 @@ public class GA {
     private Plot plotter;
     private ArrayList<Depot> depots;
     private ArrayList<Customer> customers;
-    private int maxEphoch = 100;
+    private int maxEphoch = 1000;
     // population is alot of individual. Individual = solution. Individual = chromosone
     private ArrayList<Chromosome> population = new ArrayList<>();
+    Random r = new Random();
 
     public GA() {
         this.plotter = new Plot();
@@ -141,38 +142,28 @@ public class GA {
     }
 
     public void run(){
-        this.initPop(10); // 2 & 3. this also evaluates the fitness
+        this.initPop(100); // 2 & 3. this also evaluates the fitness
 
         int epoch = 0; // 1.
         ArrayList<Chromosome> newPopulation;
         while(epoch < this.maxEphoch){ // 4
             newPopulation = selectParents(); // 5. select parents
-            Random r = new Random();
+
 
             System.out.println("population: " + epoch + " :: " + population);
             // basically create all offsprings and crossover them.
             while(newPopulation.size() < population.size()){
 //                Collections.sort(population, new WeightPopulationComparator());
-                Chromosome survivor = population.get(0);
+                Chromosome survivor1 = population.get(0);
 
-                Chromosome bestSurvivor = newPopulation.get(r.nextInt(newPopulation.size()));
+                Chromosome survivor2 = newPopulation.get(r.nextInt(newPopulation.size()));
 
-                int leastAmoutOfVehicles = survivor.getCars().size() < bestSurvivor.getCars().size() ? survivor.getCars().size() : bestSurvivor.getCars().size();
-                int crossPoint = 0;
-
-                if(leastAmoutOfVehicles >= 1){
-                    // we know that we have a car without customers, now we can loadbalance
-                    crossPoint = r.nextInt(leastAmoutOfVehicles);
-                }
-
-                // 6. Crossover and // 7. mutation on offspring
-                newPopulation.add(this.crossover(survivor, bestSurvivor, crossPoint));
+//                // 6. Crossover and // 7. mutation on offspring
+                newPopulation.add(this.crossover(survivor1, survivor2));
                 if(newPopulation.size() == population.size())
                     break;
-                newPopulation.add(this.crossover(bestSurvivor, survivor, crossPoint));
+                newPopulation.add(this.crossover(survivor2, survivor1));
             }
-
-
 
             Cloner cloner = new Cloner();
             this.population = cloner.deepClone(newPopulation);
@@ -184,22 +175,28 @@ public class GA {
 
 
 
-    private Chromosome crossover(Chromosome survivor, Chromosome bestSurvivor, int crossPoint) {
-        ArrayList<Vehicle> temp = new ArrayList<>();
+    private Chromosome crossover(Chromosome survivor1, Chromosome survivor2) {
+        ArrayList<Vehicle> temp = new Cloner().deepClone(survivor2.getCars());
+        ArrayList<Customer> custs = new ArrayList<>();
 
-        if(crossPoint == 0 && survivor.getCars().size() > bestSurvivor.getCars().size()){
-            temp.addAll(survivor.getCars().subList(0,new Random().nextInt(survivor.getCars().size())));
+        Vehicle v1 = survivor1.getCars().get(r.nextInt(survivor1.getCars().size()));
+        for (Customer c : v1.getPath()){
+            for(Vehicle v : temp){
+                for(Customer c2 : v.getPath())
+                    if(c.getId() == c2.getId()){
+                        custs.add(v.getPath().remove(v.getPath().indexOf(c2)));
+                        break;
+                    }
+            }
         }
-        else if(crossPoint == 0 && survivor.getCars().size() < bestSurvivor.getCars().size()){
-            temp.addAll(bestSurvivor.getCars().subList(0,new Random().nextInt(bestSurvivor.getCars().size())));
-        }
-        else{
-            temp.addAll(survivor.getCars().subList(0,crossPoint));
-            temp.addAll(bestSurvivor.getCars().subList(crossPoint, bestSurvivor.getCars().size()));
+
+        for(Customer cust : custs){
+            Vehicle vehic = temp.get(r.nextInt(temp.size()));
+            vehic.getPath().add(cust);
         }
 
         Chromosome kid = new Chromosome(temp);
-        this.mutation(kid);
+//        this.mutation(kid);
         this.calculateFitness(kid);
         return kid;
     }

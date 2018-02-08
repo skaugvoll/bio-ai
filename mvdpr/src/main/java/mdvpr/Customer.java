@@ -36,8 +36,9 @@ public class Customer {
         this.scheduled = scheduled;
     }
 
-
-
+    public int getId() {
+        return id;
+    }
 
     public String toString(){
         return "Cust. ID: " + this.id;
