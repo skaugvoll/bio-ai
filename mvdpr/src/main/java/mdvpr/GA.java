@@ -57,6 +57,16 @@ public class GA {
                 }
 
             }
+
+            // add all cars not used to the list aswell
+            for(Depot d : this.depots){
+                for(Vehicle v : d.getVehicles()){
+                    if(!cars.contains(v)){
+                        cars.add(v);
+                    }
+                }
+            }
+
             // now we have found one solution (good or bad | legal and or illegal)
             // create chromosome.
 
@@ -168,7 +178,6 @@ public class GA {
             this.population = cloner.deepClone(newPopulation);
             epoch ++;
         }
-        System.out.println("Fåkking hell, just ran out of epochs");
         this.plotter.plotChromosome(population.get(0));
         this.plotter.updateUI();
     }
