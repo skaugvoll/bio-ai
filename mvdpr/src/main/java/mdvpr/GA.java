@@ -51,15 +51,24 @@ public class GA {
 
                 // add the customer to the random chosen car.
                 vehicle.addCustomer(customer);
+                while(!this.isValidRoute(vehicle)){
+                    vehicle.getPath().remove(customer);
+                    // Choose a random depot
+                    d = r.nextInt(this.depots.size()); // from 0 to but not included size = 4 --> 0, 1, 2, 3
+                    depot = this.depots.get(d);
 
-                // add this car to the list of cars, if it's not there already (been chosen and added previously)
-                if(!cars.contains(vehicle)){
-                    cars.add(vehicle);
+                    // Choose a random vehicle
+                    v = r.nextInt(depot.getVehicles().size());
+                    vehicle = depot.getVehicle(v);
+
+                    // add the customer to the random chosen car.
+                    vehicle.addCustomer(customer);
                 }
+                
 
             }
 
-            // add all cars not used to the list aswell
+            // add all cars to the list
             for(Depot d : this.depots){
                 for(Vehicle v : d.getVehicles()){
                     if(!cars.contains(v)){
