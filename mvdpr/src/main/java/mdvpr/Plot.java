@@ -93,6 +93,10 @@ public class Plot {
 
     }
 
+    public void updateUI(){
+        this.plot.updateUI();
+    }
+
 
     public static void main(String[] args) {
         Plot plot = new Plot();

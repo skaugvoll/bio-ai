@@ -23,14 +23,15 @@ public class GA {
         DataGenerator data = new DataGenerator("p01");
         this.depots = data.getDepots();
         this.customers = data.getCustomers();
+        plotter.plotDepots(depots);
+        plotter.plotCustomers(customers);
+
         run();
     }
 
 
 
     private void initPop(int popSize){
-
-
         // one solution = individual is; all customers are covered by a vehicle
 
         for(int i = 0; i < popSize; i++){
@@ -77,7 +78,7 @@ public class GA {
                 }
             }
         }
-        this.plotter.plotChromosome(population.get(0));
+//        this.plotter.plotChromosome(population.get(0));
 
     }
 
@@ -131,21 +132,19 @@ public class GA {
 
     public void run(){
         this.initPop(10); // 2 & 3. this also evaluates the fitness
-        plotter.plotDepots(depots);
-        plotter.plotCustomers(customers);
 
         int epoch = 0; // 1.
         ArrayList<Chromosome> newPopulation;
         while(epoch < this.maxEphoch){ // 4
             newPopulation = selectParents(); // 5. select parents
             Random r = new Random();
-            System.out.println(population.size());
+
+            System.out.println("population: " + epoch + " :: " + population);
             // basically create all offsprings and crossover them.
             while(newPopulation.size() < population.size()){
-                Collections.sort(population, new WeightPopulationComparator());
+//                Collections.sort(population, new WeightPopulationComparator());
                 Chromosome survivor = population.get(0);
 
-                System.out.println("SURVIVOR: " + survivor);
                 Chromosome bestSurvivor = newPopulation.get(r.nextInt(newPopulation.size()));
 
                 int leastAmoutOfVehicles = survivor.getCars().size() < bestSurvivor.getCars().size() ? survivor.getCars().size() : bestSurvivor.getCars().size();
@@ -155,7 +154,6 @@ public class GA {
                     // we know that we have a car without customers, now we can loadbalance
                     crossPoint = r.nextInt(leastAmoutOfVehicles);
                 }
-
 
                 // 6. Crossover and // 7. mutation on offspring
                 newPopulation.add(this.crossover(survivor, bestSurvivor, crossPoint));
@@ -168,9 +166,11 @@ public class GA {
 
             Cloner cloner = new Cloner();
             this.population = cloner.deepClone(newPopulation);
-            System.out.println(population);
             epoch ++;
         }
+        System.out.println("Fåkking hell, just ran out of epochs");
+        this.plotter.plotChromosome(population.get(0));
+        this.plotter.updateUI();
     }
 
 
@@ -178,10 +178,19 @@ public class GA {
     private Chromosome crossover(Chromosome survivor, Chromosome bestSurvivor, int crossPoint) {
         ArrayList<Vehicle> temp = new ArrayList<>();
 
-        temp.addAll(survivor.getCars().subList(0,crossPoint));
-        temp.addAll(bestSurvivor.getCars().subList(crossPoint, bestSurvivor.getCars().size()-1));
+        if(crossPoint == 0 && survivor.getCars().size() > bestSurvivor.getCars().size()){
+            temp.addAll(survivor.getCars().subList(0,new Random().nextInt(survivor.getCars().size())));
+        }
+        else if(crossPoint == 0 && survivor.getCars().size() < bestSurvivor.getCars().size()){
+            temp.addAll(bestSurvivor.getCars().subList(0,new Random().nextInt(bestSurvivor.getCars().size())));
+        }
+        else{
+            temp.addAll(survivor.getCars().subList(0,crossPoint));
+            temp.addAll(bestSurvivor.getCars().subList(crossPoint, bestSurvivor.getCars().size()));
+        }
+
         Chromosome kid = new Chromosome(temp);
-//        this.mutation(kid);
+        this.mutation(kid);
         this.calculateFitness(kid);
         return kid;
     }
@@ -196,9 +205,8 @@ public class GA {
         Vehicle vehicleOne = offspring.getCars().get(r.nextInt(offspring.getCars().size()));
 
         int custIndex = r.nextInt(vehicleOne.getPath().size());
-        System.out.print("Before: " + vehicleOne.getPath().size() + "\t");
         Customer cust = vehicleOne.getPath().remove(custIndex);
-        System.out.println("AFTER: " + vehicleOne.getPath().size());
+
 
         if(vehicleOne.getPath().size() < 1){
             vehicleOne.getPath().add(cust);
