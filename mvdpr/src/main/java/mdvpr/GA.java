@@ -196,7 +196,7 @@ public class GA {
         }
 
         Chromosome kid = new Chromosome(temp);
-//        this.mutation(kid);
+        this.mutation(kid);
         this.calculateFitness(kid);
         return kid;
     }
@@ -210,13 +210,10 @@ public class GA {
 
         Vehicle vehicleOne = offspring.getCars().get(r.nextInt(offspring.getCars().size()));
 
-        int custIndex = r.nextInt(vehicleOne.getPath().size());
-        Customer cust = vehicleOne.getPath().remove(custIndex);
-
-
-        if(vehicleOne.getPath().size() < 1){
-            vehicleOne.getPath().add(cust);
-        } else {
+        
+        if(vehicleOne.getPath().size() > 1){
+            int custIndex = r.nextInt(vehicleOne.getPath().size());
+            Customer cust = vehicleOne.getPath().remove(custIndex);
             int newPosition = r.nextInt(vehicleOne.getPath().size());
             vehicleOne.getPath().add(newPosition, cust);
         }
