@@ -44,4 +44,8 @@ public class Customer {
         return "Cust. ID: " + this.id;
     }
 
+    public int getDemand(){
+        return this.demand;
+    }
+
 }

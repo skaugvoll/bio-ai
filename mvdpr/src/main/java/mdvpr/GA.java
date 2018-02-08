@@ -226,6 +226,33 @@ public class GA {
         return new ArrayList<>(population.subList(0, population.size()/2));
     }
 
+    public Boolean isValidRoute(Vehicle vehicle){
+        int currentLoad = 0;
+        int currentDurration = 0;
+
+        int lastX = vehicle.getDepo().getXpos();
+        int lastY = vehicle.getDepo().getYpos();
+
+        for(Customer c : vehicle.getPath()){
+            currentLoad += c.getDemand();
+
+            int currentX = c.getXpos();
+            int currentY = c.getYpos();
+
+            currentDurration += this.getEuclideanDistance(lastX, lastY, currentX, currentY);
+            lastX = currentX;
+            lastY = currentY;
+        }
+        // now we need to go back home again
+        currentDurration += this.getEuclideanDistance(lastX, lastY, vehicle.getDepo().getXpos(), vehicle.getDepo().getYpos());
+
+        if (vehicle.getMaxDuration() > 0) {
+            return currentLoad <= vehicle.getMaxLoad() && currentDurration <= vehicle.getMaxDuration();
+        }
+
+        return currentLoad < vehicle.getMaxLoad();
+    }
+
     public static void main(String[] args) {
         GA ga = new GA();
 

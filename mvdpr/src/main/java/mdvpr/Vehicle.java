@@ -33,6 +33,10 @@ public class Vehicle {
         return this.maxDuration;
     }
 
+    public int getMaxLoad() {
+        return this.maxLoad;
+    }
+
     public int getCurrentDuration() {
         return this.currentDuration;
     }
