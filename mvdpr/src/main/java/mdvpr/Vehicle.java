@@ -60,6 +60,10 @@ public class Vehicle {
         this.path.clear();
     }
 
+    public void setxyPos(int xPos, int yPos) {
+        this.xPos = xPos;
+        this.yPos = yPos;
+    }
 
     public String toString(){
         return "Vechicle: " +xPos +","+yPos + " :: " + path;
