@@ -188,7 +188,7 @@ public class GA {
         return parents;
     }
 
-    private Chromosome crossover(Chromosome survivor1, Chromosome survivor2, double crossoverRate) {
+    private Chromosome crossover(Chromosome survivor1, Chromosome survivor2, double crossoverRate, double mutationRate) {
         Chromosome temp = new Cloner().deepClone(survivor2);
         ArrayList<Customer> custs = new ArrayList<>();
 
@@ -225,7 +225,10 @@ public class GA {
             }
 
         }
-        this.mutation(temp);
+
+        if(r.nextDouble() < mutationRate){
+            this.mutation(temp);
+        }
         this.calculateFitness(temp);
         return temp;
     }
@@ -262,10 +265,10 @@ public class GA {
             // basically create all offsprings and crossover them.
             while(newPopulation.size() < population.size()){
                 // 6. Crossover and // 7. mutation on offspring
-                newPopulation.add(this.crossover(parents.get(0), parents.get(1), crossoverRate));
+                newPopulation.add(this.crossover(parents.get(0), parents.get(1), crossoverRate, mutationRate));
                 if(newPopulation.size() == population.size())
                     break;
-                newPopulation.add(this.crossover(parents.get(1), parents.get(0), crossoverRate));
+                newPopulation.add(this.crossover(parents.get(1), parents.get(0), crossoverRate, mutationRate));
             }
             this.population = new Cloner().deepClone(newPopulation);
             epoch ++;
@@ -275,6 +278,6 @@ public class GA {
     }
 
     public static void main(String[] args) {
-        GA ga = new GA("p07", 100, 1000, 0.8, 1);
+        GA ga = new GA("p02", 100, 1000, 0.8, 0.8);
     }
 }
