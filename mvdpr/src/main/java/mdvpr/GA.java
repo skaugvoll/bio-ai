@@ -217,6 +217,10 @@ public class GA {
                 vehic.getPath().remove(cust);
             }
 
+            if (possibleEntries.size() < 1){
+                return this.crossover(survivor1, survivor2, crossoverRate);
+            }
+
             double k = r.nextDouble();
             if(k <= crossoverRate){
                 possibleEntries.get(0).addCustomer(cust);
@@ -275,6 +279,6 @@ public class GA {
     }
 
     public static void main(String[] args) {
-        GA ga = new GA("p07", 100, 1000, 0.8, 1);
+        GA ga = new GA("p01", 100, 1000, 0.8, 1);
     }
 }
