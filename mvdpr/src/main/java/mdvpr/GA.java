@@ -3,6 +3,7 @@ package mdvpr;
 
 import com.rits.cloning.Cloner;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
@@ -164,9 +165,27 @@ public class GA {
         return currentLoad < vehicle.getMaxLoad();
     }
 
-    public ArrayList<Chromosome> selectParents(){
+    public ArrayList<Chromosome> selectParents(int numberOfCandidates){
         Collections.sort(this.population, new SortPopulationComparator());
-        return new ArrayList<>(population.subList(0, population.size()/3));
+        ArrayList<Chromosome> parents = new ArrayList<>();
+        parents.add(this.population.get(0)); // 0 is the best
+
+        //number of candidates = 2 gives binary tournament.
+        ArrayList<Chromosome> candidates = new ArrayList<>();
+        for(int i = 0; i < numberOfCandidates; i++){
+            candidates.add(this.population.get(r.nextInt(this.population.size())));
+        }
+        Collections.sort(candidates, new SortPopulationComparator());
+
+        double k = r.nextDouble();
+        double prob = 0.8;
+        if (k <= prob){
+            parents.add(candidates.get(0));
+        } else {
+            parents.add(candidates.get(r.nextInt(candidates.size())));
+        }
+
+        return parents;
     }
 
     private Chromosome crossover(Chromosome survivor1, Chromosome survivor2, double crossoverRate) {
@@ -233,23 +252,20 @@ public class GA {
     public void run(int populationSize, int maxEphochs, double crossoverRate, double mutationRate){
         this.initPop(populationSize); // 2 & 3. this also evaluates the fitness
         int epoch = 0; // 1.
-        ArrayList<Chromosome> newPopulation;
+
         while(epoch < maxEphochs){ // 4
-            newPopulation = selectParents(); // 5. select parents
+            ArrayList<Chromosome> parents = selectParents(2); // 5. select parents
+            ArrayList<Chromosome> newPopulation = new ArrayList<>();
+            newPopulation.add(this.population.get(0)); //:: ELITISM ; best is always taken to the next generation.
 
             System.out.println("population: " + epoch + " :: " + population);
             // basically create all offsprings and crossover them.
             while(newPopulation.size() < population.size()){
-//                Collections.sort(population, new WeightPopulationComparator());
-                Chromosome survivor1 = population.get(0);
-
-                Chromosome survivor2 = newPopulation.get(r.nextInt(newPopulation.size()));
-
-//                // 6. Crossover and // 7. mutation on offspring
-                newPopulation.add(this.crossover(survivor1, survivor2, crossoverRate));
+                // 6. Crossover and // 7. mutation on offspring
+                newPopulation.add(this.crossover(parents.get(0), parents.get(1), crossoverRate));
                 if(newPopulation.size() == population.size())
                     break;
-                newPopulation.add(this.crossover(survivor2, survivor1, crossoverRate));
+                newPopulation.add(this.crossover(parents.get(1), parents.get(0), crossoverRate));
             }
             this.population = new Cloner().deepClone(newPopulation);
             epoch ++;
@@ -259,6 +275,6 @@ public class GA {
     }
 
     public static void main(String[] args) {
-        GA ga = new GA("p01", 100, 1000, 0.8, 1);
+        GA ga = new GA("p07", 100, 1000, 0.8, 1);
     }
 }
