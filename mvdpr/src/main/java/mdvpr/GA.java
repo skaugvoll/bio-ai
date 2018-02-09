@@ -12,23 +12,24 @@ public class GA {
     private Plot plotter;
     private ArrayList<Depot> depots;
     private ArrayList<Customer> customers;
-    private int maxEphoch = 1000;
     // population is alot of individual. Individual = solution. Individual = chromosone
     private ArrayList<Chromosome> population = new ArrayList<>();
     Random r = new Random();
 
-    public GA() {
+    public GA(String filename, int populationSize, int maxEphochs, double crossoverRate, double mutationRate) {
+        plotData(filename);
+        run(populationSize, maxEphochs, crossoverRate, mutationRate);
+    }
+
+    public void plotData(String filename){
         this.plotter = new Plot();
-        DataGenerator data = new DataGenerator("p01");
+        DataGenerator data = new DataGenerator(filename);
         this.depots = data.getDepots();
         this.customers = data.getCustomers();
         plotter.plotDepots(depots);
         plotter.plotCustomers(customers);
 
-        run();
     }
-
-
 
     private void initPop(int popSize){
         // one solution = individual is; all customers are covered by a vehicle
@@ -136,42 +137,39 @@ public class GA {
         return Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2));
     }
 
-  
-    public void run(){
-        this.initPop(100); // 2 & 3. this also evaluates the fitness
+    public Boolean isValidRoute(Vehicle vehicle){
+        int currentLoad = 0;
+        int currentDurration = 0;
 
-        int epoch = 0; // 1.
-        ArrayList<Chromosome> newPopulation;
-        while(epoch < this.maxEphoch){ // 4
-            newPopulation = selectParents(); // 5. select parents
+        int lastX = vehicle.getDepo().getXpos();
+        int lastY = vehicle.getDepo().getYpos();
 
+        for(Customer c : vehicle.getPath()){
+            currentLoad += c.getDemand();
 
-            System.out.println("population: " + epoch + " :: " + population);
-            // basically create all offsprings and crossover them.
-            while(newPopulation.size() < population.size()){
-//                Collections.sort(population, new WeightPopulationComparator());
-                Chromosome survivor1 = population.get(0);
+            int currentX = c.getXpos();
+            int currentY = c.getYpos();
 
-                Chromosome survivor2 = newPopulation.get(r.nextInt(newPopulation.size()));
-
-//                // 6. Crossover and // 7. mutation on offspring
-                newPopulation.add(this.crossover(survivor1, survivor2));
-                if(newPopulation.size() == population.size())
-                    break;
-                newPopulation.add(this.crossover(survivor2, survivor1));
-            }
-
-            Cloner cloner = new Cloner();
-            this.population = cloner.deepClone(newPopulation);
-            epoch ++;
+            currentDurration += this.getEuclideanDistance(lastX, lastY, currentX, currentY);
+            lastX = currentX;
+            lastY = currentY;
         }
-        this.plotter.plotChromosome(population.get(0));
-        this.plotter.updateUI();
+        // now we need to go back home again
+        currentDurration += this.getEuclideanDistance(lastX, lastY, vehicle.getDepo().getXpos(), vehicle.getDepo().getYpos());
+
+        if (vehicle.getMaxDuration() > 0) {
+            return currentLoad <= vehicle.getMaxLoad() && currentDurration <= vehicle.getMaxDuration();
+        }
+
+        return currentLoad < vehicle.getMaxLoad();
     }
 
+    public ArrayList<Chromosome> selectParents(){
+        Collections.sort(this.population, new SortPopulationComparator());
+        return new ArrayList<>(population.subList(0, population.size()/3));
+    }
 
-
-    private Chromosome crossover(Chromosome survivor1, Chromosome survivor2) {
+    private Chromosome crossover(Chromosome survivor1, Chromosome survivor2, double crossoverRate) {
         Chromosome temp = new Cloner().deepClone(survivor2);
         ArrayList<Customer> custs = new ArrayList<>();
 
@@ -201,7 +199,7 @@ public class GA {
             }
 
             double k = r.nextDouble();
-            if(k <= 0.8){
+            if(k <= crossoverRate){
                 possibleEntries.get(0).addCustomer(cust);
             }else{
                 possibleEntries.get(costs.indexOf(Collections.min(costs))).addCustomer(cust);
@@ -222,7 +220,7 @@ public class GA {
 
         Vehicle vehicleOne = offspring.getCars().get(r.nextInt(offspring.getCars().size()));
 
-        
+
         if(vehicleOne.getPath().size() > 1){
             int custIndex = r.nextInt(vehicleOne.getPath().size());
             Customer cust = vehicleOne.getPath().remove(custIndex);
@@ -232,44 +230,35 @@ public class GA {
 
     }
 
+    public void run(int populationSize, int maxEphochs, double crossoverRate, double mutationRate){
+        this.initPop(populationSize); // 2 & 3. this also evaluates the fitness
+        int epoch = 0; // 1.
+        ArrayList<Chromosome> newPopulation;
+        while(epoch < maxEphochs){ // 4
+            newPopulation = selectParents(); // 5. select parents
 
-    public ArrayList<Chromosome> selectParents(){
-        Collections.sort(this.population, new SortPopulationComparator());
-        return new ArrayList<>(population.subList(0, population.size()/2));
-    }
+            System.out.println("population: " + epoch + " :: " + population);
+            // basically create all offsprings and crossover them.
+            while(newPopulation.size() < population.size()){
+//                Collections.sort(population, new WeightPopulationComparator());
+                Chromosome survivor1 = population.get(0);
 
-    public Boolean isValidRoute(Vehicle vehicle){
-        int currentLoad = 0;
-        int currentDurration = 0;
+                Chromosome survivor2 = newPopulation.get(r.nextInt(newPopulation.size()));
 
-        int lastX = vehicle.getDepo().getXpos();
-        int lastY = vehicle.getDepo().getYpos();
-
-        for(Customer c : vehicle.getPath()){
-            currentLoad += c.getDemand();
-
-            int currentX = c.getXpos();
-            int currentY = c.getYpos();
-
-            currentDurration += this.getEuclideanDistance(lastX, lastY, currentX, currentY);
-            lastX = currentX;
-            lastY = currentY;
+//                // 6. Crossover and // 7. mutation on offspring
+                newPopulation.add(this.crossover(survivor1, survivor2, crossoverRate));
+                if(newPopulation.size() == population.size())
+                    break;
+                newPopulation.add(this.crossover(survivor2, survivor1, crossoverRate));
+            }
+            this.population = new Cloner().deepClone(newPopulation);
+            epoch ++;
         }
-        // now we need to go back home again
-        currentDurration += this.getEuclideanDistance(lastX, lastY, vehicle.getDepo().getXpos(), vehicle.getDepo().getYpos());
-
-        if (vehicle.getMaxDuration() > 0) {
-            return currentLoad <= vehicle.getMaxLoad() && currentDurration <= vehicle.getMaxDuration();
-        }
-
-        return currentLoad < vehicle.getMaxLoad();
+        this.plotter.plotChromosome(population.get(0));
+        this.plotter.updateUI();
     }
 
     public static void main(String[] args) {
-        GA ga = new GA();
-
-
+        GA ga = new GA("p01", 100, 1000, 0.8, 1);
     }
-
-
 }
