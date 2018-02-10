@@ -57,6 +57,7 @@ public class GA {
                         break;
                     }
                     vehicle.getPath().remove(customer);
+                    vehicle.setCurrentDuration();
                     if(vehicle.getPath().size() < 1){
                         vehicle.setxyPos(vehicle.getDepo().getXpos(), vehicle.getDepo().getYpos());
                     }
@@ -213,8 +214,10 @@ public class GA {
         for(Customer cust : custs){
             ArrayList<Vehicle> possibleEntries = new ArrayList<>();
             ArrayList<Double> costs = new ArrayList<>();
+
             for(Vehicle vehic: temp.getCars()){
-                vehic.getPath().add(cust);
+                vehic.addCustomer(cust);
+
                 if(this.isValidRoute(vehic)){
                     possibleEntries.add(vehic);
                     this.calculateFitness(temp);
@@ -299,16 +302,19 @@ public class GA {
 
         while(epoch < maxEphochs){ // 4
             ArrayList<Chromosome> parents = selectParents(2); // 5. select parents
+
             ArrayList<Chromosome> newPopulation = new ArrayList<>();
             newPopulation.add(this.population.get(0)); //:: ELITISM ; best is always taken to the next generation.
 
             System.out.println("population: " + epoch + " :: " + population.get(0).getFitness());
+
             // basically create all offsprings and crossover them.
             while(newPopulation.size() < population.size()){
                 // 6. Crossover and // 7. mutation on offspring
                 newPopulation.add(this.crossover(parents.get(0), parents.get(1), crossoverRate, mutationRate));
-                if(newPopulation.size() == population.size())
+                if(newPopulation.size() == population.size()) {
                     break;
+                }
                 newPopulation.add(this.crossover(parents.get(1), parents.get(0), crossoverRate, mutationRate));
             }
             this.population = new Cloner().deepClone(newPopulation);
@@ -319,7 +325,7 @@ public class GA {
     }
 
     public static void main(String[] args) {
-        GA ga = new GA("p01", 100, 1000, 0.6, 1);
+        GA ga = new GA("p01", 100, 000, 0., 1);
         ga.printSolution();
 
     }
