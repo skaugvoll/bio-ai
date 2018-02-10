@@ -51,33 +51,33 @@ public class GA {
                 vehicle.addCustomer(customer);
                 int attempts = 0;
 
-//                while(!this.isValidRoute(vehicle)){
-//                    if(attempts == 15){
-//                        foundSolution = false;
-//                        break;
-//                    }
-//                    vehicle.getPath().remove(customer);
-//                    if(vehicle.getPath().size() < 1){
-//                        vehicle.setxyPos(vehicle.getDepo().getXpos(), vehicle.getDepo().getYpos());
-//                    }
-//                    else{
-//                        vehicle.setxyPos(vehicle.getPath().get(vehicle.getPath().size()-1).getXpos(), vehicle.getPath().get(vehicle.getPath().size()-1).getYpos());
-//                    }
-//                    // Choose a random depot
-//                    d = r.nextInt(this.depots.size()); // from 0 to but not included size = 4 --> 0, 1, 2, 3
-//                    depot = this.depots.get(d);
-//
-//                    // Choose a random vehicle
-//                    v = r.nextInt(depot.getVehicles().size());
-//                    vehicle = depot.getVehicle(v);
-//
-//                    // add the customer to the random chosen car.
-//                    vehicle.addCustomer(customer);
-//                    attempts++;
-//                }
-//                if(! foundSolution){
-//                    break;
-//                }
+                while(!this.isValidRoute(vehicle)){
+                    if(attempts == 15){
+                        foundSolution = false;
+                        break;
+                    }
+                    vehicle.getPath().remove(customer);
+                    if(vehicle.getPath().size() < 1){
+                        vehicle.setxyPos(vehicle.getDepo().getXpos(), vehicle.getDepo().getYpos());
+                    }
+                    else{
+                        vehicle.setxyPos(vehicle.getPath().get(vehicle.getPath().size()-1).getXpos(), vehicle.getPath().get(vehicle.getPath().size()-1).getYpos());
+                    }
+                    // Choose a random depot
+                    d = r.nextInt(this.depots.size()); // from 0 to but not included size = 4 --> 0, 1, 2, 3
+                    depot = this.depots.get(d);
+
+                    // Choose a random vehicle
+                    v = r.nextInt(depot.getVehicles().size());
+                    vehicle = depot.getVehicle(v);
+
+                    // add the customer to the random chosen car.
+                    vehicle.addCustomer(customer);
+                    attempts++;
+                }
+                if(! foundSolution){
+                    break;
+                }
             }
 
 
@@ -203,6 +203,7 @@ public class GA {
                 for(Customer c2 : v.getPath()){
                     if(c.getId() == c2.getId()){
                         custs.add(v.getPath().remove(v.getPath().indexOf(c2)));
+                        v.setCurrentDuration();
                         break;
                     }
                 }
@@ -279,9 +280,9 @@ public class GA {
             }
             int depotNumber = v.getDepo().getId();
             int carId = v.getDepo().getVehicles().indexOf(v);
-            int duration = v.getCurrentDuration();
+            double duration = v.getCurrentDuration();
             int load = v.getLoad();
-            String s = String.format("%d\t %d\t %d\t %d\t" + v.getPath() + "\n", depotNumber, carId, duration, load );
+            String s = String.format("%d\t %d\t %.2f\t %d\t" + v.getPath() + "\n", depotNumber, carId, duration, load );
             sb.append(s);
 
         }
@@ -318,7 +319,7 @@ public class GA {
     }
 
     public static void main(String[] args) {
-        GA ga = new GA("p02", 100, 1000, 0.8, 0.8);
+        GA ga = new GA("p01", 100, 1000, 0.6, 1);
         ga.printSolution();
 
     }
