@@ -34,11 +34,10 @@ public class GA {
     private void initPop(int popSize){
         // one solution = individual is; all customers are covered by a vehicle
 
-        for(int i = 0; i < popSize; i++){
-            Random r = new Random();
+        while(this.population.size() < popSize){
             ArrayList<Vehicle> cars = new ArrayList<>();
             cars.clear(); // make sure we start from scratch on new solution / individual / chromosome
-
+            boolean foundSolution= true;
             for(Customer customer : this.customers){
                 // Choose a random depot
                 int d = r.nextInt(this.depots.size()); // from 0 to but not included size = 4 --> 0, 1, 2, 3
@@ -50,30 +49,40 @@ public class GA {
 
                 // add the customer to the random chosen car.
                 vehicle.addCustomer(customer);
-                while(!this.isValidRoute(vehicle)){
-                    vehicle.getPath().remove(customer);
-                    if(vehicle.getPath().size() < 1){
-                        vehicle.setxyPos(vehicle.getDepo().getXpos(), vehicle.getDepo().getYpos());
-                    }
-                    else{
-                        vehicle.setxyPos(vehicle.getPath().get(vehicle.getPath().size()-1).getXpos(), vehicle.getPath().get(vehicle.getPath().size()-1).getYpos());
-                    }
-                    // Choose a random depot
-                    d = r.nextInt(this.depots.size()); // from 0 to but not included size = 4 --> 0, 1, 2, 3
-                    depot = this.depots.get(d);
+                int attempts = 0;
 
-                    // Choose a random vehicle
-                    v = r.nextInt(depot.getVehicles().size());
-                    vehicle = depot.getVehicle(v);
-
-                    // add the customer to the random chosen car.
-                    vehicle.addCustomer(customer);
-                }
-
-
+//                while(!this.isValidRoute(vehicle)){
+//                    if(attempts == 15){
+//                        foundSolution = false;
+//                        break;
+//                    }
+//                    vehicle.getPath().remove(customer);
+//                    if(vehicle.getPath().size() < 1){
+//                        vehicle.setxyPos(vehicle.getDepo().getXpos(), vehicle.getDepo().getYpos());
+//                    }
+//                    else{
+//                        vehicle.setxyPos(vehicle.getPath().get(vehicle.getPath().size()-1).getXpos(), vehicle.getPath().get(vehicle.getPath().size()-1).getYpos());
+//                    }
+//                    // Choose a random depot
+//                    d = r.nextInt(this.depots.size()); // from 0 to but not included size = 4 --> 0, 1, 2, 3
+//                    depot = this.depots.get(d);
+//
+//                    // Choose a random vehicle
+//                    v = r.nextInt(depot.getVehicles().size());
+//                    vehicle = depot.getVehicle(v);
+//
+//                    // add the customer to the random chosen car.
+//                    vehicle.addCustomer(customer);
+//                    attempts++;
+//                }
+//                if(! foundSolution){
+//                    break;
+//                }
             }
 
-            // add all cars to the list
+
+
+            // add all cars to the list -- make solution
             for(Depot d : this.depots){
                 for(Vehicle v : d.getVehicles()){
                     if(!cars.contains(v)){
@@ -81,6 +90,11 @@ public class GA {
                     }
                 }
             }
+//
+//            if(! foundSolution){
+//                resetCars(cars);
+//                continue;
+//            }
 
             // now we have found one solution (good or bad | legal and or illegal)
             // create chromosome.
@@ -93,19 +107,25 @@ public class GA {
             Chromosome chromosome = new Chromosome(carsCloned);
             this.calculateFitness(chromosome); // calculate the fitness score for this chromosome
             population.add(chromosome);// add chromosome to population
+            resetCars(cars);
 
-            // reset cars and customers
-            for(Vehicle v : cars){
-                v.resetCurrentDuration();
-                v.clearPath();
-                for(Customer c : v.getPath()){
-                    c.setScheduled(false);
-                }
-            }
+
         }
 //        this.plotter.plotChromosome(population.get(0));
 
     }
+
+    private void resetCars(ArrayList<Vehicle> cars) {
+        // reset cars and customers
+        for(Vehicle v : cars){
+            v.resetCurrentDuration();
+            v.clearPath();
+            for(Customer c : v.getPath()){
+                c.setScheduled(false);
+            }
+        }
+    }
+
 
     private void calculateFitness(Chromosome chrome){
         // the fitness for a solution is the total distance  (not duration) traveled. duration = criteria for route.
@@ -130,9 +150,9 @@ public class GA {
 
             // TODO: implement some sort of stuff here...
             // punish the illegal routes
-            if(v.getCurrentDuration() > v.getMaxDuration()){
-                System.out.println("Current duration: " + v.getCurrentDuration() + " Max duration: " + v.getMaxDuration());
-            }
+//            if(v.getCurrentDuration() > v.getMaxDuration()){
+//                System.out.println("Current duration: " + v.getCurrentDuration() + " Max duration: " + v.getMaxDuration());
+//            }
         }
 
         // set the fitnesscore for this chromosome.
@@ -144,30 +164,11 @@ public class GA {
     }
 
     public Boolean isValidRoute(Vehicle vehicle){
-        int currentLoad = 0;
-        int currentDurration = 0;
-
-        int lastX = vehicle.getDepo().getXpos();
-        int lastY = vehicle.getDepo().getYpos();
-
-        for(Customer c : vehicle.getPath()){
-            currentLoad += c.getDemand();
-
-            int currentX = c.getXpos();
-            int currentY = c.getYpos();
-
-            currentDurration += this.getEuclideanDistance(lastX, lastY, currentX, currentY);
-            lastX = currentX;
-            lastY = currentY;
-        }
-        // now we need to go back home again
-        currentDurration += this.getEuclideanDistance(lastX, lastY, vehicle.getDepo().getXpos(), vehicle.getDepo().getYpos());
-
         if (vehicle.getMaxDuration() > 0) {
-            return currentLoad <= vehicle.getMaxLoad() && currentDurration <= vehicle.getMaxDuration();
+            return vehicle.getCurrentLoad() <= vehicle.getMaxLoad() && vehicle.getCurrentDuration() <= vehicle.getMaxDuration();
         }
 
-        return currentLoad < vehicle.getMaxLoad();
+        return vehicle.getCurrentLoad() < vehicle.getMaxLoad();
     }
 
     public ArrayList<Chromosome> selectParents(int numberOfCandidates){
@@ -196,7 +197,6 @@ public class GA {
     private Chromosome crossover(Chromosome survivor1, Chromosome survivor2, double crossoverRate, double mutationRate) {
         Chromosome temp = new Cloner().deepClone(survivor2);
         ArrayList<Customer> custs = new ArrayList<>();
-
         Vehicle v1 = survivor1.getCars().get(r.nextInt(survivor1.getCars().size()));
         for (Customer c : v1.getPath()){
             for(Vehicle v : temp.getCars()){
@@ -220,19 +220,18 @@ public class GA {
                     costs.add(temp.getFitness());
                 }
                 vehic.getPath().remove(cust);
+                vehic.setCurrentDuration();
             }
 
             if (possibleEntries.size() < 1){
                 return this.crossover(survivor1, survivor2, crossoverRate, mutationRate);
             }
-
             double k = r.nextDouble();
             if(k <= crossoverRate){
                 possibleEntries.get(0).addCustomer(cust);
             }else{
                 possibleEntries.get(costs.indexOf(Collections.min(costs))).addCustomer(cust);
             }
-
         }
 
         if(r.nextDouble() < mutationRate){
@@ -257,6 +256,7 @@ public class GA {
             Customer cust = vehicleOne.getPath().remove(custIndex);
             int newPosition = r.nextInt(vehicleOne.getPath().size());
             vehicleOne.getPath().add(newPosition, cust);
+            vehicleOne.setCurrentDuration();
         }
 
     }
