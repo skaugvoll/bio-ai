@@ -57,4 +57,9 @@ public class Depot {
     public Vehicle getVehicle(int v) {
         return this.vehicles.get(v);
     }
+
+    public int getId(){
+        return this.id;
+    }
+
 }
