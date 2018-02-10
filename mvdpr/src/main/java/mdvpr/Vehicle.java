@@ -59,6 +59,8 @@ public class Vehicle {
 
     public void resetCurrentDuration() {
         this.currentDuration = 0;
+        this.currentLoad = 0;
+
     }
 
     public void clearPath() {

@@ -325,7 +325,7 @@ public class GA {
     }
 
     public static void main(String[] args) {
-        GA ga = new GA("p01", 100, 000, 0., 1);
+        GA ga = new GA("p08", 100, 1000, 0.6, 1);
         ga.printSolution();
 
     }
