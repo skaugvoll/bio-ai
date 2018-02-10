@@ -103,4 +103,8 @@ public class Vehicle {
     public Depot getDepo() {
         return belongsToDepot;
     }
+
+    public int getLoad() {
+        return currentLoad;
+    }
 }

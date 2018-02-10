@@ -261,6 +261,37 @@ public class GA {
 
     }
 
+    public void printSolution(){
+        Chromosome solution = this.population.get(0);
+        StringBuilder sb = new StringBuilder();
+        // first line
+        sb.append(String.format("%.2f\n",solution.getFitness()));
+
+        // l k d q list :
+        // l: number of the depot
+        // k: number of the vehicle (for above depot)
+        // d: duration of the route for a particular vehicle from a particular depot  q: carried load of the vehicle
+        // list: ordered sequence of customers (served by a particular vehicle with “0” means the vehicle starts and ends from a particular depot.
+
+        for(Vehicle v : solution.getCars()){
+            if(v.getPath().isEmpty()){
+                continue;
+            }
+            int depotNumber = v.getDepo().getId();
+            int carId = v.getDepo().getVehicles().indexOf(v);
+            int duration = v.getCurrentDuration();
+            int load = v.getLoad();
+            String s = String.format("%d\t %d\t %d\t %d\t" + v.getPath() + "\n", depotNumber, carId, duration, load );
+            sb.append(s);
+
+        }
+
+
+
+
+        System.out.println("Solution:\n" + sb);
+    }
+
     public void run(int populationSize, int maxEphochs, double crossoverRate, double mutationRate){
         this.initPop(populationSize); // 2 & 3. this also evaluates the fitness
         int epoch = 0; // 1.
@@ -287,7 +318,8 @@ public class GA {
     }
 
     public static void main(String[] args) {
-        GA ga = new GA("p01", 100, 1000, 0.6, 1);
+        GA ga = new GA("p02", 100, 1000, 0.8, 0.8);
+        ga.printSolution();
 
     }
 }
