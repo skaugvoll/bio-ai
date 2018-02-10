@@ -41,7 +41,7 @@ public class Customer {
     }
 
     public String toString(){
-        return "Cust. ID: " + this.id;
+        return String.valueOf(this.id);
     }
 
     public int getDemand(){
