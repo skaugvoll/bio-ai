@@ -96,9 +96,10 @@ public class Vehicle {
         return Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2));
     }
 
-//    public String toString(){
+    public String toString(){
 //        return "Vechicle: " +xPos +","+yPos + " :: " + path;
-//    }
+        return "MD: " + maxDuration +", CD: " + currentDuration + " :: " + "ML: " + maxLoad +", CL: " + currentLoad;
+    }
 
     public Depot getDepo() {
         return belongsToDepot;
