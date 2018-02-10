@@ -52,6 +52,12 @@ public class GA {
                 vehicle.addCustomer(customer);
                 while(!this.isValidRoute(vehicle)){
                     vehicle.getPath().remove(customer);
+                    if(vehicle.getPath().size() < 1){
+                        vehicle.setxyPos(vehicle.getDepo().getXpos(), vehicle.getDepo().getYpos());
+                    }
+                    else{
+                        vehicle.setxyPos(vehicle.getPath().get(vehicle.getPath().size()-1).getXpos(), vehicle.getPath().get(vehicle.getPath().size()-1).getYpos());
+                    }
                     // Choose a random depot
                     d = r.nextInt(this.depots.size()); // from 0 to but not included size = 4 --> 0, 1, 2, 3
                     depot = this.depots.get(d);
@@ -295,7 +301,7 @@ public class GA {
             ArrayList<Chromosome> newPopulation = new ArrayList<>();
             newPopulation.add(this.population.get(0)); //:: ELITISM ; best is always taken to the next generation.
 
-            System.out.println("population: " + epoch + " :: " + population);
+            System.out.println("population: " + epoch + " :: " + population.get(0).getFitness());
             // basically create all offsprings and crossover them.
             while(newPopulation.size() < population.size()){
                 // 6. Crossover and // 7. mutation on offspring
