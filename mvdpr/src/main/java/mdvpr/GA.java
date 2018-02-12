@@ -18,7 +18,7 @@ public class GA {
 
     public GA(String filename, int populationSize, int maxEphochs, double crossoverRate, double mutationRate) {
         plotData(filename);
-        run(populationSize, maxEphochs, crossoverRate, mutationRate);
+//        run(populationSize, maxEphochs, crossoverRate, mutationRate);
     }
 
     public void plotData(String filename){
@@ -32,76 +32,30 @@ public class GA {
     }
 
     private void initPop(int popSize){
-        // one solution = individual is; all customers are covered by a vehicle
 
         while(this.population.size() < popSize){
             ArrayList<Vehicle> cars = new ArrayList<>();
-            cars.clear(); // make sure we start from scratch on new solution / individual / chromosome
-            boolean foundSolution= true;
+
             for(Customer customer : this.customers){
-                // Choose a random depot
-                int d = r.nextInt(this.depots.size()); // from 0 to but not included size = 4 --> 0, 1, 2, 3
-                Depot depot = this.depots.get(d);
+                Depot nearestDepot = null;
+                double closestDistance = Double.MAX_VALUE;
 
-                // Choose a random vehicle
-                int v = r.nextInt(depot.getVehicles().size());
-                Vehicle vehicle = depot.getVehicle(v);
+                for(Depot depot : this.depots){
+                    double tempDist = this.getEuclideanDistance(customer.getXpos(), customer.getYpos(), depot.getXpos(), depot.getYpos());
+                    if(tempDist < closestDistance){
+                        nearestDepot = depot;
+                        closestDistance = tempDist;
+                    }
+                }
 
-                // add the customer to the random chosen car.
+                int v = r.nextInt(nearestDepot.getVehicles().size());
+                Vehicle vehicle = nearestDepot.getVehicle(v);
                 vehicle.addCustomer(customer);
-                int attempts = 0;
-
-                while(!this.isValidRoute(vehicle)){
-                    if(attempts == 15){
-                        foundSolution = false;
-                        break;
-                    }
-                    vehicle.getPath().remove(customer);
-                    vehicle.setCurrentDuration();
-                    if(vehicle.getPath().size() < 1){
-                        vehicle.setxyPos(vehicle.getDepo().getXpos(), vehicle.getDepo().getYpos());
-                    }
-                    else{
-                        vehicle.setxyPos(vehicle.getPath().get(vehicle.getPath().size()-1).getXpos(), vehicle.getPath().get(vehicle.getPath().size()-1).getYpos());
-                    }
-                    // Choose a random depot
-                    d = r.nextInt(this.depots.size()); // from 0 to but not included size = 4 --> 0, 1, 2, 3
-                    depot = this.depots.get(d);
-
-                    // Choose a random vehicle
-                    v = r.nextInt(depot.getVehicles().size());
-                    vehicle = depot.getVehicle(v);
-
-                    // add the customer to the random chosen car.
-                    vehicle.addCustomer(customer);
-                    attempts++;
-                }
-                if(! foundSolution){
-                    break;
-                }
             }
 
+            addCarsToSolutionList(cars);
 
 
-            // add all cars to the list -- make solution
-            for(Depot d : this.depots){
-                for(Vehicle v : d.getVehicles()){
-                    if(!cars.contains(v)){
-                        cars.add(v);
-                    }
-                }
-            }
-//
-//            if(! foundSolution){
-//                resetCars(cars);
-//                continue;
-//            }
-
-            // now we have found one solution (good or bad | legal and or illegal)
-            // create chromosome.
-
-            // now we need a deep copy, not just refrences. since we are goint to "reset" our objects for another population to use.
-            // TODO: Rewrite this into a create new object for each object method. Much more performance pleasing.
             Cloner cloner = new Cloner();
             ArrayList<Vehicle> carsCloned = cloner.deepClone(cars);
 
@@ -109,11 +63,21 @@ public class GA {
             this.calculateFitness(chromosome); // calculate the fitness score for this chromosome
             population.add(chromosome);// add chromosome to population
             resetCars(cars);
-
-
         }
-//        this.plotter.plotChromosome(population.get(0));
 
+        this.plotter.plotChromosome(population.get(0));
+        this.plotter.updateUI();
+    }
+
+    private void addCarsToSolutionList(ArrayList<Vehicle> cars) {
+        // add all cars to the list -- make solution
+        for(Depot d : this.depots){
+            for(Vehicle v : d.getVehicles()){
+                if(!cars.contains(v)){
+                    cars.add(v);
+                }
+            }
+        }
     }
 
     private void resetCars(ArrayList<Vehicle> cars) {
@@ -325,7 +289,9 @@ public class GA {
     }
 
     public static void main(String[] args) {
-        GA ga = new GA("p08", 100, 1000, 0.6, 1);
+        GA ga = new GA("p01", 100, 1000, 0.6, 1);
+//        ga.run(100, 1000, 0.6, 1);
+        ga.initPop(100);
         ga.printSolution();
 
     }
