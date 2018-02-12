@@ -35,6 +35,7 @@ public class GA {
         while(this.population.size() < popSize){
             ArrayList<Vehicle> cars = new ArrayList<>();
 
+            Collections.shuffle(this.customers);
             for(Customer customer : this.customers){
                 Depot nearestDepot = null;
                 double closestDistance = Double.MAX_VALUE;
@@ -51,20 +52,20 @@ public class GA {
                 Vehicle vehicle = nearestDepot.getVehicle(nearestDepot.getCurrentRouteIndex());
                 vehicle.addCustomer(customer);
 
-                while(!this.isValidRoute(vehicle)){
-                    vehicle.getPath().remove(customer);
-                    vehicle.setCurrentDuration();
-                    if(vehicle.getPath().size() < 1){
-                        vehicle.setxyPos(vehicle.getDepo().getXpos(), vehicle.getDepo().getYpos());
-                    }
-                    else{
-                        vehicle.setxyPos(vehicle.getPath().get(vehicle.getPath().size()-1).getXpos(), vehicle.getPath().get(vehicle.getPath().size()-1).getYpos());
-                    }
-
-                    nearestDepot.increaseCurrentRouteIndex();
-                    vehicle = nearestDepot.getVehicle(nearestDepot.getCurrentRouteIndex());
-                    vehicle.addCustomer(customer);
-                }
+//                while(!this.isValidRoute(vehicle)){
+//                    vehicle.getPath().remove(customer);
+//                    vehicle.setCurrentDuration();
+//                    if(vehicle.getPath().size() < 1){
+//                        vehicle.setxyPos(vehicle.getDepo().getXpos(), vehicle.getDepo().getYpos());
+//                    }
+//                    else{
+//                        vehicle.setxyPos(vehicle.getPath().get(vehicle.getPath().size()-1).getXpos(), vehicle.getPath().get(vehicle.getPath().size()-1).getYpos());
+//                    }
+//
+//                    nearestDepot.increaseCurrentRouteIndex();
+//                    vehicle = nearestDepot.getVehicle(nearestDepot.getCurrentRouteIndex());
+//                    vehicle.addCustomer(customer);
+//                }
             }
 
             addCarsToSolutionList(cars);
@@ -77,11 +78,19 @@ public class GA {
             this.calculateFitness(chromosome); // calculate the fitness score for this chromosome
             population.add(chromosome);// add chromosome to population
             resetCars(cars);
+            resetDepots();
         }
 
 //        this.plotter.plotChromosome(population.get(0));
 //        this.plotter.updateUI();
     }
+
+    private void resetDepots() {
+        for(Depot d : this.depots){
+            d.resetCurrentRouteIndex();
+        }
+    }
+
 
     private void addCarsToSolutionList(ArrayList<Vehicle> cars) {
         // add all cars to the list -- make solution
@@ -236,6 +245,7 @@ public class GA {
         if(vehicleOne.getPath().size() > 1){
             int custIndex = r.nextInt(vehicleOne.getPath().size());
             Customer cust = vehicleOne.getPath().remove(custIndex);
+
             int newPosition = r.nextInt(vehicleOne.getPath().size());
             vehicleOne.getPath().add(newPosition, cust);
             vehicleOne.setCurrentDuration();

@@ -73,4 +73,7 @@ public class Depot {
         return this.id;
     }
 
+    public void resetCurrentRouteIndex() {
+        this.currentRouteIndex = 0;
+    }
 }
