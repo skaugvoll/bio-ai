@@ -48,23 +48,23 @@ public class GA {
 
                 }
 
-                int v = r.nextInt(nearestDepot.getVehicles().size());
-                Vehicle vehicle = nearestDepot.getVehicle(v);
+                Vehicle vehicle = nearestDepot.getVehicle(nearestDepot.getCurrentRouteIndex());
                 vehicle.addCustomer(customer);
 
-//                while(!this.isValidRoute(vehicle)){
-//                    vehicle.getPath().remove(customer);
-//                    vehicle.setCurrentDuration();
-//                    if(vehicle.getPath().size() < 1){
-//                        vehicle.setxyPos(vehicle.getDepo().getXpos(), vehicle.getDepo().getYpos());
-//                    }
-//                    else{
-//                        vehicle.setxyPos(vehicle.getPath().get(vehicle.getPath().size()-1).getXpos(), vehicle.getPath().get(vehicle.getPath().size()-1).getYpos());
-//                    }
-//                    v = r.nextInt(nearestDepot.getVehicles().size());
-//                    vehicle = nearestDepot.getVehicle(v);
-//                    vehicle.addCustomer(customer);
-//                }
+                while(!this.isValidRoute(vehicle)){
+                    vehicle.getPath().remove(customer);
+                    vehicle.setCurrentDuration();
+                    if(vehicle.getPath().size() < 1){
+                        vehicle.setxyPos(vehicle.getDepo().getXpos(), vehicle.getDepo().getYpos());
+                    }
+                    else{
+                        vehicle.setxyPos(vehicle.getPath().get(vehicle.getPath().size()-1).getXpos(), vehicle.getPath().get(vehicle.getPath().size()-1).getYpos());
+                    }
+
+                    nearestDepot.increaseCurrentRouteIndex();
+                    vehicle = nearestDepot.getVehicle(nearestDepot.getCurrentRouteIndex());
+                    vehicle.addCustomer(customer);
+                }
             }
 
             addCarsToSolutionList(cars);

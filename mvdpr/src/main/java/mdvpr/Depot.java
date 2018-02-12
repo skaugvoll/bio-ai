@@ -11,7 +11,7 @@ public class Depot {
     private int maximumDurationOfRoute;
     private int maximumLoadOfAVehicle;
     private int numVehicles;
-
+    private int currentRouteIndex = 0;
     private ArrayList<Vehicle> vehicles = new ArrayList<Vehicle>();
 
 
@@ -56,6 +56,17 @@ public class Depot {
 
     public Vehicle getVehicle(int v) {
         return this.vehicles.get(v);
+    }
+
+    public int getCurrentRouteIndex() {
+        return currentRouteIndex;
+    }
+
+    public void increaseCurrentRouteIndex() {
+        currentRouteIndex++;
+        if(currentRouteIndex == numVehicles){
+            currentRouteIndex = 0;
+        }
     }
 
     public int getId(){
