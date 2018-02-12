@@ -248,8 +248,8 @@ public class GA {
 
         if(r.nextDouble() < mutationRate){
 //            this.mutation(temp);
-//            this.singleCustomerReRoutingMutation(temp);
-            this.reversMutation(temp);
+            this.singleCustomerReRoutingMutation(temp);
+//            this.reversMutation(temp);
         }
         this.calculateFitness(temp);
         return temp;
@@ -274,19 +274,19 @@ public class GA {
         int index = -1;
         double cost = Double.MAX_VALUE;
 
-
         for(Vehicle v: offspring.getCars()){
             if(v.getPath().isEmpty()){
                 v.addCustomer(c);
                 if(v.getCurrentDuration() < cost){
                     cost = v.getCurrentDuration();
                     vehicle = v;
+                    index = 0;
                 }
                 v.removeCustomer(c);
 
             } else {
                 for(int i = 0; i < v.getPath().size(); i++){
-                    v.addCustomer(c);
+                    v.addCustomerToSpot(c,i);
                     if(v.getCurrentDuration() < cost){
                         cost = v.getCurrentDuration();
                         vehicle = v;
@@ -298,7 +298,7 @@ public class GA {
         }
 
         if(vehicle != null){
-            if(index >= 0) {
+            if(index > 0) {
                 vehicle.addCustomerToSpot(c, index);
             }
             else {
@@ -402,10 +402,10 @@ public class GA {
     }
 
     public static void main(String[] args) {
-        GA ga = new GA("p01");
+        GA ga = new GA("p02");
 //        ga.initPop(100, false);
 
-        ga.run(100, 1000, 0.8, 1);
+        ga.run(100, 1000, 0.6, 1);
         ga.printSolution();
 
     }
