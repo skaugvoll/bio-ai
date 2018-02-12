@@ -96,7 +96,7 @@ public class GA {
                 Depot dp = preferedDepots.get(unsatisfiedCustomers.get(0).getId()).get(0);
                 Vehicle v = dp.getVehicles().get(r.nextInt(dp.getVehicles().size()));
                 unsatisfiedCustomers.add(v.removeCustomerFromSpot(r.nextInt(v.getPath().size())));
-                v.addCustomer(unsatisfiedCustomers.get(0));
+                v.addCustomer(unsatisfiedCustomers.remove(0));
             }
         }
 
@@ -341,7 +341,7 @@ public class GA {
     }
 
     public static void main(String[] args) {
-        GA ga = new GA("p07");
+        GA ga = new GA("p01");
         ga.initPop(100, true);
 
 //        ga.run(100, 1000, 0.6, 1);
