@@ -3,6 +3,7 @@ package mdvpr;
 
 import com.rits.cloning.Cloner;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -48,7 +49,6 @@ public class GA {
                 resetDepots();
             }
             generateSolution(preferedDepots);
-
         }
 
         if(print){
@@ -59,7 +59,6 @@ public class GA {
 
     private void generateSolution(HashMap<Integer, ArrayList<Depot>> preferedDepots){
         ArrayList<Vehicle> cars = new ArrayList<>();
-//        ArrayList<Customer> unsatisfiedCustomers = this.customers;
         ArrayList<Customer> unsatisfiedCustomers = new Cloner().deepClone(this.customers);
 
         while(! unsatisfiedCustomers.isEmpty()){
@@ -101,7 +100,6 @@ public class GA {
         }
 
         addCarsToSolutionList(cars);
-
 
         Cloner cloner = new Cloner();
         ArrayList<Vehicle> carsCloned = cloner.deepClone(cars);
@@ -163,12 +161,6 @@ public class GA {
 
             // now we need to go back home again
             totalDistance += this.getEuclideanDistance(lastX, lastY, v.getDepo().getXpos(), v.getDepo().getYpos());
-
-            // TODO: implement some sort of stuff here...
-            // punish the illegal routes
-//            if(v.getCurrentDuration() > v.getMaxDuration()){
-//                System.out.println("Current duration: " + v.getCurrentDuration() + " Max duration: " + v.getMaxDuration());
-//            }
         }
 
         // set the fitnesscore for this chromosome.
@@ -255,20 +247,92 @@ public class GA {
         }
 
         if(r.nextDouble() < mutationRate){
-            this.mutation(temp);
+//            this.mutation(temp);
+//            this.singleCustomerReRoutingMutation(temp);
+            this.reversMutation(temp);
         }
         this.calculateFitness(temp);
         return temp;
     }
 
-    private void mutation(Chromosome offspring){
 
+    private void singleCustomerReRoutingMutation(Chromosome offspring){
+        Customer c = null;
+        while(c == null){
+            Vehicle v = offspring.getCars().get(r.nextInt(offspring.getCars().size()));
+            if(v.getPath().size() >= 1){
+                if(v.getPath().size() > 2){
+                    c = v.removeCustomerFromSpot(r.nextInt(v.getPath().size()));
+                }
+                else {
+                    c = v.removeCustomerFromSpot(0);
+                }
+            }
+        }
+
+        Vehicle vehicle = null;
+        int index = -1;
+        double cost = Double.MAX_VALUE;
+
+
+        for(Vehicle v: offspring.getCars()){
+            if(v.getPath().isEmpty()){
+                v.addCustomer(c);
+                if(v.getCurrentDuration() < cost){
+                    cost = v.getCurrentDuration();
+                    vehicle = v;
+                }
+                v.removeCustomer(c);
+
+            } else {
+                for(int i = 0; i < v.getPath().size(); i++){
+                    v.addCustomer(c);
+                    if(v.getCurrentDuration() < cost){
+                        cost = v.getCurrentDuration();
+                        vehicle = v;
+                        index = i;
+                    }
+                    v.removeCustomer(c);
+                }
+            }
+        }
+
+        if(vehicle != null){
+            if(index >= 0) {
+                vehicle.addCustomerToSpot(c, index);
+            }
+            else {
+                vehicle.addCustomer(c);
+            }
+        }
+    }
+
+    private void reversMutation(Chromosome offspring){
+
+        Vehicle v = offspring.getCars().get(r.nextInt(offspring.getCars().size()));
+
+        if(v.getPath().size() < 3){
+            Collections.reverse(v.getPath());
+            return;
+        }
+
+        int cutpoint1 = r.nextInt(v.getPath().size());
+        int cutpoint2 = r.nextInt(v.getPath().size());
+
+        while(cutpoint1 >= cutpoint2){
+            cutpoint1 = r.nextInt(v.getPath().size());
+            cutpoint2 = r.nextInt(v.getPath().size());
+        }
+
+        Collections.reverse(v.getPath().subList(cutpoint1,cutpoint2));
+    }
+
+    private void mutation(Chromosome offspring){
         if(offspring.getCars().size() < 1) {
             return;
         }
 
         Vehicle vehicleOne = offspring.getCars().get(r.nextInt(offspring.getCars().size()));
-
 
         if(vehicleOne.getPath().size() > 1){
             int custIndex = r.nextInt(vehicleOne.getPath().size());
@@ -306,9 +370,6 @@ public class GA {
 
         }
 
-
-
-
         System.out.println("Solution:\n" + sb);
     }
 
@@ -342,9 +403,9 @@ public class GA {
 
     public static void main(String[] args) {
         GA ga = new GA("p01");
-        ga.initPop(100, true);
+//        ga.initPop(100, false);
 
-//        ga.run(100, 1000, 0.6, 1);
+        ga.run(100, 1000, 0.8, 1);
         ga.printSolution();
 
     }
