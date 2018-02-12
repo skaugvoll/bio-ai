@@ -16,9 +16,8 @@ public class GA {
     private ArrayList<Chromosome> population = new ArrayList<>();
     Random r = new Random();
 
-    public GA(String filename, int populationSize, int maxEphochs, double crossoverRate, double mutationRate) {
+    public GA(String filename) {
         plotData(filename);
-//        run(populationSize, maxEphochs, crossoverRate, mutationRate);
     }
 
     public void plotData(String filename){
@@ -46,11 +45,26 @@ public class GA {
                         nearestDepot = depot;
                         closestDistance = tempDist;
                     }
+
                 }
 
                 int v = r.nextInt(nearestDepot.getVehicles().size());
                 Vehicle vehicle = nearestDepot.getVehicle(v);
                 vehicle.addCustomer(customer);
+
+//                while(!this.isValidRoute(vehicle)){
+//                    vehicle.getPath().remove(customer);
+//                    vehicle.setCurrentDuration();
+//                    if(vehicle.getPath().size() < 1){
+//                        vehicle.setxyPos(vehicle.getDepo().getXpos(), vehicle.getDepo().getYpos());
+//                    }
+//                    else{
+//                        vehicle.setxyPos(vehicle.getPath().get(vehicle.getPath().size()-1).getXpos(), vehicle.getPath().get(vehicle.getPath().size()-1).getYpos());
+//                    }
+//                    v = r.nextInt(nearestDepot.getVehicles().size());
+//                    vehicle = nearestDepot.getVehicle(v);
+//                    vehicle.addCustomer(customer);
+//                }
             }
 
             addCarsToSolutionList(cars);
@@ -65,8 +79,8 @@ public class GA {
             resetCars(cars);
         }
 
-        this.plotter.plotChromosome(population.get(0));
-        this.plotter.updateUI();
+//        this.plotter.plotChromosome(population.get(0));
+//        this.plotter.updateUI();
     }
 
     private void addCarsToSolutionList(ArrayList<Vehicle> cars) {
@@ -192,7 +206,8 @@ public class GA {
             }
 
             if (possibleEntries.size() < 1){
-                return this.crossover(survivor1, survivor2, crossoverRate, mutationRate);
+//                return this.crossover(survivor1, survivor2, crossoverRate, mutationRate);
+                return new Cloner().deepClone(survivor2);
             }
             double k = r.nextDouble();
             if(k <= crossoverRate){
@@ -210,7 +225,6 @@ public class GA {
     }
 
     private void mutation(Chromosome offspring){
-        Random r = new Random();
 
         if(offspring.getCars().size() < 1) {
             return;
@@ -265,9 +279,9 @@ public class GA {
         int epoch = 0; // 1.
 
         while(epoch < maxEphochs){ // 4
-            ArrayList<Chromosome> parents = selectParents(2); // 5. select parents
 
             ArrayList<Chromosome> newPopulation = new ArrayList<>();
+            ArrayList<Chromosome> parents = selectParents(2); // 5. select parents
             newPopulation.add(this.population.get(0)); //:: ELITISM ; best is always taken to the next generation.
 
             System.out.println("population: " + epoch + " :: " + population.get(0).getFitness());
@@ -289,9 +303,9 @@ public class GA {
     }
 
     public static void main(String[] args) {
-        GA ga = new GA("p01", 100, 1000, 0.6, 1);
-//        ga.run(100, 1000, 0.6, 1);
-        ga.initPop(100);
+        GA ga = new GA("p01");
+//        ga.initPop(10);
+        ga.run(100, 1000, 0.6, 1);
         ga.printSolution();
 
     }
