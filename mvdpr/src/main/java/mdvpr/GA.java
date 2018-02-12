@@ -5,6 +5,7 @@ import com.rits.cloning.Cloner;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Random;
 
 public class GA {
@@ -30,64 +31,91 @@ public class GA {
 
     }
 
-    private void initPop(int popSize){
+    private void initPop(int popSize, boolean print) {
 
-        while(this.population.size() < popSize){
-            ArrayList<Vehicle> cars = new ArrayList<>();
-
+        while (this.population.size() < popSize) {
+            System.out.println("populationsize: " + this.population.size());
             Collections.shuffle(this.customers);
-            for(Customer customer : this.customers){
-                Depot nearestDepot = null;
-                double closestDistance = Double.MAX_VALUE;
-
-                for(Depot depot : this.depots){
-                    double tempDist = this.getEuclideanDistance(customer.getXpos(), customer.getYpos(), depot.getXpos(), depot.getYpos());
-                    if(tempDist < closestDistance){
-                        nearestDepot = depot;
-                        closestDistance = tempDist;
-                    }
-
+            HashMap<Integer, ArrayList<Depot>> preferedDepots = new HashMap<>();
+            for (Customer customer : this.customers) {
+                ArrayList<Depot> nearestDepots = new ArrayList<>();
+                for (Depot depot : this.depots) {
+                    depot.setCurrentDistance(this.getEuclideanDistance(customer.getXpos(), customer.getYpos(), depot.getXpos(), depot.getYpos()));
+                    nearestDepots.add(depot);
                 }
-
-                Vehicle vehicle = nearestDepot.getVehicle(nearestDepot.getCurrentRouteIndex());
-                vehicle.addCustomer(customer);
-
-//                while(!this.isValidRoute(vehicle)){
-//                    vehicle.getPath().remove(customer);
-//                    vehicle.setCurrentDuration();
-//                    if(vehicle.getPath().size() < 1){
-//                        vehicle.setxyPos(vehicle.getDepo().getXpos(), vehicle.getDepo().getYpos());
-//                    }
-//                    else{
-//                        vehicle.setxyPos(vehicle.getPath().get(vehicle.getPath().size()-1).getXpos(), vehicle.getPath().get(vehicle.getPath().size()-1).getYpos());
-//                    }
-//
-//                    nearestDepot.increaseCurrentRouteIndex();
-//                    vehicle = nearestDepot.getVehicle(nearestDepot.getCurrentRouteIndex());
-//                    vehicle.addCustomer(customer);
-//                }
+                nearestDepots.sort(new DepotDistanceComparator());
+                preferedDepots.put(customer.getId(), nearestDepots);
+                resetDepots();
             }
+            generateSolution(preferedDepots);
 
-            addCarsToSolutionList(cars);
-
-
-            Cloner cloner = new Cloner();
-            ArrayList<Vehicle> carsCloned = cloner.deepClone(cars);
-
-            Chromosome chromosome = new Chromosome(carsCloned);
-            this.calculateFitness(chromosome); // calculate the fitness score for this chromosome
-            population.add(chromosome);// add chromosome to population
-            resetCars(cars);
-            resetDepots();
         }
 
-//        this.plotter.plotChromosome(population.get(0));
-//        this.plotter.updateUI();
+        if(print){
+            this.plotter.plotChromosome(population.get(0));
+            this.plotter.updateUI();
+        }
+    }
+
+    private void generateSolution(HashMap<Integer, ArrayList<Depot>> preferedDepots){
+        ArrayList<Vehicle> cars = new ArrayList<>();
+//        ArrayList<Customer> unsatisfiedCustomers = this.customers;
+        ArrayList<Customer> unsatisfiedCustomers = new Cloner().deepClone(this.customers);
+
+        while(! unsatisfiedCustomers.isEmpty()){
+            Vehicle bestVehicle = null;
+            for(Depot depot : preferedDepots.get(unsatisfiedCustomers.get(0).getId())){
+                int bestIndex = 0;
+                double bestCost = Double.MAX_VALUE;
+
+                for(Vehicle vehicle : depot.getVehicles()){
+                    if(vehicle.getPath().size() < 1){
+                        bestIndex = 0;
+                        bestVehicle = vehicle;
+                        break;
+                    }
+                    for(int i = 0; i < vehicle.getPath().size(); i++){
+                        vehicle.addCustomerToSpot(unsatisfiedCustomers.get(0), i);
+                        if(isValidRoute(vehicle)){
+                            if(vehicle.getCurrentDuration() < bestCost){
+                                bestCost = vehicle.getCurrentDuration();
+                                bestVehicle = vehicle;
+                                bestIndex = i;
+                            }
+                        }
+                        vehicle.removeCustomer(unsatisfiedCustomers.get(0));
+                    }
+                }
+                if(bestVehicle != null){
+                    bestVehicle.addCustomerToSpot(unsatisfiedCustomers.get(0), bestIndex);
+                    unsatisfiedCustomers.remove(0);
+                    break;
+                }
+            }
+            if(bestVehicle == null){
+                Depot dp = preferedDepots.get(unsatisfiedCustomers.get(0).getId()).get(0);
+                Vehicle v = dp.getVehicles().get(r.nextInt(dp.getVehicles().size()));
+                unsatisfiedCustomers.add(v.removeCustomerFromSpot(r.nextInt(v.getPath().size())));
+                v.addCustomer(unsatisfiedCustomers.get(0));
+            }
+        }
+
+        addCarsToSolutionList(cars);
+
+
+        Cloner cloner = new Cloner();
+        ArrayList<Vehicle> carsCloned = cloner.deepClone(cars);
+
+        Chromosome chromosome = new Chromosome(carsCloned);
+        this.calculateFitness(chromosome); // calculate the fitness score for this chromosome
+        population.add(chromosome);// add chromosome to population
+        resetCars(cars);
+        resetDepots();
     }
 
     private void resetDepots() {
         for(Depot d : this.depots){
-            d.resetCurrentRouteIndex();
+            d.resetCurrentDistance();
         }
     }
 
@@ -285,7 +313,7 @@ public class GA {
     }
 
     public void run(int populationSize, int maxEphochs, double crossoverRate, double mutationRate){
-        this.initPop(populationSize); // 2 & 3. this also evaluates the fitness
+        this.initPop(populationSize, false); // 2 & 3. this also evaluates the fitness
         int epoch = 0; // 1.
 
         while(epoch < maxEphochs){ // 4
@@ -313,9 +341,10 @@ public class GA {
     }
 
     public static void main(String[] args) {
-        GA ga = new GA("p01");
-//        ga.initPop(10);
-        ga.run(100, 1000, 0.6, 1);
+        GA ga = new GA("p07");
+        ga.initPop(100, true);
+
+//        ga.run(100, 1000, 0.6, 1);
         ga.printSolution();
 
     }
