@@ -246,13 +246,46 @@ public class GA {
             }
         }
 
+
         if(r.nextDouble() < mutationRate){
-//            this.mutation(temp);
-            this.singleCustomerReRoutingMutation(temp);
-//            this.reversMutation(temp);
+            double mutationProb = r.nextDouble();
+            if(mutationProb < 0.33){
+//                this.mutation(temp);
+                this.swapping(temp);
+            } else if(mutationProb >= 0.33 && mutationProb < 0.66){
+                this.mutation(temp);
+                this.singleCustomerReRoutingMutation(temp);
+            } else{
+                this.reversMutation(temp);
+            }
         }
         this.calculateFitness(temp);
         return temp;
+    }
+
+    private void swapping(Chromosome temp) {
+        Vehicle v1 = temp.getCars().get(r.nextInt(temp.getCars().size()));
+        while(v1.getPath().size() <= 1){
+            v1 = temp.getCars().get(r.nextInt(temp.getCars().size()));
+        }
+        Vehicle v2 = temp.getCars().get(r.nextInt(temp.getCars().size()));
+        while(v2.getPath().size() <= 1){
+            v2 = temp.getCars().get(r.nextInt(temp.getCars().size()));
+        }
+        Customer c1 = v1.removeCustomerFromSpot(r.nextInt(v1.getPath().size()));
+        Customer c2 = v2.removeCustomerFromSpot(r.nextInt(v2.getPath().size()));
+
+        if(v1.getPath().size() == 0){
+            v1.addCustomer(c2);
+        }else {
+            v1.addCustomerToSpot(c2, r.nextInt(v1.getPath().size()));
+        }
+
+        if(v2.getPath().size() == 0){
+            v2.addCustomer(c1);
+        }else {
+            v2.addCustomerToSpot(c1, r.nextInt(v2.getPath().size()));
+        }
     }
 
 
@@ -381,7 +414,7 @@ public class GA {
 
             ArrayList<Chromosome> newPopulation = new ArrayList<>();
             ArrayList<Chromosome> parents = selectParents(2); // 5. select parents
-            newPopulation.add(this.population.get(0)); //:: ELITISM ; best is always taken to the next generation.
+            newPopulation.add(parents.get(0)); //:: ELITISM ; best is always taken to the next generation.
 
             System.out.println("population: " + epoch + " :: " + population.get(0).getFitness());
 
@@ -389,9 +422,6 @@ public class GA {
             while(newPopulation.size() < population.size()){
                 // 6. Crossover and // 7. mutation on offspring
                 newPopulation.add(this.crossover(parents.get(0), parents.get(1), crossoverRate, mutationRate));
-                if(newPopulation.size() == population.size()) {
-                    break;
-                }
                 newPopulation.add(this.crossover(parents.get(1), parents.get(0), crossoverRate, mutationRate));
             }
             this.population = new Cloner().deepClone(newPopulation);
@@ -402,10 +432,10 @@ public class GA {
     }
 
     public static void main(String[] args) {
-        GA ga = new GA("p02");
+        GA ga = new GA("p08");
 //        ga.initPop(100, false);
 
-        ga.run(100, 1000, 0.6, 1);
+        ga.run(100, 1000, 0.2, 0.5);
         ga.printSolution();
 
     }
