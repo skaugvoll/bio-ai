@@ -344,6 +344,10 @@ public class GA {
 
         Vehicle v = offspring.getCars().get(r.nextInt(offspring.getCars().size()));
 
+        if(v.getPath().size() < 3){
+            return;
+        }
+
         int cutpoint1 = r.nextInt(v.getPath().size());
         int cutpoint2 = r.nextInt(v.getPath().size());
 
