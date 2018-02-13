@@ -145,24 +145,10 @@ public class GA {
         // the fitness for a solution is the total distance  (not duration) traveled. duration = criteria for route.
         double totalDistance = 0;
 
-        for(Vehicle v : chrome.getCars()){
-            // get the "init depo/car position"
-            int lastX = v.getXPos();
-            int lastY = v.getYPos();
+        for(Vehicle v : chrome.getCars()) {
 
-            for(Customer c : v.getPath()){
-                int currentX = c.getXpos();
-                int currentY = c.getYpos();
-
-                totalDistance += this.getEuclideanDistance(lastX, lastY, currentX, currentY);
-                lastX = currentX;
-                lastY = currentY;
-            }
-
-            // now we need to go back home again
-            totalDistance += this.getEuclideanDistance(lastX, lastY, v.getDepo().getXpos(), v.getDepo().getYpos());
+            totalDistance += v.getCurrentDuration();
         }
-
         // set the fitnesscore for this chromosome.
         chrome.setFitness(totalDistance);
     }
@@ -230,7 +216,7 @@ public class GA {
                     this.calculateFitness(temp);
                     costs.add(temp.getFitness());
                 }
-                vehic.getPath().remove(cust);
+                vehic.removeCustomer(cust);
                 vehic.setCurrentDuration();
             }
 
@@ -368,7 +354,7 @@ public class GA {
 
         if(vehicleOne.getPath().size() > 1){
             int custIndex = r.nextInt(vehicleOne.getPath().size());
-            Customer cust = vehicleOne.getPath().remove(custIndex);
+            Customer cust = vehicleOne.removeCustomerFromSpot(custIndex);
 
             int newPosition = r.nextInt(vehicleOne.getPath().size());
             vehicleOne.getPath().add(newPosition, cust);
@@ -412,7 +398,7 @@ public class GA {
         while(epoch < maxEphochs){ // 4
 
             ArrayList<Chromosome> newPopulation = new ArrayList<>();
-            ArrayList<Chromosome> parents = selectParents(200); // 5. select parents
+            ArrayList<Chromosome> parents = selectParents(2); // 5. select parents
             newPopulation.add(parents.get(0)); //:: ELITISM ; best is always taken to the next generation.
 
             System.out.println("population: " + epoch + " :: " + population.get(0).getFitness());
@@ -421,7 +407,6 @@ public class GA {
             while(newPopulation.size() < population.size()){
                 // 6. Crossover and // 7. mutation on offspring
                 newPopulation.add(this.crossover(parents.get(0), parents.get(1), crossoverRate, mutationRate));
-                newPopulation.add(this.crossover(parents.get(1), parents.get(0), crossoverRate, mutationRate));
             }
             this.population = new Cloner().deepClone(newPopulation);
             epoch ++;
@@ -434,7 +419,7 @@ public class GA {
         GA ga = new GA("p01");
 //        ga.initPop(100, false);
 
-        ga.run(100, 1000, 0.2, 0.5);
+        ga.run(100, 500, 0.8, 1);
         ga.printSolution();
 
     }
