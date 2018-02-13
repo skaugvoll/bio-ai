@@ -167,11 +167,32 @@ public class GA {
     public ArrayList<Chromosome> selectParents(int numberOfCandidates){
         Collections.sort(this.population, new SortPopulationComparator());
 
-        //number of candidates = 2 gives binary tournament.
-        ArrayList<Chromosome> candidates = new ArrayList<>();
-        for(int i = 0; i < numberOfCandidates; i++){
-            candidates.add(this.population.get(r.nextInt(this.population.size())));
+        double total = this.population.stream().map(Chromosome::getFitness).mapToDouble(Double::doubleValue).sum();
+        ArrayList<Double> probabilities = new ArrayList<>();
+        double probaprob = 0;
+        for(Chromosome c : this.population){
+            probabilities.add(total/c.getFitness());
+            probaprob += total/c.getFitness();
         }
+
+        ArrayList<Chromosome> candidates = new ArrayList<>();
+        while (candidates.size() < numberOfCandidates){
+            double random = Math.random() * (probaprob - 0) + 0;
+            double current = 0;
+            for(int i = 0; i < probabilities.size(); i++){
+                current += probabilities.get(i);
+                if(current >= random){
+                    candidates.add(this.population.get(i));
+                    break;
+                }
+            }
+        }
+
+//
+//        //number of candidates = 2 gives binary tournament.
+//        for(int i = 0; i < numberOfCandidates; i++){
+//            candidates.add(this.population.get(r.nextInt(this.population.size())));
+//        }
         Collections.sort(candidates, new SortPopulationComparator());
 
         return candidates;
@@ -229,8 +250,8 @@ public class GA {
                 this.swapping(temp);
             } else if(mutationProb >= 0.33 && mutationProb < 0.66){
 //                this.longesToShotest(temp);
-                this.mutation(temp);
-//                this.singleCustomerReRoutingMutation(temp);
+//                this.mutation(temp);
+                this.singleCustomerReRoutingMutation(temp);
             } else{
                 this.reversMutation(temp);
             }
@@ -563,10 +584,10 @@ public class GA {
     }
 
     public static void main(String[] args) {
-        GA ga = new GA("p08");
+        GA ga = new GA("p05");
 //        ga.initPop(100, false);
 
-        ga.run(100, 1000, 0.8, 0.5);
+        ga.run(100, 1000, 0.5, 0.6);
         ga.printSolution();
 
     }
