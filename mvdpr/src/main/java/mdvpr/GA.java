@@ -210,14 +210,14 @@ public class GA {
             }
 
             if (possibleEntries.size() < 1){
-//                return this.crossover(survivor1, survivor2, crossoverRate, mutationRate);
-                return new Cloner().deepClone(survivor2);
+                return this.crossover(survivor1, survivor2, crossoverRate, mutationRate);
+//                return new Cloner().deepClone(survivor2);
             }
             double k = r.nextDouble();
             if(k <= crossoverRate){
-                possibleEntries.get(0).addCustomer(cust);
-            }else{
                 possibleEntries.get(costs.indexOf(Collections.min(costs))).addCustomer(cust);
+            }else{
+                possibleEntries.get(0).addCustomer(cust);
             }
         }
 
@@ -228,6 +228,7 @@ public class GA {
 //                this.mutation(temp);
                 this.swapping(temp);
             } else if(mutationProb >= 0.33 && mutationProb < 0.66){
+//                this.longesToShotest(temp);
                 this.mutation(temp);
 //                this.singleCustomerReRoutingMutation(temp);
             } else{
@@ -392,7 +393,60 @@ public class GA {
         Collections.reverse(v.getPath().subList(cutpoint1,cutpoint2));
     }
 
-   
+    public void longesToShotest(Chromosome offspring){
+        Vehicle slowestVehicle = offspring.getCars().get(0);
+        for(Vehicle v : offspring.getCars()){
+            if(v.getCurrentDuration() > slowestVehicle.getCurrentDuration()){
+                slowestVehicle = v;
+            }
+        }
+        Depot d = slowestVehicle.getDepo();
+//        Vehicle fastestVehicle = slowestVehicle;
+//        for(Vehicle v: d.getVehicles()){
+//            if(v.getCurrentDuration() < fastestVehicle.getCurrentDuration()){
+//                fastestVehicle = v;
+//            }
+//        }
+
+        Vehicle tempVehicle = new Cloner().deepClone(slowestVehicle);
+
+        Vehicle randomVehicle = d.getVehicle(r.nextInt(d.getVehicles().size()));
+        Customer bestCustomer = null;
+        int bestIndex = 0;
+        double bestCost = Double.MAX_VALUE;
+        for(Customer c : tempVehicle.getPath()){
+            for(int i = 0; i < randomVehicle.getPath().size(); i++){
+                randomVehicle.addCustomerToSpot(c, i);
+                if(isValidRoute(randomVehicle)){
+                    if(randomVehicle.getCurrentDuration() < bestCost){
+                        bestCustomer = c;
+                        bestCost = randomVehicle.getCurrentDuration();
+                        bestIndex = i;
+                    }
+                }
+                randomVehicle.removeCustomer(c);
+            }
+        }
+        if(bestCustomer != null){
+            int index = 0;
+            for(int i = 0; i < slowestVehicle.getPath().size(); i++){
+                if(slowestVehicle.getPath().get(i).getId() == bestCustomer.getId()){
+                    index = i;
+                    break;
+                }
+            }
+            slowestVehicle.removeCustomerFromSpot(index);
+            if(randomVehicle.getPath().size() < 1){
+                randomVehicle.addCustomerToSpot(bestCustomer, 0);
+            }else{
+                randomVehicle.addCustomerToSpot(bestCustomer, bestIndex);
+            }
+        }else {
+            return;
+        }
+    }
+
+
     private void mutation(Chromosome offspring){
         if(offspring.getCars().size() < 1) {
             return;
@@ -458,8 +512,12 @@ public class GA {
                 double prob = 0.8;
                 if (k <= prob) {
                     kids.add(this.crossover(population.get(0), parents.get(0), crossoverRate, mutationRate));
+                    kids.add(this.crossover(parents.get(0), population.get(0), crossoverRate, mutationRate));
                 } else {
-                    kids.add(this.crossover(parents.get(r.nextInt(parents.size())), parents.get(r.nextInt(parents.size())), crossoverRate, mutationRate));
+                    Chromosome p1 = parents.get(r.nextInt(parents.size()));
+                    Chromosome p2 = parents.get(r.nextInt(parents.size()));
+                    kids.add(this.crossover(p1, p2, crossoverRate, mutationRate));
+                    kids.add(this.crossover(p2, p1, crossoverRate, mutationRate));
                 }
 
             }
@@ -467,9 +525,36 @@ public class GA {
             temp.addAll(parents);
             temp.addAll(kids);
             Collections.sort(temp, new SortPopulationComparator());
+
+            int index = 0;
+            while(index < populationSize){
+                int rank = temp.size();
+                int totalScore = 0;
+                for(int i= temp.size(); i>0;i--){
+                    totalScore += i;
+                }
+                Double cumulativeProbability = 0.0;
+                Double p = Math.random();
+                int listIndex = 0;
+                while (!temp.isEmpty()){
+
+                    Chromosome c = temp.get(listIndex);
+                    cumulativeProbability += (double) rank/totalScore;
+                    if(p <= cumulativeProbability){
+                        newPopulation.add(temp.remove(listIndex));
+                        index ++;
+                        break;
+                    }
+                    listIndex ++;
+                    rank--;
+
+                }
+            }
+
+            /*
             newPopulation.add(population.get(0)); //:: ELITISM ; best is always taken to the next generation.
             newPopulation.addAll(temp.subList(0, populationSize-1));
-
+*/
             this.population = new Cloner().deepClone(newPopulation);
             epoch++;
         }
@@ -478,10 +563,10 @@ public class GA {
     }
 
     public static void main(String[] args) {
-        GA ga = new GA("p01");
+        GA ga = new GA("p08");
 //        ga.initPop(100, false);
 
-        ga.run(100, 1000, 0.6, 0.8);
+        ga.run(100, 1000, 0.8, 0.5);
         ga.printSolution();
 
     }
