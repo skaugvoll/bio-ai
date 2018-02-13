@@ -254,7 +254,7 @@ public class GA {
                 this.swapping(temp);
             } else if(mutationProb >= 0.33 && mutationProb < 0.66){
                 this.mutation(temp);
-                this.singleCustomerReRoutingMutation(temp);
+//                this.singleCustomerReRoutingMutation(temp);
             } else{
                 this.reversMutation(temp);
             }
@@ -344,11 +344,6 @@ public class GA {
 
         Vehicle v = offspring.getCars().get(r.nextInt(offspring.getCars().size()));
 
-        if(v.getPath().size() < 3){
-            Collections.reverse(v.getPath());
-            return;
-        }
-
         int cutpoint1 = r.nextInt(v.getPath().size());
         int cutpoint2 = r.nextInt(v.getPath().size());
 
@@ -413,7 +408,7 @@ public class GA {
         while(epoch < maxEphochs){ // 4
 
             ArrayList<Chromosome> newPopulation = new ArrayList<>();
-            ArrayList<Chromosome> parents = selectParents(2); // 5. select parents
+            ArrayList<Chromosome> parents = selectParents(200); // 5. select parents
             newPopulation.add(parents.get(0)); //:: ELITISM ; best is always taken to the next generation.
 
             System.out.println("population: " + epoch + " :: " + population.get(0).getFitness());
@@ -432,7 +427,7 @@ public class GA {
     }
 
     public static void main(String[] args) {
-        GA ga = new GA("p08");
+        GA ga = new GA("p01");
 //        ga.initPop(100, false);
 
         ga.run(100, 1000, 0.2, 0.5);
