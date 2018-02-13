@@ -247,8 +247,12 @@ public class GA {
         while(v2.getPath().size() <= 1){
             v2 = temp.getCars().get(r.nextInt(temp.getCars().size()));
         }
-        Customer c1 = v1.removeCustomerFromSpot(r.nextInt(v1.getPath().size()));
-        Customer c2 = v2.removeCustomerFromSpot(r.nextInt(v2.getPath().size()));
+
+        int cust1Spot = v1.getPath().size() <= 1 ? 0 : r.nextInt(v1.getPath().size()-1);
+        int cust2Spot = v2.getPath().size() <= 1 ? 0 : r.nextInt(v2.getPath().size()-1);
+
+        Customer c1 = v1.removeCustomerFromSpot(cust1Spot);
+        Customer c2 = v2.removeCustomerFromSpot(cust2Spot);
 
         if(v1.getPath().size() == 0){
             v1.addCustomer(c2);
@@ -256,11 +260,65 @@ public class GA {
             v1.addCustomerToSpot(c2, r.nextInt(v1.getPath().size()));
         }
 
+        if(! isValidRoute(v1)) {
+            v1.removeCustomer(c2);
+
+            if (v2.getPath().size() == 0) {
+                v2.addCustomer(c1);
+            } else {
+                v2.addCustomerToSpot(c1, r.nextInt(v2.getPath().size()));
+            }
+
+            if (!isValidRoute(v2)) {
+                v2.removeCustomer(c1);
+                v1.addCustomerToSpot(c1, cust1Spot);
+                v2.addCustomerToSpot(c2, cust2Spot);
+            } else {
+                v2.addCustomer(c2);
+                if (!isValidRoute(v2)) {
+                    v2.removeCustomer(c1);
+                    v1.addCustomerToSpot(c1, cust1Spot);
+                }
+
+            }
+        }
+
+
+        ////////////////////////////
+
+
         if(v2.getPath().size() == 0){
             v2.addCustomer(c1);
         }else {
             v2.addCustomerToSpot(c1, r.nextInt(v2.getPath().size()));
         }
+
+        if(! isValidRoute(v2)) {
+            v2.removeCustomer(c1);
+
+            if (v1.getPath().size() == 0) {
+                v1.addCustomer(c2);
+            } else {
+                v1.addCustomerToSpot(c2, r.nextInt(v1.getPath().size()));
+            }
+
+            if (!isValidRoute(v1)) {
+                v1.removeCustomer(c2);
+                v2.addCustomerToSpot(c2, cust2Spot);
+                v1.addCustomerToSpot(c1, cust1Spot);
+            } else {
+                v1.addCustomer(c1);
+                if (!isValidRoute(v1)) {
+                    v1.removeCustomer(c2);
+                    v2.addCustomerToSpot(c2, cust2Spot);
+                }
+
+            }
+        }
+
+
+
+
     }
 
 
