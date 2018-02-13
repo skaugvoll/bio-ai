@@ -35,7 +35,6 @@ public class GA {
     private void initPop(int popSize, boolean print) {
 
         while (this.population.size() < popSize) {
-            System.out.println("populationsize: " + this.population.size());
             Collections.shuffle(this.customers);
             HashMap<Integer, ArrayList<Depot>> preferedDepots = new HashMap<>();
             for (Customer customer : this.customers) {
@@ -167,8 +166,6 @@ public class GA {
 
     public ArrayList<Chromosome> selectParents(int numberOfCandidates){
         Collections.sort(this.population, new SortPopulationComparator());
-        ArrayList<Chromosome> parents = new ArrayList<>();
-        parents.add(this.population.get(0)); // 0 is the best
 
         //number of candidates = 2 gives binary tournament.
         ArrayList<Chromosome> candidates = new ArrayList<>();
@@ -177,15 +174,7 @@ public class GA {
         }
         Collections.sort(candidates, new SortPopulationComparator());
 
-        double k = r.nextDouble();
-        double prob = 0.8;
-        if (k <= prob){
-            parents.add(candidates.get(0));
-        } else {
-            parents.add(candidates.get(r.nextInt(candidates.size())));
-        }
-
-        return parents;
+        return candidates;
     }
 
     private Chromosome crossover(Chromosome survivor1, Chromosome survivor2, double crossoverRate, double mutationRate) {
@@ -345,6 +334,7 @@ public class GA {
         Collections.reverse(v.getPath().subList(cutpoint1,cutpoint2));
     }
 
+   
     private void mutation(Chromosome offspring){
         if(offspring.getCars().size() < 1) {
             return;
@@ -391,25 +381,39 @@ public class GA {
         System.out.println("Solution:\n" + sb);
     }
 
-    public void run(int populationSize, int maxEphochs, double crossoverRate, double mutationRate){
+    public void run(int populationSize, int maxEphochs, double crossoverRate, double mutationRate) {
         this.initPop(populationSize, false); // 2 & 3. this also evaluates the fitness
         int epoch = 0; // 1.
 
-        while(epoch < maxEphochs){ // 4
+        while (epoch < maxEphochs) { // 4
 
             ArrayList<Chromosome> newPopulation = new ArrayList<>();
-            ArrayList<Chromosome> parents = selectParents(2); // 5. select parents
-            newPopulation.add(parents.get(0)); //:: ELITISM ; best is always taken to the next generation.
+            ArrayList<Chromosome> parents = selectParents(200); // 5. select parents
+            ArrayList<Chromosome> kids = new ArrayList<>();
 
             System.out.println("population: " + epoch + " :: " + population.get(0).getFitness());
 
             // basically create all offsprings and crossover them.
-            while(newPopulation.size() < population.size()){
+            while (kids.size() < population.size()) {
                 // 6. Crossover and // 7. mutation on offspring
-                newPopulation.add(this.crossover(parents.get(0), parents.get(1), crossoverRate, mutationRate));
+                double k = r.nextDouble();
+                double prob = 0.8;
+                if (k <= prob) {
+                    kids.add(this.crossover(population.get(0), parents.get(0), crossoverRate, mutationRate));
+                } else {
+                    kids.add(this.crossover(parents.get(r.nextInt(parents.size())), parents.get(r.nextInt(parents.size())), crossoverRate, mutationRate));
+                }
+
             }
+            ArrayList<Chromosome> temp = new ArrayList<>();
+            temp.addAll(parents);
+            temp.addAll(kids);
+            Collections.sort(temp, new SortPopulationComparator());
+            newPopulation.add(population.get(0)); //:: ELITISM ; best is always taken to the next generation.
+            newPopulation.addAll(temp.subList(0, populationSize-1));
+
             this.population = new Cloner().deepClone(newPopulation);
-            epoch ++;
+            epoch++;
         }
         this.plotter.plotChromosome(population.get(0));
         this.plotter.updateUI();
@@ -419,7 +423,7 @@ public class GA {
         GA ga = new GA("p01");
 //        ga.initPop(100, false);
 
-        ga.run(100, 500, 0.8, 1);
+        ga.run(100, 1000, 0.6, 0.8);
         ga.printSolution();
 
     }
