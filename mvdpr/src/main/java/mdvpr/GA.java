@@ -32,9 +32,9 @@ public class GA {
 
     }
 
-    private void initPop(int popSize, boolean print) {
+    private void initPop(int popSize, boolean print, ArrayList<Chromosome> toBePopulated) {
 
-        while (this.population.size() < popSize) {
+        while (toBePopulated.size() < popSize) {
             Collections.shuffle(this.customers);
             HashMap<Integer, ArrayList<Depot>> preferedDepots = new HashMap<>();
             for (Customer customer : this.customers) {
@@ -47,7 +47,7 @@ public class GA {
                 preferedDepots.put(customer.getId(), nearestDepots);
                 resetDepots();
             }
-            generateSolution(preferedDepots);
+            toBePopulated.add(generateSolution(preferedDepots));
         }
 
         if(print){
@@ -56,7 +56,7 @@ public class GA {
         }
     }
 
-    private void generateSolution(HashMap<Integer, ArrayList<Depot>> preferedDepots){
+    private Chromosome generateSolution(HashMap<Integer, ArrayList<Depot>> preferedDepots){
         ArrayList<Vehicle> cars = new ArrayList<>();
         ArrayList<Customer> unsatisfiedCustomers = new Cloner().deepClone(this.customers);
 
@@ -105,9 +105,10 @@ public class GA {
 
         Chromosome chromosome = new Chromosome(carsCloned);
         this.calculateFitness(chromosome); // calculate the fitness score for this chromosome
-        population.add(chromosome);// add chromosome to population
+//        population.add(chromosome);// add chromosome to population
         resetCars(cars);
         resetDepots();
+        return chromosome;
     }
 
     private void resetDepots() {
@@ -236,7 +237,17 @@ public class GA {
             }
         }
         this.calculateFitness(temp);
-        return temp;
+        this.calculateFitness(survivor1);
+        this.calculateFitness(survivor2);
+        if(temp.getFitness() < survivor1.getFitness() && temp.getFitness() < survivor2.getFitness()){
+            return temp;
+        }
+        else if(survivor1.getFitness() < survivor2.getFitness()){
+            return survivor1;
+        }
+        else{
+            return survivor2;
+        }
     }
 
     private void swapping(Chromosome temp) {
@@ -393,57 +404,45 @@ public class GA {
         Collections.reverse(v.getPath().subList(cutpoint1,cutpoint2));
     }
 
-    public void longesToShotest(Chromosome offspring){
+    public void longesToShotestMutation(Chromosome offspring){
         Vehicle slowestVehicle = offspring.getCars().get(0);
         for(Vehicle v : offspring.getCars()){
             if(v.getCurrentDuration() > slowestVehicle.getCurrentDuration()){
                 slowestVehicle = v;
             }
         }
+
         Depot d = slowestVehicle.getDepo();
-//        Vehicle fastestVehicle = slowestVehicle;
-//        for(Vehicle v: d.getVehicles()){
-//            if(v.getCurrentDuration() < fastestVehicle.getCurrentDuration()){
-//                fastestVehicle = v;
-//            }
-//        }
-
-        Vehicle tempVehicle = new Cloner().deepClone(slowestVehicle);
-
-        Vehicle randomVehicle = d.getVehicle(r.nextInt(d.getVehicles().size()));
-        Customer bestCustomer = null;
-        int bestIndex = 0;
-        double bestCost = Double.MAX_VALUE;
-        for(Customer c : tempVehicle.getPath()){
-            for(int i = 0; i < randomVehicle.getPath().size(); i++){
-                randomVehicle.addCustomerToSpot(c, i);
-                if(isValidRoute(randomVehicle)){
-                    if(randomVehicle.getCurrentDuration() < bestCost){
-                        bestCustomer = c;
-                        bestCost = randomVehicle.getCurrentDuration();
-                        bestIndex = i;
-                    }
-                }
-                randomVehicle.removeCustomer(c);
+        Vehicle fastestVehicle = slowestVehicle;
+        for(Vehicle v: d.getVehicles()){
+            if(v.getCurrentDuration() < fastestVehicle.getCurrentDuration()){
+                fastestVehicle = v;
             }
         }
-        if(bestCustomer != null){
-            int index = 0;
-            for(int i = 0; i < slowestVehicle.getPath().size(); i++){
-                if(slowestVehicle.getPath().get(i).getId() == bestCustomer.getId()){
-                    index = i;
-                    break;
+
+        int pos = r.nextInt(slowestVehicle.getPath().size());
+        Customer c = slowestVehicle.removeCustomerFromSpot(pos);
+
+
+        int bestPos = -1;
+        double shortestDuration = Double.MAX_VALUE;
+        for(int i = 0; i < fastestVehicle.getPath().size(); i++){
+            fastestVehicle.addCustomerToSpot(c,i);
+            if(isValidRoute(fastestVehicle)){
+                if(fastestVehicle.getCurrentDuration() < shortestDuration){
+                    shortestDuration = fastestVehicle.getCurrentDuration();
+                    bestPos = i;
                 }
             }
-            slowestVehicle.removeCustomerFromSpot(index);
-            if(randomVehicle.getPath().size() < 1){
-                randomVehicle.addCustomerToSpot(bestCustomer, 0);
-            }else{
-                randomVehicle.addCustomerToSpot(bestCustomer, bestIndex);
-            }
-        }else {
-            return;
+            fastestVehicle.removeCustomer(c);
         }
+        if(bestPos >= 0){
+            fastestVehicle.addCustomerToSpot(c, bestPos);
+        }
+        else {
+            slowestVehicle.addCustomerToSpot(c, pos);
+        }
+
     }
 
 
@@ -494,14 +493,21 @@ public class GA {
     }
 
     public void run(int populationSize, int maxEphochs, double crossoverRate, double mutationRate) {
-        this.initPop(populationSize, false); // 2 & 3. this also evaluates the fitness
+        this.initPop(populationSize, false, this.population); // 2 & 3. this also evaluates the fitness
         int epoch = 0; // 1.
+        double lastFitness;
+        double stuck = 0;
 
         while (epoch < maxEphochs) { // 4
 
             ArrayList<Chromosome> newPopulation = new ArrayList<>();
             ArrayList<Chromosome> parents = selectParents(200); // 5. select parents
             ArrayList<Chromosome> kids = new ArrayList<>();
+
+            if (stuck == 5){
+                stuck = 0;
+                initPop((int) Math.round(populationSize * 0.9), false, kids);
+            }
 
             System.out.println("population: " + epoch + " :: " + population.get(0).getFitness());
 
@@ -555,7 +561,15 @@ public class GA {
             newPopulation.add(population.get(0)); //:: ELITISM ; best is always taken to the next generation.
             newPopulation.addAll(temp.subList(0, populationSize-1));
 */
-            this.population = new Cloner().deepClone(newPopulation);
+            this.population = newPopulation;
+            lastFitness = population.get(0).getFitness();
+            if(lastFitness != population.get(0).getFitness()){
+                lastFitness = population.get(0).getFitness();
+                stuck = 0;
+            }
+            else{
+                stuck++;
+            }
             epoch++;
         }
         this.plotter.plotChromosome(population.get(0));
@@ -563,10 +577,10 @@ public class GA {
     }
 
     public static void main(String[] args) {
-        GA ga = new GA("p08");
+        GA ga = new GA("p01");
 //        ga.initPop(100, false);
 
-        ga.run(100, 1000, 0.8, 0.5);
+        ga.run(150, 1500, 0.1, 0.9);
         ga.printSolution();
 
     }
