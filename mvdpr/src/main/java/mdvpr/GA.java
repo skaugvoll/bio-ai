@@ -3,8 +3,10 @@ package mdvpr;
 
 import com.rits.cloning.Cloner;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Random;
 
 public class GA {
@@ -16,9 +18,8 @@ public class GA {
     private ArrayList<Chromosome> population = new ArrayList<>();
     Random r = new Random();
 
-    public GA(String filename, int populationSize, int maxEphochs, double crossoverRate, double mutationRate) {
+    public GA(String filename) {
         plotData(filename);
-        run(populationSize, maxEphochs, crossoverRate, mutationRate);
     }
 
     public void plotData(String filename){
@@ -31,89 +32,101 @@ public class GA {
 
     }
 
-    private void initPop(int popSize){
-        // one solution = individual is; all customers are covered by a vehicle
+    private void initPop(int popSize, boolean print, ArrayList<Chromosome> toBePopulated) {
 
-        while(this.population.size() < popSize){
-            ArrayList<Vehicle> cars = new ArrayList<>();
-            cars.clear(); // make sure we start from scratch on new solution / individual / chromosome
-            boolean foundSolution= true;
-            for(Customer customer : this.customers){
-                // Choose a random depot
-                int d = r.nextInt(this.depots.size()); // from 0 to but not included size = 4 --> 0, 1, 2, 3
-                Depot depot = this.depots.get(d);
+        while (toBePopulated.size() < popSize) {
+            Collections.shuffle(this.customers);
+            HashMap<Integer, ArrayList<Depot>> preferedDepots = new HashMap<>();
+            for (Customer customer : this.customers) {
+                ArrayList<Depot> nearestDepots = new ArrayList<>();
+                for (Depot depot : this.depots) {
+                    depot.setCurrentDistance(this.getEuclideanDistance(customer.getXpos(), customer.getYpos(), depot.getXpos(), depot.getYpos()));
+                    nearestDepots.add(depot);
+                }
+                nearestDepots.sort(new DepotDistanceComparator());
+                preferedDepots.put(customer.getId(), nearestDepots);
+                resetDepots();
+            }
+            toBePopulated.add(generateSolution(preferedDepots));
+        }
 
-                // Choose a random vehicle
-                int v = r.nextInt(depot.getVehicles().size());
-                Vehicle vehicle = depot.getVehicle(v);
+        if(print){
+            this.plotter.plotChromosome(population.get(0));
+            this.plotter.updateUI();
+        }
+    }
 
-                // add the customer to the random chosen car.
-                vehicle.addCustomer(customer);
-                int attempts = 0;
+    private Chromosome generateSolution(HashMap<Integer, ArrayList<Depot>> preferedDepots){
+        ArrayList<Vehicle> cars = new ArrayList<>();
+        ArrayList<Customer> unsatisfiedCustomers = new Cloner().deepClone(this.customers);
 
-                while(!this.isValidRoute(vehicle)){
-                    if(attempts == 15){
-                        foundSolution = false;
+        while(! unsatisfiedCustomers.isEmpty()){
+            Vehicle bestVehicle = null;
+            for(Depot depot : preferedDepots.get(unsatisfiedCustomers.get(0).getId())){
+                int bestIndex = 0;
+                double bestCost = Double.MAX_VALUE;
+
+                for(Vehicle vehicle : depot.getVehicles()){
+                    if(vehicle.getPath().size() < 1){
+                        bestIndex = 0;
+                        bestVehicle = vehicle;
                         break;
                     }
-                    vehicle.getPath().remove(customer);
-                    vehicle.setCurrentDuration();
-                    if(vehicle.getPath().size() < 1){
-                        vehicle.setxyPos(vehicle.getDepo().getXpos(), vehicle.getDepo().getYpos());
+                    for(int i = 0; i < vehicle.getPath().size(); i++){
+                        vehicle.addCustomerToSpot(unsatisfiedCustomers.get(0), i);
+                        if(isValidRoute(vehicle)){
+                            if(vehicle.getCurrentDuration() < bestCost){
+                                bestCost = vehicle.getCurrentDuration();
+                                bestVehicle = vehicle;
+                                bestIndex = i;
+                            }
+                        }
+                        vehicle.removeCustomer(unsatisfiedCustomers.get(0));
                     }
-                    else{
-                        vehicle.setxyPos(vehicle.getPath().get(vehicle.getPath().size()-1).getXpos(), vehicle.getPath().get(vehicle.getPath().size()-1).getYpos());
-                    }
-                    // Choose a random depot
-                    d = r.nextInt(this.depots.size()); // from 0 to but not included size = 4 --> 0, 1, 2, 3
-                    depot = this.depots.get(d);
-
-                    // Choose a random vehicle
-                    v = r.nextInt(depot.getVehicles().size());
-                    vehicle = depot.getVehicle(v);
-
-                    // add the customer to the random chosen car.
-                    vehicle.addCustomer(customer);
-                    attempts++;
                 }
-                if(! foundSolution){
+                if(bestVehicle != null){
+                    bestVehicle.addCustomerToSpot(unsatisfiedCustomers.get(0), bestIndex);
+                    unsatisfiedCustomers.remove(0);
                     break;
                 }
             }
+            if(bestVehicle == null){
+                Depot dp = preferedDepots.get(unsatisfiedCustomers.get(0).getId()).get(0);
+                Vehicle v = dp.getVehicles().get(r.nextInt(dp.getVehicles().size()));
+                unsatisfiedCustomers.add(v.removeCustomerFromSpot(r.nextInt(v.getPath().size())));
+                v.addCustomer(unsatisfiedCustomers.remove(0));
+            }
+        }
+
+        addCarsToSolutionList(cars);
+
+        Cloner cloner = new Cloner();
+        ArrayList<Vehicle> carsCloned = cloner.deepClone(cars);
+
+        Chromosome chromosome = new Chromosome(carsCloned);
+        this.calculateFitness(chromosome); // calculate the fitness score for this chromosome
+//        population.add(chromosome);// add chromosome to population
+        resetCars(cars);
+        resetDepots();
+        return chromosome;
+    }
+
+    private void resetDepots() {
+        for(Depot d : this.depots){
+            d.resetCurrentDistance();
+        }
+    }
 
 
-
-            // add all cars to the list -- make solution
-            for(Depot d : this.depots){
-                for(Vehicle v : d.getVehicles()){
-                    if(!cars.contains(v)){
-                        cars.add(v);
-                    }
+    private void addCarsToSolutionList(ArrayList<Vehicle> cars) {
+        // add all cars to the list -- make solution
+        for(Depot d : this.depots){
+            for(Vehicle v : d.getVehicles()){
+                if(!cars.contains(v)){
+                    cars.add(v);
                 }
             }
-//
-//            if(! foundSolution){
-//                resetCars(cars);
-//                continue;
-//            }
-
-            // now we have found one solution (good or bad | legal and or illegal)
-            // create chromosome.
-
-            // now we need a deep copy, not just refrences. since we are goint to "reset" our objects for another population to use.
-            // TODO: Rewrite this into a create new object for each object method. Much more performance pleasing.
-            Cloner cloner = new Cloner();
-            ArrayList<Vehicle> carsCloned = cloner.deepClone(cars);
-
-            Chromosome chromosome = new Chromosome(carsCloned);
-            this.calculateFitness(chromosome); // calculate the fitness score for this chromosome
-            population.add(chromosome);// add chromosome to population
-            resetCars(cars);
-
-
         }
-//        this.plotter.plotChromosome(population.get(0));
-
     }
 
     private void resetCars(ArrayList<Vehicle> cars) {
@@ -132,30 +145,10 @@ public class GA {
         // the fitness for a solution is the total distance  (not duration) traveled. duration = criteria for route.
         double totalDistance = 0;
 
-        for(Vehicle v : chrome.getCars()){
-            // get the "init depo/car position"
-            int lastX = v.getXPos();
-            int lastY = v.getYPos();
+        for(Vehicle v : chrome.getCars()) {
 
-            for(Customer c : v.getPath()){
-                int currentX = c.getXpos();
-                int currentY = c.getYpos();
-
-                totalDistance += this.getEuclideanDistance(lastX, lastY, currentX, currentY);
-                lastX = currentX;
-                lastY = currentY;
-            }
-
-            // now we need to go back home again
-            totalDistance += this.getEuclideanDistance(lastX, lastY, v.getDepo().getXpos(), v.getDepo().getYpos());
-
-            // TODO: implement some sort of stuff here...
-            // punish the illegal routes
-//            if(v.getCurrentDuration() > v.getMaxDuration()){
-//                System.out.println("Current duration: " + v.getCurrentDuration() + " Max duration: " + v.getMaxDuration());
-//            }
+            totalDistance += v.getCurrentDuration();
         }
-
         // set the fitnesscore for this chromosome.
         chrome.setFitness(totalDistance);
     }
@@ -174,25 +167,36 @@ public class GA {
 
     public ArrayList<Chromosome> selectParents(int numberOfCandidates){
         Collections.sort(this.population, new SortPopulationComparator());
-        ArrayList<Chromosome> parents = new ArrayList<>();
-        parents.add(this.population.get(0)); // 0 is the best
 
-        //number of candidates = 2 gives binary tournament.
-        ArrayList<Chromosome> candidates = new ArrayList<>();
-        for(int i = 0; i < numberOfCandidates; i++){
-            candidates.add(this.population.get(r.nextInt(this.population.size())));
+        double total = this.population.stream().map(Chromosome::getFitness).mapToDouble(Double::doubleValue).sum();
+        ArrayList<Double> probabilities = new ArrayList<>();
+        double probaprob = 0;
+        for(Chromosome c : this.population){
+            probabilities.add(total/c.getFitness());
+            probaprob += total/c.getFitness();
         }
+
+        ArrayList<Chromosome> candidates = new ArrayList<>();
+        while (candidates.size() < numberOfCandidates){
+            double random = Math.random() * (probaprob - 0) + 0;
+            double current = 0;
+            for(int i = 0; i < probabilities.size(); i++){
+                current += probabilities.get(i);
+                if(current >= random){
+                    candidates.add(this.population.get(i));
+                    break;
+                }
+            }
+        }
+
+//
+//        //number of candidates = 2 gives binary tournament.
+//        for(int i = 0; i < numberOfCandidates; i++){
+//            candidates.add(this.population.get(r.nextInt(this.population.size())));
+//        }
         Collections.sort(candidates, new SortPopulationComparator());
 
-        double k = r.nextDouble();
-        double prob = 0.8;
-        if (k <= prob){
-            parents.add(candidates.get(0));
-        } else {
-            parents.add(candidates.get(r.nextInt(candidates.size())));
-        }
-
-        return parents;
+        return candidates;
     }
 
     private Chromosome crossover(Chromosome survivor1, Chromosome survivor2, double crossoverRate, double mutationRate) {
@@ -223,41 +227,257 @@ public class GA {
                     this.calculateFitness(temp);
                     costs.add(temp.getFitness());
                 }
-                vehic.getPath().remove(cust);
+                vehic.removeCustomer(cust);
                 vehic.setCurrentDuration();
             }
 
             if (possibleEntries.size() < 1){
                 return this.crossover(survivor1, survivor2, crossoverRate, mutationRate);
+//                return new Cloner().deepClone(survivor2);
             }
             double k = r.nextDouble();
             if(k <= crossoverRate){
-                possibleEntries.get(0).addCustomer(cust);
-            }else{
                 possibleEntries.get(costs.indexOf(Collections.min(costs))).addCustomer(cust);
+            }else{
+                possibleEntries.get(0).addCustomer(cust);
             }
         }
 
+
         if(r.nextDouble() < mutationRate){
-            this.mutation(temp);
+            double mutationProb = r.nextDouble();
+            if(mutationProb < 0.33){
+//                this.mutation(temp);
+                this.swapping(temp);
+            } else if(mutationProb >= 0.33 && mutationProb < 0.66){
+//                this.longesToShotest(temp);
+//                this.mutation(temp);
+                this.singleCustomerReRoutingMutation(temp);
+            } else{
+                this.reversMutation(temp);
+            }
         }
         this.calculateFitness(temp);
-        return temp;
+        this.calculateFitness(survivor1);
+        this.calculateFitness(survivor2);
+        if(temp.getFitness() < survivor1.getFitness() && temp.getFitness() < survivor2.getFitness()){
+            return temp;
+        }
+        else if(survivor1.getFitness() < survivor2.getFitness()){
+            return survivor1;
+        }
+        else{
+            return survivor2;
+        }
     }
 
-    private void mutation(Chromosome offspring){
-        Random r = new Random();
+    private void swapping(Chromosome temp) {
+        Vehicle v1 = temp.getCars().get(r.nextInt(temp.getCars().size()));
+        while(v1.getPath().size() <= 1){
+            v1 = temp.getCars().get(r.nextInt(temp.getCars().size()));
+        }
+        Vehicle v2 = temp.getCars().get(r.nextInt(temp.getCars().size()));
+        while(v2.getPath().size() <= 1){
+            v2 = temp.getCars().get(r.nextInt(temp.getCars().size()));
+        }
 
+        int cust1Spot = v1.getPath().size() <= 1 ? 0 : r.nextInt(v1.getPath().size()-1);
+        int cust2Spot = v2.getPath().size() <= 1 ? 0 : r.nextInt(v2.getPath().size()-1);
+
+        Customer c1 = v1.removeCustomerFromSpot(cust1Spot);
+        Customer c2 = v2.removeCustomerFromSpot(cust2Spot);
+
+        if(v1.getPath().size() == 0){
+            v1.addCustomer(c2);
+        }else {
+            v1.addCustomerToSpot(c2, r.nextInt(v1.getPath().size()));
+        }
+
+        if(! isValidRoute(v1)) {
+            v1.removeCustomer(c2);
+
+            if (v2.getPath().size() == 0) {
+                v2.addCustomer(c1);
+            } else {
+                v2.addCustomerToSpot(c1, r.nextInt(v2.getPath().size()));
+            }
+
+            if (!isValidRoute(v2)) {
+                v2.removeCustomer(c1);
+                v1.addCustomerToSpot(c1, cust1Spot);
+                v2.addCustomerToSpot(c2, cust2Spot);
+            } else {
+                v2.addCustomer(c2);
+                if (!isValidRoute(v2)) {
+                    v2.removeCustomer(c1);
+                    v1.addCustomerToSpot(c1, cust1Spot);
+                }
+
+            }
+        }
+
+
+        ////////////////////////////
+
+
+        if(v2.getPath().size() == 0){
+            v2.addCustomer(c1);
+        }else {
+            v2.addCustomerToSpot(c1, r.nextInt(v2.getPath().size()));
+        }
+
+        if(! isValidRoute(v2)) {
+            v2.removeCustomer(c1);
+
+            if (v1.getPath().size() == 0) {
+                v1.addCustomer(c2);
+            } else {
+                v1.addCustomerToSpot(c2, r.nextInt(v1.getPath().size()));
+            }
+
+            if (!isValidRoute(v1)) {
+                v1.removeCustomer(c2);
+                v2.addCustomerToSpot(c2, cust2Spot);
+                v1.addCustomerToSpot(c1, cust1Spot);
+            } else {
+                v1.addCustomer(c1);
+                if (!isValidRoute(v1)) {
+                    v1.removeCustomer(c2);
+                    v2.addCustomerToSpot(c2, cust2Spot);
+                }
+
+            }
+        }
+
+
+
+
+    }
+
+
+    private void singleCustomerReRoutingMutation(Chromosome offspring){
+        Customer c = null;
+        while(c == null){
+            Vehicle v = offspring.getCars().get(r.nextInt(offspring.getCars().size()));
+            if(v.getPath().size() >= 1){
+                if(v.getPath().size() > 2){
+                    c = v.removeCustomerFromSpot(r.nextInt(v.getPath().size()));
+                }
+                else {
+                    c = v.removeCustomerFromSpot(0);
+                }
+            }
+        }
+
+        Vehicle vehicle = null;
+        int index = -1;
+        double cost = Double.MAX_VALUE;
+
+        for(Vehicle v: offspring.getCars()){
+            if(v.getPath().isEmpty()){
+                v.addCustomer(c);
+                if(v.getCurrentDuration() < cost){
+                    cost = v.getCurrentDuration();
+                    vehicle = v;
+                    index = 0;
+                }
+                v.removeCustomer(c);
+
+            } else {
+                for(int i = 0; i < v.getPath().size(); i++){
+                    v.addCustomerToSpot(c,i);
+                    if(v.getCurrentDuration() < cost){
+                        cost = v.getCurrentDuration();
+                        vehicle = v;
+                        index = i;
+                    }
+                    v.removeCustomer(c);
+                }
+            }
+        }
+
+        if(vehicle != null){
+            if(index > 0) {
+                vehicle.addCustomerToSpot(c, index);
+            }
+            else {
+                vehicle.addCustomer(c);
+            }
+        }
+    }
+
+    private void reversMutation(Chromosome offspring){
+
+        Vehicle v = offspring.getCars().get(r.nextInt(offspring.getCars().size()));
+
+        if(v.getPath().size() < 3){
+            return;
+        }
+
+        int cutpoint1 = r.nextInt(v.getPath().size());
+        int cutpoint2 = r.nextInt(v.getPath().size());
+
+        while(cutpoint1 >= cutpoint2){
+            cutpoint1 = r.nextInt(v.getPath().size());
+            cutpoint2 = r.nextInt(v.getPath().size());
+        }
+
+        Collections.reverse(v.getPath().subList(cutpoint1,cutpoint2));
+    }
+
+    public void longesToShotestMutation(Chromosome offspring){
+        Vehicle slowestVehicle = offspring.getCars().get(0);
+        for(Vehicle v : offspring.getCars()){
+            if(v.getCurrentDuration() > slowestVehicle.getCurrentDuration()){
+                slowestVehicle = v;
+            }
+        }
+
+        Depot d = slowestVehicle.getDepo();
+        Vehicle fastestVehicle = slowestVehicle;
+        for(Vehicle v: d.getVehicles()){
+            if(v.getCurrentDuration() < fastestVehicle.getCurrentDuration()){
+                fastestVehicle = v;
+            }
+        }
+
+        int pos = r.nextInt(slowestVehicle.getPath().size());
+        Customer c = slowestVehicle.removeCustomerFromSpot(pos);
+
+
+        int bestPos = -1;
+        double shortestDuration = Double.MAX_VALUE;
+        for(int i = 0; i < fastestVehicle.getPath().size(); i++){
+            fastestVehicle.addCustomerToSpot(c,i);
+            if(isValidRoute(fastestVehicle)){
+                if(fastestVehicle.getCurrentDuration() < shortestDuration){
+                    shortestDuration = fastestVehicle.getCurrentDuration();
+                    bestPos = i;
+                }
+            }
+            fastestVehicle.removeCustomer(c);
+        }
+        if(bestPos >= 0){
+            fastestVehicle.addCustomerToSpot(c, bestPos);
+        }
+        else {
+            slowestVehicle.addCustomerToSpot(c, pos);
+        }
+
+    }
+
+
+    private void mutation(Chromosome offspring){
         if(offspring.getCars().size() < 1) {
             return;
         }
 
         Vehicle vehicleOne = offspring.getCars().get(r.nextInt(offspring.getCars().size()));
 
-
         if(vehicleOne.getPath().size() > 1){
             int custIndex = r.nextInt(vehicleOne.getPath().size());
-            Customer cust = vehicleOne.getPath().remove(custIndex);
+            Customer cust = vehicleOne.removeCustomerFromSpot(custIndex);
+
             int newPosition = r.nextInt(vehicleOne.getPath().size());
             vehicleOne.getPath().add(newPosition, cust);
             vehicleOne.setCurrentDuration();
@@ -290,42 +510,99 @@ public class GA {
 
         }
 
-
-
-
         System.out.println("Solution:\n" + sb);
     }
 
-    public void run(int populationSize, int maxEphochs, double crossoverRate, double mutationRate){
-        this.initPop(populationSize); // 2 & 3. this also evaluates the fitness
+    public void run(int populationSize, int maxEphochs, double crossoverRate, double mutationRate) {
+        this.initPop(populationSize, false, this.population); // 2 & 3. this also evaluates the fitness
         int epoch = 0; // 1.
+        double lastFitness;
+        double stuck = 0;
 
-        while(epoch < maxEphochs){ // 4
-            ArrayList<Chromosome> parents = selectParents(2); // 5. select parents
+        while (epoch < maxEphochs) { // 4
 
             ArrayList<Chromosome> newPopulation = new ArrayList<>();
-            newPopulation.add(this.population.get(0)); //:: ELITISM ; best is always taken to the next generation.
+            ArrayList<Chromosome> parents = selectParents(200); // 5. select parents
+            ArrayList<Chromosome> kids = new ArrayList<>();
+
+            if (stuck == 5){
+                stuck = 0;
+                initPop((int) Math.round(populationSize * 0.9), false, kids);
+            }
 
             System.out.println("population: " + epoch + " :: " + population.get(0).getFitness());
 
             // basically create all offsprings and crossover them.
-            while(newPopulation.size() < population.size()){
+            while (kids.size() < population.size()) {
                 // 6. Crossover and // 7. mutation on offspring
-                newPopulation.add(this.crossover(parents.get(0), parents.get(1), crossoverRate, mutationRate));
-                if(newPopulation.size() == population.size()) {
-                    break;
+                double k = r.nextDouble();
+                double prob = 0.8;
+                if (k <= prob) {
+                    kids.add(this.crossover(population.get(0), parents.get(0), crossoverRate, mutationRate));
+                    kids.add(this.crossover(parents.get(0), population.get(0), crossoverRate, mutationRate));
+                } else {
+                    Chromosome p1 = parents.get(r.nextInt(parents.size()));
+                    Chromosome p2 = parents.get(r.nextInt(parents.size()));
+                    kids.add(this.crossover(p1, p2, crossoverRate, mutationRate));
+                    kids.add(this.crossover(p2, p1, crossoverRate, mutationRate));
                 }
-                newPopulation.add(this.crossover(parents.get(1), parents.get(0), crossoverRate, mutationRate));
+
             }
-            this.population = new Cloner().deepClone(newPopulation);
-            epoch ++;
+            ArrayList<Chromosome> temp = new ArrayList<>();
+            temp.addAll(parents);
+            temp.addAll(kids);
+            Collections.sort(temp, new SortPopulationComparator());
+
+            int index = 0;
+            while(index < populationSize){
+                int rank = temp.size();
+                int totalScore = 0;
+                for(int i= temp.size(); i>0;i--){
+                    totalScore += i;
+                }
+                Double cumulativeProbability = 0.0;
+                Double p = Math.random();
+                int listIndex = 0;
+                while (!temp.isEmpty()){
+
+                    Chromosome c = temp.get(listIndex);
+                    cumulativeProbability += (double) rank/totalScore;
+                    if(p <= cumulativeProbability){
+                        newPopulation.add(temp.remove(listIndex));
+                        index ++;
+                        break;
+                    }
+                    listIndex ++;
+                    rank--;
+
+                }
+            }
+
+            /*
+            newPopulation.add(population.get(0)); //:: ELITISM ; best is always taken to the next generation.
+            newPopulation.addAll(temp.subList(0, populationSize-1));
+*/
+            this.population = newPopulation;
+            lastFitness = population.get(0).getFitness();
+            if(lastFitness != population.get(0).getFitness()){
+                lastFitness = population.get(0).getFitness();
+                stuck = 0;
+            }
+            else{
+                stuck++;
+            }
+            epoch++;
         }
         this.plotter.plotChromosome(population.get(0));
         this.plotter.updateUI();
     }
 
     public static void main(String[] args) {
-        GA ga = new GA("p08", 100, 1000, 0.6, 1);
+        GA ga = new GA("p01");
+//        ga.initPop(100, false);
+
+        ga.run(100, 1000, 0.5, 0.6);
+
         ga.printSolution();
 
     }

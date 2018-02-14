@@ -53,6 +53,39 @@ public class Vehicle {
 
     }
 
+    public void addCustomerToSpot(Customer c, int spot){
+        this.xPos = c.getXpos();
+        this.yPos = c.getYpos();
+        this.path.add(spot, c);
+        this.setCurrentDuration();
+
+    }
+
+    public void removeCustomer(Customer c){
+        this.getPath().remove(c);
+        if(this.getPath().size() < 1){
+            this.setxyPos(this.getDepo().getXpos(), this.getDepo().getYpos());
+        }
+        else{
+            this.setxyPos(this.getPath().get(this.getPath().size()-1).getXpos(), this.getPath().get(this.getPath().size()-1).getYpos());
+        }
+        this.setCurrentDuration();
+
+    }
+
+    public Customer removeCustomerFromSpot(int spot){
+        Customer c = this.getPath().remove(spot);
+        if(this.getPath().size() < 1){
+            this.setxyPos(this.getDepo().getXpos(), this.getDepo().getYpos());
+        }
+        else{
+            this.setxyPos(this.getPath().get(this.getPath().size()-1).getXpos(), this.getPath().get(this.getPath().size()-1).getYpos());
+        }
+        this.setCurrentDuration();
+        return c;
+    }
+
+
     public ArrayList<Customer> getPath() {
         return path;
     }
