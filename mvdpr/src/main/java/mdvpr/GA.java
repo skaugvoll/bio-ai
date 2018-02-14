@@ -480,10 +480,9 @@ public class GA {
 
             int newPosition = r.nextInt(vehicleOne.getPath().size());
             vehicleOne.addCustomerToSpot(cust, newPosition);
-            while(! isValidRoute(vehicleOne)){
+            if(! isValidRoute(vehicleOne)){
                 vehicleOne.removeCustomer(cust);
-                newPosition = r.nextInt(vehicleOne.getPath().size());
-                vehicleOne.addCustomerToSpot(cust, newPosition);
+                vehicleOne.addCustomerToSpot(cust, custIndex);
             }
         }
 
@@ -602,7 +601,7 @@ public class GA {
     }
 
     public static void main(String[] args) {
-        GA ga = new GA("p01");
+        GA ga = new GA("p08");
 //        ga.initPop(100, false);
 
         ga.run(100, 1000, 0.5, 0.6);
