@@ -236,7 +236,7 @@ public class GA {
                 return new Cloner().deepClone(survivor2);
             }
             double k = r.nextDouble();
-            if(k <= crossoverRate){
+            if(k <= 0.8){
                 possibleEntries.get(costs.indexOf(Collections.min(costs))).addCustomer(cust);
             }else{
                 possibleEntries.get(0).addCustomer(cust);
@@ -386,10 +386,12 @@ public class GA {
             } else {
                 for(int i = 0; i < v.getPath().size(); i++){
                     v.addCustomerToSpot(c,i);
-                    if(v.getCurrentDuration() < cost){
-                        cost = v.getCurrentDuration();
-                        vehicle = v;
-                        index = i;
+                    if(isValidRoute(v)){
+                        if(v.getCurrentDuration() < cost){
+                            cost = v.getCurrentDuration();
+                            vehicle = v;
+                            index = i;
+                        }
                     }
                     v.removeCustomer(c);
                 }
@@ -423,6 +425,9 @@ public class GA {
         }
 
         Collections.reverse(v.getPath().subList(cutpoint1,cutpoint2));
+        if(! isValidRoute(v)){
+            Collections.reverse(v.getPath().subList(cutpoint1,cutpoint2));
+        }
     }
 
     public void longesToShotestMutation(Chromosome offspring){
@@ -539,8 +544,7 @@ public class GA {
             while (kids.size() < population.size()) {
                 // 6. Crossover and // 7. mutation on offspring
                 double k = r.nextDouble();
-                double prob = 0.8;
-                if (k <= prob) {
+                if (k <= crossoverRate) {
                     kids.add(this.crossover(population.get(0), parents.get(0), crossoverRate, mutationRate));
                     kids.add(this.crossover(parents.get(0), population.get(0), crossoverRate, mutationRate));
                 } else {
@@ -604,7 +608,7 @@ public class GA {
         GA ga = new GA("p08");
 //        ga.initPop(100, false);
 
-        ga.run(100, 1000, 0.5, 0.6);
+        ga.run(100, 1000, 0.2, 0.2);
 
         ga.printSolution();
 
