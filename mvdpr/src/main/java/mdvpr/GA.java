@@ -232,8 +232,8 @@ public class GA {
             }
 
             if (possibleEntries.size() < 1){
-                return this.crossover(survivor1, survivor2, crossoverRate, mutationRate);
-//                return new Cloner().deepClone(survivor2);
+//                return this.crossover(survivor1, survivor2, crossoverRate, mutationRate);
+                return new Cloner().deepClone(survivor2);
             }
             double k = r.nextDouble();
             if(k <= crossoverRate){
@@ -251,8 +251,8 @@ public class GA {
                 this.swapping(temp);
             } else if(mutationProb >= 0.33 && mutationProb < 0.66){
 //                this.longesToShotest(temp);
-//                this.mutation(temp);
-                this.singleCustomerReRoutingMutation(temp);
+                this.mutation(temp);
+//                this.singleCustomerReRoutingMutation(temp);
             } else{
                 this.reversMutation(temp);
             }
@@ -479,8 +479,12 @@ public class GA {
             Customer cust = vehicleOne.removeCustomerFromSpot(custIndex);
 
             int newPosition = r.nextInt(vehicleOne.getPath().size());
-            vehicleOne.getPath().add(newPosition, cust);
-            vehicleOne.setCurrentDuration();
+            vehicleOne.addCustomerToSpot(cust, newPosition);
+            while(! isValidRoute(vehicleOne)){
+                vehicleOne.removeCustomer(cust);
+                newPosition = r.nextInt(vehicleOne.getPath().size());
+                vehicleOne.addCustomerToSpot(cust, newPosition);
+            }
         }
 
     }
