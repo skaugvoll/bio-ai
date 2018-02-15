@@ -521,7 +521,7 @@ public class GA {
         System.out.println("Solution:\n" + sb);
     }
 
-    public void run(int populationSize, int maxEphochs, double crossoverRate, double mutationRate) {
+    public void run(int populationSize, int maxEphochs, double crossoverRate, double mutationRate, boolean elitism) {
         this.initPop(populationSize, false, this.population); // 2 & 3. this also evaluates the fitness
         int epoch = 0; // 1.
         double lastFitness;
@@ -532,6 +532,10 @@ public class GA {
             ArrayList<Chromosome> newPopulation = new ArrayList<>();
             ArrayList<Chromosome> parents = selectParents(200); // 5. select parents
             ArrayList<Chromosome> kids = new ArrayList<>();
+
+            if(elitism){
+                newPopulation.add(this.population.get(0));
+            }
 
             if (stuck == 5){
                 stuck = 0;
@@ -608,7 +612,7 @@ public class GA {
         GA ga = new GA("p08");
 //        ga.initPop(100, false);
 
-        ga.run(100, 1000, 0.2, 0.2);
+        ga.run(100, 1000, 0.2, 0.2, true);
 
         ga.printSolution();
 
