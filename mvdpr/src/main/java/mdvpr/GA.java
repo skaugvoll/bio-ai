@@ -618,10 +618,10 @@ public class GA {
     }
 
     public static void main(String[] args) {
-        GA ga = new GA("p02");
+        GA ga = new GA("2");
 //        ga.initPop(100, false);
 
-        ga.run(100, 2000, 0.2, 0.2, true);
+        ga.run(150, 5000, 0.01, 0.1, true);
 
         ga.printSolution();
 
