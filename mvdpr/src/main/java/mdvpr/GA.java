@@ -521,6 +521,7 @@ public class GA {
     public void run(int populationSize, int maxEphochs, double crossoverRate, double mutationRate, boolean elitism) {
         this.initPop(populationSize, false, this.population); // 2 & 3. this also evaluates the fitness
         int epoch = 0; // 1.
+        double orgCrossoverRate = crossoverRate;
         double lastFitness;
         double stuck = 0;
 
@@ -537,6 +538,13 @@ public class GA {
             if (stuck == 2500){
                 stuck = 0;
                 initPop((int) Math.round(populationSize * 0.1), false, kids);
+            }
+            if(stuck == 200){
+                stuck = 0;
+                crossoverRate = 0.02;
+            }
+            else{
+                crossoverRate = orgCrossoverRate;
             }
 
             System.out.println("population: " + epoch + " :: " + population.get(0).getFitness());
@@ -606,7 +614,7 @@ public class GA {
     }
 
     public static void main(String[] args) {
-        GA ga = new GA("1");
+        GA ga = new GA("p02");
 //        ga.initPop(100, false);
 
         ga.run(10, 1000, 0.2, 0.2, true);
