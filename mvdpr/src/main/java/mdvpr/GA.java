@@ -510,7 +510,7 @@ public class GA {
             int carId = v.getDepo().getVehicles().indexOf(v);
             double duration = v.getCurrentDuration();
             int load = v.getLoad();
-            String s = String.format("%d\t %d\t %.2f\t %d\t" + v.getPath() + "\n", depotNumber, carId, duration, load );
+            String s = String.format("%d\t %d\t %.2f\t %d\t" + 0 + v.getPath() + 0 + "\n", depotNumber, carId, duration, load );
             sb.append(s);
 
         }
@@ -522,6 +522,7 @@ public class GA {
         this.initPop(populationSize, false, this.population); // 2 & 3. this also evaluates the fitness
         int epoch = 0; // 1.
         double orgCrossoverRate = crossoverRate;
+        double orgMutationRate = mutationRate;
         double lastFitness;
         double stuck = 0;
 
@@ -535,16 +536,19 @@ public class GA {
                 newPopulation.add(this.population.get(0));
             }
 
-            if (stuck == 2500){
+            if (stuck == 1000){
                 stuck = 0;
-                initPop((int) Math.round(populationSize * 0.1), false, kids);
+                initPop((int) Math.round(populationSize * 0.9), false, kids);
             }
             if(stuck == 200){
+                System.out.println("stuck 200");
                 stuck = 0;
-                crossoverRate = 0.02;
+                crossoverRate = 0.8;
+                mutationRate = 0.08;
             }
             else{
                 crossoverRate = orgCrossoverRate;
+                mutationRate = orgMutationRate;
             }
 
             System.out.println("population: " + epoch + " :: " + population.get(0).getFitness());
@@ -617,7 +621,7 @@ public class GA {
         GA ga = new GA("p02");
 //        ga.initPop(100, false);
 
-        ga.run(10, 1000, 0.2, 0.2, true);
+        ga.run(100, 2000, 0.2, 0.2, true);
 
         ga.printSolution();
 
