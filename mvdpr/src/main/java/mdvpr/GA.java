@@ -48,6 +48,7 @@ public class GA {
                 resetDepots();
             }
             toBePopulated.add(generateSolution(preferedDepots));
+            System.out.println("Created individual number; " + toBePopulated.size());
         }
 
         if(print){
@@ -94,7 +95,11 @@ public class GA {
                 Depot dp = preferedDepots.get(unsatisfiedCustomers.get(0).getId()).get(0);
                 Vehicle v = dp.getVehicles().get(r.nextInt(dp.getVehicles().size()));
                 unsatisfiedCustomers.add(v.removeCustomerFromSpot(r.nextInt(v.getPath().size())));
-                v.addCustomer(unsatisfiedCustomers.remove(0));
+                if(v.getPath().size() > 1){
+                    unsatisfiedCustomers.add(v.removeCustomerFromSpot(r.nextInt(v.getPath().size())));
+                }
+//                v.addCustomer(unsatisfiedCustomers.remove(0));
+                unsatisfiedCustomers.add(unsatisfiedCustomers.remove(0));
             }
         }
 
@@ -316,10 +321,6 @@ public class GA {
             }
         }
 
-
-        ////////////////////////////
-
-
         if(v2.getPath().size() == 0){
             v2.addCustomer(c1);
         }else {
@@ -345,12 +346,8 @@ public class GA {
                     v1.removeCustomer(c2);
                     v2.addCustomerToSpot(c2, cust2Spot);
                 }
-
             }
         }
-
-
-
 
     }
 
@@ -537,9 +534,9 @@ public class GA {
                 newPopulation.add(this.population.get(0));
             }
 
-            if (stuck == 5){
+            if (stuck == 2500){
                 stuck = 0;
-                initPop((int) Math.round(populationSize * 0.9), false, kids);
+                initPop((int) Math.round(populationSize * 0.1), false, kids);
             }
 
             System.out.println("population: " + epoch + " :: " + population.get(0).getFitness());
@@ -609,10 +606,10 @@ public class GA {
     }
 
     public static void main(String[] args) {
-        GA ga = new GA("p08");
+        GA ga = new GA("1");
 //        ga.initPop(100, false);
 
-        ga.run(100, 1000, 0.2, 0.2, true);
+        ga.run(10, 1000, 0.2, 0.2, true);
 
         ga.printSolution();
 
