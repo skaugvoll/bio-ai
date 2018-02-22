@@ -11,12 +11,13 @@ public class DataGenerator {
 
     public int[][] readImage(String number) {
         String resourcePath = "/TestImages/"+number+"/Test image.jpg";
+        int[][] result = {};
 
         try{
             BufferedImage hugeImage = ImageIO.read(DataGenerator.class.getResourceAsStream(resourcePath));
             System.out.println("okay, now bufferdImage");
 
-            int[][] result = convertTo2DWithoutUsingGetRGB(hugeImage); // height x width 
+            result = convertTo2DWithoutUsingGetRGB(hugeImage); // height x width
 
             System.out.println(Arrays.toString(this.GBRtoRGB(result[0][0])));
             return result;
@@ -25,6 +26,7 @@ public class DataGenerator {
             System.out.println("fåkk, something went wrong!\n" + e);
         }
 
+        return result;
 
     }
 
