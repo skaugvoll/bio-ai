@@ -34,4 +34,12 @@ public class Pixel {
     public String toString() {
         return Arrays.toString(this.neighboursDistances);
     }
+
+    public double[] getNeighboursDistances() {
+        return neighboursDistances;
+    }
+
+    public int[] getNeighbour(int index){
+        return this.neighbours[index];
+    }
 }
