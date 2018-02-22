@@ -130,7 +130,7 @@ public class DataGenerator {
                 neighbours[3][0] = pixel - 1 < 0 ? -1 : row;
                 neighbours[3][1] = pixel - 1 < 0 ? -1 : pixel - 1;
 
-                Pixel newPixel = new Pixel(GBRtoRGB(result[row][pixel]), neighbours);
+                Pixel newPixel = new Pixel(GBRtoRGB(result[row][pixel]), neighbours, new int[]{row, pixel});
                 pixels[row][pixel] = newPixel;
             }
         }

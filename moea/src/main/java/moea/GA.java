@@ -3,12 +3,15 @@ package moea;
 public class GA {
 
     DataGenerator dg = new DataGenerator();
+    Prims prim = new Prims();
 
     private Pixel[][] pixels = {};
 
     public void run(){
-        pixels = dg.readImage("1");
+        pixels = dg.readImage("9");
         calculateNeighbourDistance();
+        prim.algorithm(pixels);
+
     }
 
     public void calculateNeighbourDistance() {
