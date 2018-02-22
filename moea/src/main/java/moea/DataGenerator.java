@@ -4,22 +4,22 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.IOException;
-
+import java.util.Arrays;
 
 
 public class DataGenerator {
 
-    public void readImage(String number) {
+    public int[][] readImage(String number) {
         String resourcePath = "/TestImages/"+number+"/Test image.jpg";
 
         try{
             BufferedImage hugeImage = ImageIO.read(DataGenerator.class.getResourceAsStream(resourcePath));
             System.out.println("okay, now bufferdImage");
 
-            int[][] result = convertTo2DWithoutUsingGetRGB(hugeImage);
-//            int[][] result = convertTo2DUsingGetRGB(hugeImage);
+            int[][] result = convertTo2DWithoutUsingGetRGB(hugeImage); // height x width 
 
-            System.out.println(this.GBRtoRGB(result[0][0]));
+            System.out.println(Arrays.toString(this.GBRtoRGB(result[0][0])));
+            return result;
         }
         catch (IOException e){
             System.out.println("fåkk, something went wrong!\n" + e);
