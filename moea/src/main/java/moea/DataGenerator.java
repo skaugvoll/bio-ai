@@ -119,12 +119,12 @@ public class DataGenerator {
                 neighbours[0][1] = row - 1 < 0 ? -1 : pixel;
 
                 //East
-                neighbours[1][0] = pixel + 1 > numberOfPixelsPerRow ? -1 : row;
-                neighbours[1][1] = pixel + 1 > numberOfPixelsPerRow ? -1 : pixel + 1;
+                neighbours[1][0] = pixel + 1 >= numberOfPixelsPerRow ? -1 : row;
+                neighbours[1][1] = pixel + 1 >= numberOfPixelsPerRow ? -1 : pixel + 1;
 
                 //South
-                neighbours[2][0] = row + 1 > numberOfPRows ? -1 : row + 1;
-                neighbours[2][1] = row + 1 > numberOfPRows ? -1 : pixel;
+                neighbours[2][0] = row + 1 >= numberOfPRows ? -1 : row + 1;
+                neighbours[2][1] = row + 1 >= numberOfPRows ? -1 : pixel;
 
                 //West
                 neighbours[3][0] = pixel - 1 < 0 ? -1 : row;
