@@ -1,4 +1,8 @@
 .xml
+moea/.idea/workspace.xml
+moea/.idea/*
+moea.DS_Store
+moea/target/
 mvdpr/.idea/workspace.xml
 mvdpr/.idea/*
 mvdpr/.DS_Store
