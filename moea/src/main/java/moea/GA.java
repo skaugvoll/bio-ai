@@ -8,7 +8,7 @@ public class GA {
     private Pixel[][] pixels = {};
 
     public void run(){
-        pixels = dg.readImage("9");
+        pixels = dg.readImage("1");
         calculateNeighbourDistance();
         prim.algorithm(pixels);
 
