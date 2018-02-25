@@ -1,17 +1,20 @@
 
 package moea;
 
-import java.util.ArrayList;
-import java.util.Random;
+import com.rits.cloning.Cloner;
+
+import java.util.*;
 
 public class Prims {
 
-    public void algorithm(Pixel[][] pixels){
+    public ArrayList<Pixel> algorithm(Pixel[][] orgPixels){
+        Pixel[][] pixels = new Cloner().deepClone(orgPixels);
+        long startTime = System.currentTimeMillis();
 
         int numberOfpixels = pixels.length * pixels[0].length;
 
-
         ArrayList<Pixel> visited = new ArrayList<Pixel>();
+        SortedMap<Double, ArrayList<Pixel[]>> open = new TreeMap<Double, ArrayList<Pixel[]>>();
 
 //        int initPixel = new Random().nextInt(numberOfpixels); // choose random pixel to start from.
         int initPixel = 5;
@@ -20,33 +23,88 @@ public class Prims {
 
         visited.add(pixels[initRow][initPix]);
 
-        while(visited.size() != numberOfpixels){
-            double lowestCost = Double.MAX_VALUE;
-            int[] gonnaBevisited = null;
-            Pixel parent = null;
-            //find cheapest edge out of vistied pixels, to unvisited pixels
+        // add first pixels neighbours to open list (in a sorted manner)
+        for(int n = 0; n < visited.get(0).getNeighbours().length; n++){
+            int[] coord = visited.get(0).getNeighbour(n);
 
-            for(Pixel p : visited){
-                for(int i = 0; i < p.getNeighbours().length; i++){
-                    if(p.getNeighbour(i)[0] != -1 && p.getNeighboursDistances()[i] < lowestCost && ! visited.contains(pixels[p.getNeighbour(i)[0]][p.getNeighbour(i)[1]])){
-                        parent = p;
-                        lowestCost = p.getNeighboursDistances()[i];
-                        gonnaBevisited = p.getNeighbour(i);
-                    }
-                }
+//          If there is no neighbour
+            if(coord[0] == -1){
+                continue;
             }
-            Pixel child = pixels[gonnaBevisited[0]][gonnaBevisited[1]];
-            child.setParent(parent);
-            parent.addChild(child);
-            visited.add(child);
+
+            Pixel nbr = pixels[coord[0]][coord[1]];
+            Pixel parent = visited.get(0);
+            double dist = parent.getNeighboursDistances()[n];
+            checkIfAllreadyFound(parent, nbr, dist, open);
+
         }
 
-        System.out.println(visited.size() + " :: " + pixels.length);
+        while(visited.size() != numberOfpixels){
+            double lowestCost = Double.MAX_VALUE;
+            Pixel gonnaBevisited = null;
+            Pixel parent = null;
 
+            double gonnaBeVisitedKey = open.firstKey();
+            ArrayList<Pixel[]> edges = open.get(gonnaBeVisitedKey);
+            if(visited.contains(edges.get(0)[1])){
+                edges.remove(0); // remove the "edge" from open list.
+                if(open.get(gonnaBeVisitedKey).size() <1){
+                    open.remove(gonnaBeVisitedKey);;
+                }
+                continue;
+            }
+            gonnaBevisited = edges.get(0)[1];
+            parent = edges.get(0)[0];
 
+            // add the gonnaBeVisited to visitedList
+            visited.add(gonnaBevisited);
+            gonnaBevisited.setParent(parent);
+            parent.addChild(gonnaBevisited);
+            // remove gonna be visited from open ?
+            edges.remove(0); // remove the "edge" from open list.
+            if(open.get(gonnaBeVisitedKey).size() <1){
+                open.remove(gonnaBeVisitedKey);;
+            }
 
+            // add new neighbours to open list
+            // check if neighbour is allready visited
+            for(int n = 0; n < gonnaBevisited.getNeighbours().length; n++){
+                int[] coord = gonnaBevisited.getNeighbour(n);
 
+//          If there is no neighbour
+                if(coord[0] == -1){
+                    continue;
+                }
 
+                Pixel nbr = pixels[coord[0]][coord[1]];
+                if (visited.contains(nbr) || open.containsValue(nbr)){
+                    continue;
+                }
+                else{
+                    double dist = gonnaBevisited.getNeighboursDistances()[n];
+                    checkIfAllreadyFound(gonnaBevisited, nbr, dist, open);
+                }
+            }
+        }
+        long endTime = System.currentTimeMillis();
+
+        System.out.println(visited.size() + " :: " + pixels.length + "\n Time: " + (endTime - startTime));
+        return visited; // visited = MST, root = visited[0]
+
+    }
+
+    private void checkIfAllreadyFound(Pixel parent, Pixel child, double dist, SortedMap<Double, ArrayList<Pixel[]>> open) {
+        if(open.get(dist) == null){
+            ArrayList<Pixel[]> values = new ArrayList<Pixel[]>();
+            Pixel[] value = {parent, child};
+            values.add(value);
+            open.put(dist, values);
+        } else {
+            Pixel[] value = {parent, child};
+            ArrayList<Pixel[]> values = open.get(dist);
+            values.add(value);
+            open.put(dist, values);
+        }
     }
 
 

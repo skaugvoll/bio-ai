@@ -1,18 +1,66 @@
 package moea;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
+
 public class GA {
 
     DataGenerator dg = new DataGenerator();
     Prims prim = new Prims();
+    private ExecutorService pool;
 
     private Pixel[][] pixels = {};
 
-    public void run(){
-        pixels = dg.readImage("9");
+    public void run(int popSize) {
+        pixels = dg.readImage("1");
         calculateNeighbourDistance();
-        prim.algorithm(pixels);
+        pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
+        ArrayList<ArrayList<Pixel>> population = new ArrayList<ArrayList<Pixel>>();
+
+        Callable<ArrayList<Pixel>> callableTask = () -> {
+            return this.prim.algorithm(pixels);
+        };
+
+        List<Callable<ArrayList<Pixel>>> callableTasks = new ArrayList<>();
+        for (int t = 0; t < popSize; t++) {
+            callableTasks.add(callableTask);
+            System.out.println("creating task :" + t);
+        }
+
+        try {
+            long startTime = System.currentTimeMillis();
+            List<Future<ArrayList<Pixel>>> futures = pool.invokeAll(callableTasks);
+
+            for(int i = 0; i < futures.size(); i++){
+                try {
+                    population.add(futures.get(i).get());
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+            long endTime = System.currentTimeMillis();
+            System.out.println("Time used in total: " + (endTime-startTime));
+        } catch (InterruptedException e) {
+            System.out.println("Futures invokeAll fucked up\n" + e);
+        }
+
+//        System.out.println("1");
+
+        pool.shutdown();
+        while(! pool.isTerminated()){
+//            System.out.println("population size: " + population.size());
+//            System.out.println("Waiting for termination.");
+        }
+
+//        System.out.println("2");
+        System.out.println("populationSize: " + population.size());
     }
+
+
 
     public void calculateNeighbourDistance() {
         int numberOfPRows = this.pixels.length;
@@ -40,7 +88,7 @@ public class GA {
 
     public static void main(String[] args) {
         GA g = new GA();
-        g.run();
+        g.run(10);
 
     }
 
