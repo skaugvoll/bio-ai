@@ -1,5 +1,6 @@
 package moea;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -12,15 +13,74 @@ public class GA {
 
     private Pixel[][] pixels = {};
 
-    public void run(int popSize) {
-        pixels = dg.readImage("1");
+    public void run(int imgNbr, int popSize) {
+        pixels = dg.readImage(String.valueOf(imgNbr));
         calculateNeighbourDistance();
       
 //        dg.drawImage(pixels);
 
+//        pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+        ArrayList<ArrayList<Pixel>> MSTs = new ArrayList<ArrayList<Pixel>>();
+        threadGenerateMST(popSize, MSTs);
+
+        ArrayList<Chromosome> population = new ArrayList<>();
+        threadGeneratePopulation(MSTs, population);
+
+//        System.out.println("2");
+        System.out.println("populationSize: " + MSTs.size());
+    }
+
+    private void threadGeneratePopulation(ArrayList<ArrayList<Pixel>> MSTs, ArrayList<Chromosome> population) {
         pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-        ArrayList<ArrayList<Pixel>> population = new ArrayList<ArrayList<Pixel>>();
+//        Callable<Chromosome> callableTask = () -> {
+//            return new Chromosome();
+//        };
+
+        List<Callable<Chromosome>> callableTasks = new ArrayList<>();
+        for (int t = 0; t < MSTs.size(); t++) {
+            int finalT = t;
+            callableTasks.add(() -> {
+                return new Chromosome(MSTs.get(finalT), pixels.length * pixels[0].length, 1);
+            });
+            System.out.println("creating segmenting task :" + t);
+        }
+
+        try {
+            System.out.println("Gonna try executin these badboys");
+
+            long startTime = System.currentTimeMillis();
+            List<Future<Chromosome>> futures = pool.invokeAll(callableTasks);
+            long endTime = System.currentTimeMillis();
+
+            System.out.println("Fåkk this badboys are invoked and done, all in just: " + (endTime - startTime)/1000);
+
+            for(int i = 0; i < futures.size(); i++){
+                try {
+                    population.add(futures.get(i).get());
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+            System.out.println("Time used in total: ");
+        } catch (InterruptedException e) {
+            System.out.println("Futures invokeAll fucked up\n" + e);
+        }
+
+        pool.shutdown();
+        while(! pool.isTerminated()){
+//            System.out.println("population size: " + population.size());
+//            System.out.println("Waiting for termination.");
+        }
+
+
+    }
+
+    private void threadGenerateMST(int popSize, ArrayList<ArrayList<Pixel>> MSTs) {
+        pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
         Callable<ArrayList<Pixel>> callableTask = () -> {
             return this.prim.algorithm(pixels);
@@ -38,7 +98,7 @@ public class GA {
 
             for(int i = 0; i < futures.size(); i++){
                 try {
-                    population.add(futures.get(i).get());
+                    MSTs.add(futures.get(i).get());
                 } catch (ExecutionException e) {
                     e.printStackTrace();
                 }
@@ -57,11 +117,7 @@ public class GA {
 //            System.out.println("population size: " + population.size());
 //            System.out.println("Waiting for termination.");
         }
-
-//        System.out.println("2");
-        System.out.println("populationSize: " + population.size());
     }
-
 
 
     public void calculateNeighbourDistance() {
@@ -90,7 +146,7 @@ public class GA {
 
     public static void main(String[] args) {
         GA g = new GA();
-        g.run(1);
+        g.run(1, 1);
     }
 
 }

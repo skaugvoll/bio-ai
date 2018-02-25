@@ -53,10 +53,26 @@ public class Pixel {
         this.parent = parent;
     }
 
+    public ArrayList<Pixel> getChildren(){
+        return this.children;
+    }
+
+    public void removeChild(int index){
+        this.children.remove(index);
+    }
+
+    public void removeChild(Pixel child){
+        this.children.remove(child);
+    }
+
     
     @Override
     public String toString() {
         return Arrays.toString(this.neighboursDistances) + "C: " + Arrays.toString(this.coordinates);
+    }
+
+    public Pixel getParent() {
+        return parent;
     }
 }
 
