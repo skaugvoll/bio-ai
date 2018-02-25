@@ -16,7 +16,7 @@ public class GA {
         pixels = dg.readImage("1");
         calculateNeighbourDistance();
       
-        dg.drawImage(pixels);
+//        dg.drawImage(pixels);
 
         pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
