@@ -15,6 +15,9 @@ public class GA {
     public void run(int popSize) {
         pixels = dg.readImage("1");
         calculateNeighbourDistance();
+      
+        dg.drawImage(pixels);
+
         pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
         ArrayList<ArrayList<Pixel>> population = new ArrayList<ArrayList<Pixel>>();
@@ -40,7 +43,6 @@ public class GA {
                     e.printStackTrace();
                 }
             }
-
 
             long endTime = System.currentTimeMillis();
             System.out.println("Time used in total: " + (endTime-startTime));
@@ -88,8 +90,7 @@ public class GA {
 
     public static void main(String[] args) {
         GA g = new GA();
-        g.run(10);
-
+        g.run(1);
     }
 
 }
