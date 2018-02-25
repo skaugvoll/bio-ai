@@ -1,11 +1,14 @@
 
 package moea;
 
+import com.rits.cloning.Cloner;
+
 import java.util.*;
 
 public class Prims {
 
-    public void algorithm(Pixel[][] pixels){
+    public ArrayList<Pixel> algorithm(Pixel[][] orgPixels){
+        Pixel[][] pixels = new Cloner().deepClone(orgPixels);
         long startTime = System.currentTimeMillis();
 
         int numberOfpixels = pixels.length * pixels[0].length;
@@ -86,7 +89,7 @@ public class Prims {
         long endTime = System.currentTimeMillis();
 
         System.out.println(visited.size() + " :: " + pixels.length + "\n Time: " + (endTime - startTime));
-
+        return visited; // visited = MST, root = visited[0]
 
     }
 
