@@ -64,10 +64,7 @@ public class GA {
         }
 
         try{
-            URL url = GA.class.getResource("/Output/out.png");
-//            String pth = url.toString();
-            String path = "C:\\Users\\thmwl\\Documents\\git\\bio-ai\\moea\\src\\main\\resources\\Output\\out.png";
-            f = new File(path);
+            f = new File(GA.class.getResource("/Output/out.png").getPath());
             ImageIO.write(newImage, "png", f);
         }catch(IOException e){
             System.out.println("Kunne ikke skrive ut fil");
