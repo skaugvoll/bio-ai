@@ -53,6 +53,7 @@ public class Pixel {
         this.parent = parent;
     }
 
+    
     @Override
     public String toString() {
         return Arrays.toString(this.neighboursDistances) + "C: " + Arrays.toString(this.coordinates);

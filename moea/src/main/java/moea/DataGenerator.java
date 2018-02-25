@@ -3,6 +3,7 @@ package moea;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -137,6 +138,28 @@ public class DataGenerator {
         return pixels;
     }
 
+    public void drawImage(Pixel[][] pixels){
+        BufferedImage newImage = new BufferedImage(481, 321, BufferedImage.TYPE_INT_ARGB);
+        File f = null;
+
+
+        for(int row = 0; row < pixels.length; row++){
+            for(int col = 0; col < 481; col++){
+                int[] RGB = pixels[row][col].getRGB();
+
+                int p = (255 << 24) | (RGB[0] << 16) | (RGB[1] << 8) | RGB[2];
+
+                newImage.setRGB(col, row, p);
+            }
+        }
+
+        try{
+            f = new File(GA.class.getResource("/Output/out.png").getPath());
+            ImageIO.write(newImage, "png", f);
+        }catch(IOException e){
+            System.out.println("Kunne ikke skrive ut fil");
+        }
+    }
 
     public static void main(String[] args) {
         DataGenerator dg = new DataGenerator();
