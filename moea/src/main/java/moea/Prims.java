@@ -16,8 +16,8 @@ public class Prims {
         ArrayList<Pixel> visited = new ArrayList<Pixel>();
         SortedMap<Double, ArrayList<Pixel[]>> open = new TreeMap<Double, ArrayList<Pixel[]>>();
 
-//        int initPixel = new Random().nextInt(numberOfpixels); // choose random pixel to start from.
-        int initPixel = 5;
+        int initPixel = new Random().nextInt(numberOfpixels); // choose random pixel to start from.
+//        int initPixel = 5;
         int initRow = (int) initPixel / pixels[0].length;
         int initPix = initPixel % pixels[0].length;
 
