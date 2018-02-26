@@ -30,21 +30,13 @@ public class Chromosome {
 
         while(segments.size() <= minSegments && mst.size() > 0) {
             if(segments.size() >= minSegments){
-                ArrayList<Pixel> found = new ArrayList<>();
+
                 for(Pixel node : mst){
                     if(! segments.contains(node) || ! visited.contains(node)){
-                        if(! found.contains(node) && ! segments.contains(node)){
+                        if(! visited.contains(node) && ! segments.contains(node)){
                             segments.add(node);
                         }
-
-                        found.addAll(node.getChildren());
-//                        for(Pixel child : found){
-//                            found.addAll(child.getChildren());
-//                        }
-
-
-
-                        visited.addAll(found);
+                        visited.addAll(node.getChildren());
                     }
                 }
                 break;
