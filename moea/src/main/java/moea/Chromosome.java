@@ -23,6 +23,9 @@ public class Chromosome {
 
         this.generateSegments();
         System.out.println("faen");
+        DataGenerator dg = new DataGenerator();
+        dg.drawSegments(this.segments);
+
 
     }
 

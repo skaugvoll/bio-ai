@@ -1,5 +1,7 @@
 package moea;
 
+import java.util.Arrays;
+
 public class Edge implements Comparable<Edge> {
 
     private Pixel currentPixel;
@@ -30,6 +32,10 @@ public class Edge implements Comparable<Edge> {
         return distance;
     }
 
+    @Override
+    public String toString() {
+        return Arrays.toString(currentPixel.coordinates) + ":::" + Arrays.toString(neighbourPixel.coordinates);
+    }
 
     @Override
     public int compareTo(Edge e) {

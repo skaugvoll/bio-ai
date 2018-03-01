@@ -22,7 +22,7 @@ public class GA {
 
         ArrayList<Chromosome> population = new ArrayList<>();
         for(MST mst : MSTs){
-            population.add(new Chromosome(mst, mst.fuckersVisited.size(), 3));
+            population.add(new Chromosome(mst, mst.fuckersVisited.size(), 20));
         }
 
         System.out.println("populationSize: " + MSTs.size());
@@ -71,7 +71,7 @@ public class GA {
 
     public static void main(String[] args) {
         GA g = new GA();
-        g.run(10, 1);
+        g.run(1, 1);
     }
 
 }

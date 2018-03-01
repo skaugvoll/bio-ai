@@ -8,7 +8,7 @@ public class Pixel {
 
     private final String[] directions = {"left", "right", "up", "down", "none"};
 
-    private int[] coordinates = new int[2];
+    public int[] coordinates = new int[2];
     private String arrow;
     private int[] RGB = new int[3];
     private ArrayList<Edge> neighbours = new ArrayList<>();

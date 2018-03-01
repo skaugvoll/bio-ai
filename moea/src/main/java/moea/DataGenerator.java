@@ -149,6 +149,29 @@ public class DataGenerator {
 
     }
 
+    public void drawSegments(ArrayList<Segment> segments){
+//        BufferedImage newImage = new BufferedImage(5, 5, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage newImage = new BufferedImage(481, 321, BufferedImage.TYPE_INT_ARGB);
+        File f = null;
+
+        for(Segment s : segments){
+            for(Pixel p : s.pixels){
+                int color = (255 << 24) | (s.color.getRed() << 16) | (s.color.getGreen() << 8) | s.color.getBlue();
+
+                newImage.setRGB(p.coordinates[1], p.coordinates[0], color);
+            }
+        }
+
+        try{
+//            f = new File(this.getClass().getResource("Output/out.png").getPath());
+//            f = new File("/Users/sigveskaugvoll/Documents/Skole/2018V/Bio-Insipred Artificial intelligence/Assignments/bio-ai/moea/src/main/resources/Output/out.png");
+            f = new File("C:\\Users\\thmwl\\Documents\\git\\bio-ai\\moea\\src\\main\\resources\\Output\\out.png");
+            ImageIO.write(newImage, "png", f);
+        }catch(IOException e){
+            System.out.println("Kunne ikke skrive ut fil");
+        }
+    }
+
     public void drawImage(Pixel[][] pixels){
         BufferedImage newImage = new BufferedImage(481, 321, BufferedImage.TYPE_INT_ARGB);
         File f = null;
@@ -175,7 +198,7 @@ public class DataGenerator {
 
     public static void main(String[] args) {
         DataGenerator dg = new DataGenerator();
-        dg.readImage("1");
+        dg.readImage("10");
     }
 
 
