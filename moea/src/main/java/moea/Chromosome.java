@@ -56,10 +56,11 @@ public class Chromosome {
 
             for(int i = 0; i < segment.pixels.size(); i++){
                 for(int edg = 0; edg < mst.edges.size(); edg++){
-                    Edge e = mst.edges.get(e);
+                    Edge e = mst.edges.get(edg);
                     if(segment.pixels.get(i) == e.getCurrentPixel()){
                         segment.addPixel(e.getNeighbourPixel());
                         segment.addEdge(e);
+                        mst.edges.remove(e); // reduce the searchtime for each segment.
                     }
                 }
             }
