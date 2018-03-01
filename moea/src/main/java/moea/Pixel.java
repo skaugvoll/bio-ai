@@ -37,13 +37,16 @@ public class Pixel {
         return RGB;
     }
 
-    public Edge[] getNeighbours() {
+    public void addNeighbour(Edge edge){
+        this.neighbours.add(edge);
+    }
+
+    public ArrayList<Edge> getNeighbours() {
         return neighbours;
     }
 
-
-    public  Edge getNeighbourEdge(int index){
-        return this.neighbours[index];
+    public Edge getNeighbourEdge(int index){
+        return this.neighbours.get(index);
     }
 
     public void addChild(Pixel child){
@@ -57,7 +60,7 @@ public class Pixel {
     
     @Override
     public String toString() {
-        return Arrays.toString(this.neighbours) + "C: " + Arrays.toString(this.coordinates);
+        return this.neighbours.toString() + "C: " + Arrays.toString(this.coordinates);
     }
 
     public Pixel getParent() {

@@ -99,57 +99,51 @@ public class DataGenerator {
 //        Pixel[][] pixels = new Pixel[numberOfPRows][numberOfPixelsPerRow];
         for(int row = 0; row < numberOfPRows; row++){
             for(int pixel = 0; pixel < numberOfPixelsPerRow; pixel++) {
-                ArrayList<Edge> neighbours = new ArrayList<>(); // neighbours for each pixel! Gets cleared and is empty for each pixel
+                Pixel currentPixel = result[row][pixel];
 
                 //North
                 if(row == 0 && pixel == 0){ // øvre venstre hjørne
-
+                    currentPixel.addNeighbour(new Edge(currentPixel, result[row][pixel+1]));
+                    currentPixel.addNeighbour(new Edge(currentPixel, result[row+1][pixel]));
                 }
                 else if(row == 0 && pixel == numberOfPixelsPerRow -1){ // øvre høyre hjørne
-
+                    currentPixel.addNeighbour(new Edge(currentPixel, result[row+1][pixel]));
+                    currentPixel.addNeighbour(new Edge(currentPixel, result[row][pixel-1]));
                 }
                 else if(row == 0){ // denne tar alle på øverste rad som ikke er i et hjørne
-
+                    currentPixel.addNeighbour(new Edge(currentPixel, result[row][pixel+1]));
+                    currentPixel.addNeighbour(new Edge(currentPixel, result[row+1][pixel]));
+                    currentPixel.addNeighbour(new Edge(currentPixel, result[row][pixel-1]));
                 }
                 else if(row == numberOfPRows -1 && pixel == 0){ // nedre venstre hjørne
-
+                    currentPixel.addNeighbour(new Edge(currentPixel, result[row-1][pixel]));
+                    currentPixel.addNeighbour(new Edge(currentPixel, result[row][pixel+1]));
                 }
                 else if(row == numberOfPRows -1  && pixel == numberOfPixelsPerRow -1) { // nedre høyre hjørne
-
+                    currentPixel.addNeighbour(new Edge(currentPixel, result[row][pixel-1]));
+                    currentPixel.addNeighbour(new Edge(currentPixel, result[row+1][pixel]));
                 }
                 else if(row == numberOfPRows -1) { // denne tar alle på nederste linje som ikke er i hjørne
-
+                    currentPixel.addNeighbour(new Edge(currentPixel, result[row][pixel+1]));
+                    currentPixel.addNeighbour(new Edge(currentPixel, result[row][pixel-1]));
+                    currentPixel.addNeighbour(new Edge(currentPixel, result[row-1][pixel]));
                 }
                 else if(pixel == 0){ // denne tar alle som er helt til venstre i bildet.
-
+                    currentPixel.addNeighbour(new Edge(currentPixel, result[row][pixel+1]));
+                    currentPixel.addNeighbour(new Edge(currentPixel, result[row+1][pixel]));
+                    currentPixel.addNeighbour(new Edge(currentPixel, result[row-1][pixel]));
                 }
                 else if(pixel == numberOfPixelsPerRow -1) { // denne tar alle helt til høyre i bildet.
-
+                    currentPixel.addNeighbour(new Edge(currentPixel, result[row+1][pixel]));
+                    currentPixel.addNeighbour(new Edge(currentPixel, result[row][pixel-1]));
+                    currentPixel.addNeighbour(new Edge(currentPixel, result[row-1][pixel]));
                 }
                 else { // denne tar alle som ikke er langs en kant.
-
+                    currentPixel.addNeighbour(new Edge(currentPixel, result[row][pixel+1]));
+                    currentPixel.addNeighbour(new Edge(currentPixel, result[row+1][pixel]));
+                    currentPixel.addNeighbour(new Edge(currentPixel, result[row][pixel-1]));
+                    currentPixel.addNeighbour(new Edge(currentPixel, result[row-1][pixel]));
                 }
-
-
-
-
-//                neighbours[0][0] = row - 1 < 0 ? -1 : row - 1;
-//                neighbours[0][1] = row - 1 < 0 ? -1 : pixel;
-//
-//                //East
-//                neighbours[1][0] = pixel + 1 >= numberOfPixelsPerRow ? -1 : row;
-//                neighbours[1][1] = pixel + 1 >= numberOfPixelsPerRow ? -1 : pixel + 1;
-//
-//                //South
-//                neighbours[2][0] = row + 1 >= numberOfPRows ? -1 : row + 1;
-//                neighbours[2][1] = row + 1 >= numberOfPRows ? -1 : pixel;
-//
-//                //West
-//                neighbours[3][0] = pixel - 1 < 0 ? -1 : row;
-//                neighbours[3][1] = pixel - 1 < 0 ? -1 : pixel - 1;
-
-//                Pixel newPixel = new Pixel(GBRtoRGB(result[row][pixel]), neighbours, new int[]{row, pixel});
-//                pixels[row][pixel] = newPixel;
             }
         }
 
