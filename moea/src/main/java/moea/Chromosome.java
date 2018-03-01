@@ -1,25 +1,28 @@
 package moea;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
 
 public class Chromosome {
     // In most cases, pixels are stored as corresponding color values (RGB or CIE L*a*b as the color space [1]).
     MST mst;
-    ArrayList<Pixel> segments;
     int numberOfPixels;
     int minSegments;
 
     ArrayList<Pixel> rootNodes;
+    ArrayList<Segment> segments;
 
     public Chromosome(MST mst, int numberOfPixels, int minSegments){
         this.mst = mst;
-        this.segments = new ArrayList<>();
         this.numberOfPixels = numberOfPixels;
         this.minSegments = minSegments;
+
         rootNodes = new ArrayList<>();
+        this.segments = new ArrayList<>();
 
         this.generateSegments();
+        System.out.println("faen");
 
     }
 
@@ -48,7 +51,20 @@ public class Chromosome {
         }
 
         // brutt opp MST inn i segmenter, vi vet hva som er rot nodene til segmentene, men ikke hvilke edges som tilhører hvilke segmenter
-        
+        for(Pixel p : rootNodes){
+            Segment segment = new Segment(p, new Color(new Random().nextInt(256),new Random().nextInt(256),new Random().nextInt(256)));
+
+            for(int i = 0; i < segment.pixels.size(); i++){
+                for(int edg = 0; edg < mst.edges.size(); edg++){
+                    Edge e = mst.edges.get(e);
+                    if(segment.pixels.get(i) == e.getCurrentPixel()){
+                        segment.addPixel(e.getNeighbourPixel());
+                        segment.addEdge(e);
+                    }
+                }
+            }
+        this.segments.add(segment);
+        }
     }
 
 }

@@ -71,7 +71,7 @@ public class GA {
 
     public static void main(String[] args) {
         GA g = new GA();
-        g.run(9, 1);
+        g.run(1, 1);
     }
 
 }
