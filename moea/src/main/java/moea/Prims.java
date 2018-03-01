@@ -24,17 +24,11 @@ public class Prims {
         visited.add(pixels[initRow][initPix]);
 
         // add first pixels neighbours to open list (in a sorted manner)
-        for(int n = 0; n < visited.get(0).getNeighbours().length; n++){
-            int[] coord = visited.get(0).getNeighbour(n);
-
-//          If there is no neighbour
-            if(coord[0] == -1){
-                continue;
-            }
-
-            Pixel nbr = pixels[coord[0]][coord[1]];
-            Pixel parent = visited.get(0);
-            double dist = parent.getNeighboursDistances()[n];
+        for(int n = 0; n < visited.get(0).getNeighbours().size(); n++){
+            Edge edge = visited.get(0).getNeighbourEdge(n);
+            Pixel nbr = edge.getNeighbourPixel();
+            Pixel parent = edge.getCurrentPixel();
+            double dist = edge.getDistance();
             checkIfAllreadyFound(parent, nbr, dist, open);
 
         }
@@ -68,20 +62,17 @@ public class Prims {
 
             // add new neighbours to open list
             // check if neighbour is allready visited
-            for(int n = 0; n < gonnaBevisited.getNeighbours().length; n++){
-                int[] coord = gonnaBevisited.getNeighbour(n);
+            for(int n = 0; n < gonnaBevisited.getNeighbours().size(); n++){
+//                int[] coord = gonnaBevisited.getNeighbour(n);
+                Edge edge = gonnaBevisited.getNeighbourEdge(n);
 
-//          If there is no neighbour
-                if(coord[0] == -1){
-                    continue;
-                }
 
-                Pixel nbr = pixels[coord[0]][coord[1]];
+                Pixel nbr = edge.getNeighbourPixel();
                 if (visited.contains(nbr) || open.containsValue(nbr)){
                     continue;
                 }
                 else{
-                    double dist = gonnaBevisited.getNeighboursDistances()[n];
+                    double dist = edge.getDistance();
                     checkIfAllreadyFound(gonnaBevisited, nbr, dist, open);
                 }
             }

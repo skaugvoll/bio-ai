@@ -18,8 +18,15 @@ public class Edge {
     }
 
 
+    public Pixel getCurrentPixel() {
+        return currentPixel;
+    }
 
+    public Pixel getNeighbourPixel() {
+        return neighbourPixel;
+    }
 
-
-
+    public double getDistance() {
+        return distance;
+    }
 }
