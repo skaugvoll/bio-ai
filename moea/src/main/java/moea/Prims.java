@@ -26,15 +26,16 @@ public class Prims {
             Edge currentEdge = priorityQueue.remove();
 
             // se t hælvette  å ikke legg til en allerede sengeliggende pixel hælvette.
-            if(mst.contains(currentEdge.getNeighbourPixel())){
+            if(mst.fuckersVisited.contains(currentEdge.getNeighbourPixel())){
                 continue;
             }
+            mst.addEdge(currentEdge);
 
-            mst.add(currentEdge.getCurrentPixel(), currentEdge.getNeighbourPixel());
+            mst.fuckersVisited.add(currentEdge.getNeighbourPixel());
             priorityQueue.addAll(currentEdge.getNeighbourPixel().getNeighbours());
 
         }
-        priorityQueue.clear(); // memory performance bro!
+//        priorityQueue.clear(); // memory performance bro!
         return mst;
     }
 
