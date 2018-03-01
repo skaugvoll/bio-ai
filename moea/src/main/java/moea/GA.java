@@ -17,7 +17,7 @@ public class GA {
         pixels = dg.readImage(String.valueOf(imgNbr));
 
 
-        ArrayList<ArrayList<Pixel>> MSTs = new ArrayList<ArrayList<Pixel>>();
+        ArrayList<MST> MSTs = new ArrayList<>();
         threadGenerateMST(popSize, MSTs);
 
 
@@ -26,14 +26,14 @@ public class GA {
 
 
 
-    private void threadGenerateMST(int popSize, ArrayList<ArrayList<Pixel>> MSTs) {
+    private void threadGenerateMST(int popSize, ArrayList<MST> MSTs) {
         pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-        Callable<ArrayList<Pixel>> callableTask = () -> {
+        Callable<MST> callableTask = () -> {
             return this.prim.algorithm(pixels);
         };
 
-        List<Callable<ArrayList<Pixel>>> callableTasks = new ArrayList<>();
+        List<Callable<MST>> callableTasks = new ArrayList<>();
         for (int t = 0; t < popSize; t++) {
             callableTasks.add(callableTask);
             System.out.println("creating task :" + t);
@@ -41,10 +41,11 @@ public class GA {
 
         try {
             long startTime = System.currentTimeMillis();
-            List<Future<ArrayList<Pixel>>> futures = pool.invokeAll(callableTasks);
+            List<Future<MST>> futures = pool.invokeAll(callableTasks);
 
             for(int i = 0; i < futures.size(); i++){
                 try {
+                    System.out.println(futures.get(i).get());
                     MSTs.add(futures.get(i).get());
                 } catch (ExecutionException e) {
                     e.printStackTrace();
@@ -66,7 +67,7 @@ public class GA {
 
     public static void main(String[] args) {
         GA g = new GA();
-        g.run(9, 2);
+        g.run(1, 2);
     }
 
 }

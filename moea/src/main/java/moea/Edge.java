@@ -1,6 +1,6 @@
 package moea;
 
-public class Edge {
+public class Edge implements Comparable<Edge> {
 
     private Pixel currentPixel;
     private Pixel neighbourPixel;
@@ -28,5 +28,11 @@ public class Edge {
 
     public double getDistance() {
         return distance;
+    }
+
+
+    @Override
+    public int compareTo(Edge e) {
+        return (int) (this.distance - e.getDistance());
     }
 }
