@@ -6,8 +6,8 @@ import java.util.HashMap;
 
 public class MST {
 
-    private Pixel rootnode;
-    private ArrayList<Edge> edges;
+    public Pixel rootnode;
+    public ArrayList<Edge> edges;
     public ArrayList<Pixel> fuckersVisited;
 
 
