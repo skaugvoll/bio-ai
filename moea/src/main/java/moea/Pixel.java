@@ -11,37 +11,38 @@ public class Pixel {
     private int[] coordinates = new int[2];
     private String arrow;
     private int[] RGB = new int[3];
-    private int[][] neighbours = new int[4][2];
-    private double[] neighboursDistances = new double[4];
+    private ArrayList<Edge> neighbours;
 
     private Pixel parent = null;
     private ArrayList<Pixel> children = new ArrayList<Pixel>();
 
 
-    public Pixel(int[] RGB, int[][] neighbours, int[] coordinates) {
+    public Pixel(int[] RGB, int[] coordinates) {
+        this.RGB = RGB;
+        this.coordinates = coordinates;
+        this.arrow = directions[new Random().nextInt(4)];
+    }
+
+
+    public Pixel(int[] RGB, ArrayList<Edge> neighbours, int[] coordinates) {
         this.RGB = RGB;
         this.neighbours = neighbours;
         this.coordinates = coordinates;
         this.arrow = directions[new Random().nextInt(4)];
     }
 
+
+
     public int[] getRGB() {
         return RGB;
     }
 
-    public int[][] getNeighbours() {
+    public Edge[] getNeighbours() {
         return neighbours;
     }
 
-    public void setNeighboursDistance(int index, double value) {
-        this.neighboursDistances[index] = value;
-    }
 
-    public double[] getNeighboursDistances() {
-        return neighboursDistances;
-    }
-
-    public int[] getNeighbour(int index){
+    public  Edge getNeighbourEdge(int index){
         return this.neighbours[index];
     }
 
@@ -53,22 +54,10 @@ public class Pixel {
         this.parent = parent;
     }
 
-    public ArrayList<Pixel> getChildren(){
-        return this.children;
-    }
-
-    public void removeChild(int index){
-        this.children.remove(index);
-    }
-
-    public void removeChild(Pixel child){
-        this.children.remove(child);
-    }
-
     
     @Override
     public String toString() {
-        return Arrays.toString(this.neighboursDistances) + "C: " + Arrays.toString(this.coordinates);
+        return Arrays.toString(this.neighbours) + "C: " + Arrays.toString(this.coordinates);
     }
 
     public Pixel getParent() {

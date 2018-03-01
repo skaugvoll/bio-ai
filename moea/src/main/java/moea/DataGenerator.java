@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 
@@ -12,14 +13,14 @@ public class DataGenerator {
 
     public Pixel[][] readImage(String number) {
         String resourcePath = "/TestImages/"+number+"/Test image.jpg";
-        int[][] result = {};
         Pixel[][] pixels = {};
+
         try{
             BufferedImage hugeImage = ImageIO.read(DataGenerator.class.getResourceAsStream(resourcePath));
             System.out.println("okay, now bufferdImage");
 
-            result = convertTo2DWithoutUsingGetRGB(hugeImage); // height x width
-            pixels = this.createPixels(result);
+            pixels = convertTo2DWithoutUsingGetRGB(hugeImage); // height x width
+            this.createNeighbours(pixels);
 //            System.out.println(Arrays.toString(pixels[0][1].getRGB()));
 //            System.out.println(pixels[0][1]);
             return pixels;
@@ -33,23 +34,7 @@ public class DataGenerator {
     }
 
 
-    private static int[][] convertTo2DUsingGetRGB(BufferedImage image) {
-        int width = image.getWidth();
-        int height = image.getHeight();
-        int[][] result = new int[height][width];
-
-        for (int row = 0; row < height; row++) {
-            for (int col = 0; col < width; col++) {
-                result[row][col] = image.getRGB(col, row);
-                System.out.println(image.getRGB(col, row));
-            }
-        }
-
-        return result;
-    }
-
-
-    private static int[][] convertTo2DWithoutUsingGetRGB(BufferedImage image) {
+    private static Pixel[][] convertTo2DWithoutUsingGetRGB(BufferedImage image) {
 
         final byte[] pixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
         final int width = image.getWidth();
@@ -57,7 +42,7 @@ public class DataGenerator {
         final boolean hasAlphaChannel = image.getAlphaRaster() != null;
         System.out.println("hasAlphaCHannel: " + hasAlphaChannel);
 
-        int[][] result = new int[height][width];
+        Pixel[][] result = new Pixel[height][width];
         if (hasAlphaChannel) {
             final int pixelLength = 4;
             for (int pixel = 0, row = 0, col = 0; pixel < pixels.length; pixel += pixelLength) {
@@ -66,7 +51,7 @@ public class DataGenerator {
                 argb += ((int) pixels[pixel + 1] & 0xff); // blue
                 argb += (((int) pixels[pixel + 2] & 0xff) << 8); // green
                 argb += (((int) pixels[pixel + 3] & 0xff) << 16); // red
-                result[row][col] = argb;
+                result[row][col] = new Pixel(GBRtoRGB(argb), new int[]{row, pixel});
                 col++;
                 if (col == width) {
                     col = 0;
@@ -81,7 +66,7 @@ public class DataGenerator {
                 argb += ((int) pixels[pixel] & 0xff); // blue
                 argb += (((int) pixels[pixel + 1] & 0xff) << 8); // green
                 argb += (((int) pixels[pixel + 2] & 0xff) << 16); // red
-                result[row][col] = argb;
+                result[row][col] = new Pixel(GBRtoRGB(argb), new int[]{row, pixel});
                 col++;
                 if (col == width) {
                     col = 0;
@@ -94,7 +79,7 @@ public class DataGenerator {
     }
 
 
-    public int[] GBRtoRGB(int pixelBGRinteger){
+    public static int[] GBRtoRGB(int pixelBGRinteger){
         int  red   = (pixelBGRinteger & 0x00ff0000) >> 16;
         int  green = (pixelBGRinteger & 0x0000ff00) >> 8;
         int  blue  =  pixelBGRinteger & 0x000000ff;
@@ -108,34 +93,66 @@ public class DataGenerator {
     }
 
 
-    public Pixel[][] createPixels(int[][] result){
+    public void createNeighbours(Pixel[][] result){
         int numberOfPRows = result.length;
         int numberOfPixelsPerRow = result[0].length;
-        Pixel[][] pixels = new Pixel[numberOfPRows][numberOfPixelsPerRow];
+//        Pixel[][] pixels = new Pixel[numberOfPRows][numberOfPixelsPerRow];
         for(int row = 0; row < numberOfPRows; row++){
             for(int pixel = 0; pixel < numberOfPixelsPerRow; pixel++) {
-                int[][] neighbours = new int[4][2];
+                ArrayList<Edge> neighbours = new ArrayList<>(); // neighbours for each pixel! Gets cleared and is empty for each pixel
+
                 //North
-                neighbours[0][0] = row - 1 < 0 ? -1 : row - 1;
-                neighbours[0][1] = row - 1 < 0 ? -1 : pixel;
+                if(row == 0 && pixel == 0){ // øvre venstre hjørne
 
-                //East
-                neighbours[1][0] = pixel + 1 >= numberOfPixelsPerRow ? -1 : row;
-                neighbours[1][1] = pixel + 1 >= numberOfPixelsPerRow ? -1 : pixel + 1;
+                }
+                else if(row == 0 && pixel == numberOfPixelsPerRow -1){ // øvre høyre hjørne
 
-                //South
-                neighbours[2][0] = row + 1 >= numberOfPRows ? -1 : row + 1;
-                neighbours[2][1] = row + 1 >= numberOfPRows ? -1 : pixel;
+                }
+                else if(row == 0){ // denne tar alle på øverste rad som ikke er i et hjørne
 
-                //West
-                neighbours[3][0] = pixel - 1 < 0 ? -1 : row;
-                neighbours[3][1] = pixel - 1 < 0 ? -1 : pixel - 1;
+                }
+                else if(row == numberOfPRows -1 && pixel == 0){ // nedre venstre hjørne
 
-                Pixel newPixel = new Pixel(GBRtoRGB(result[row][pixel]), neighbours, new int[]{row, pixel});
-                pixels[row][pixel] = newPixel;
+                }
+                else if(row == numberOfPRows -1  && pixel == numberOfPixelsPerRow -1) { // nedre høyre hjørne
+
+                }
+                else if(row == numberOfPRows -1) { // denne tar alle på nederste linje som ikke er i hjørne
+
+                }
+                else if(pixel == 0){ // denne tar alle som er helt til venstre i bildet.
+
+                }
+                else if(pixel == numberOfPixelsPerRow -1) { // denne tar alle helt til høyre i bildet.
+
+                }
+                else { // denne tar alle som ikke er langs en kant.
+
+                }
+
+
+
+
+//                neighbours[0][0] = row - 1 < 0 ? -1 : row - 1;
+//                neighbours[0][1] = row - 1 < 0 ? -1 : pixel;
+//
+//                //East
+//                neighbours[1][0] = pixel + 1 >= numberOfPixelsPerRow ? -1 : row;
+//                neighbours[1][1] = pixel + 1 >= numberOfPixelsPerRow ? -1 : pixel + 1;
+//
+//                //South
+//                neighbours[2][0] = row + 1 >= numberOfPRows ? -1 : row + 1;
+//                neighbours[2][1] = row + 1 >= numberOfPRows ? -1 : pixel;
+//
+//                //West
+//                neighbours[3][0] = pixel - 1 < 0 ? -1 : row;
+//                neighbours[3][1] = pixel - 1 < 0 ? -1 : pixel - 1;
+
+//                Pixel newPixel = new Pixel(GBRtoRGB(result[row][pixel]), neighbours, new int[]{row, pixel});
+//                pixels[row][pixel] = newPixel;
             }
         }
-        return pixels;
+
     }
 
     public void drawImage(Pixel[][] pixels){
