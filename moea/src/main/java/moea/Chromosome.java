@@ -55,13 +55,17 @@ public class Chromosome {
             Segment segment = new Segment(p, new Color(new Random().nextInt(256),new Random().nextInt(256),new Random().nextInt(256)));
 
             for(int i = 0; i < segment.pixels.size(); i++){
-                for(int edg = 0; edg < mst.edges.size(); edg++){
+//                for(int edg = 0; edg < mst.edges.size(); edg++){
+                int edg = 0;
+                while(edg < mst.edges.size()){
                     Edge e = mst.edges.get(edg);
                     if(segment.pixels.get(i) == e.getCurrentPixel()){
                         segment.addPixel(e.getNeighbourPixel());
                         segment.addEdge(e);
                         mst.edges.remove(e); // reduce the searchtime for each segment.
+                        continue;
                     }
+                    edg++;
                 }
             }
         this.segments.add(segment);
