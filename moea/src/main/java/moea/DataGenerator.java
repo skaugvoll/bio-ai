@@ -51,7 +51,7 @@ public class DataGenerator {
                 argb += ((int) pixels[pixel + 1] & 0xff); // blue
                 argb += (((int) pixels[pixel + 2] & 0xff) << 8); // green
                 argb += (((int) pixels[pixel + 3] & 0xff) << 16); // red
-                result[row][col] = new Pixel(GBRtoRGB(argb), new int[]{row, pixel});
+                result[row][col] = new Pixel(GBRtoRGB(argb), new int[]{row, col});
                 col++;
                 if (col == width) {
                     col = 0;
@@ -66,7 +66,7 @@ public class DataGenerator {
                 argb += ((int) pixels[pixel] & 0xff); // blue
                 argb += (((int) pixels[pixel + 1] & 0xff) << 8); // green
                 argb += (((int) pixels[pixel + 2] & 0xff) << 16); // red
-                result[row][col] = new Pixel(GBRtoRGB(argb), new int[]{row, pixel});
+                result[row][col] = new Pixel(GBRtoRGB(argb), new int[]{row, col});
                 col++;
                 if (col == width) {
                     col = 0;
@@ -121,7 +121,7 @@ public class DataGenerator {
                 }
                 else if(row == numberOfPRows -1  && pixel == numberOfPixelsPerRow -1) { // nedre høyre hjørne
                     currentPixel.addNeighbour(new Edge(currentPixel, result[row][pixel-1]));
-                    currentPixel.addNeighbour(new Edge(currentPixel, result[row+1][pixel]));
+                    currentPixel.addNeighbour(new Edge(currentPixel, result[row-1][pixel]));
                 }
                 else if(row == numberOfPRows -1) { // denne tar alle på nederste linje som ikke er i hjørne
                     currentPixel.addNeighbour(new Edge(currentPixel, result[row][pixel+1]));

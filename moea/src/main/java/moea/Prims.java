@@ -8,7 +8,8 @@ import java.util.*;
 public class Prims {
 
     public ArrayList<Pixel> algorithm(Pixel[][] orgPixels){
-        Pixel[][] pixels = new Cloner().deepClone(orgPixels);
+//        Pixel[][] pixels = new Cloner().deepClone(orgPixels);
+        Pixel[][] pixels = orgPixels;
         long startTime = System.currentTimeMillis();
 
         int numberOfpixels = pixels.length * pixels[0].length;

@@ -11,7 +11,7 @@ public class Pixel {
     private int[] coordinates = new int[2];
     private String arrow;
     private int[] RGB = new int[3];
-    private ArrayList<Edge> neighbours;
+    private ArrayList<Edge> neighbours = new ArrayList<>();
 
     private Pixel parent = null;
     private ArrayList<Pixel> children = new ArrayList<Pixel>();
@@ -60,7 +60,7 @@ public class Pixel {
     
     @Override
     public String toString() {
-        return this.neighbours.toString() + "C: " + Arrays.toString(this.coordinates);
+        return Arrays.toString(this.getRGB()) + Arrays.toString(this.coordinates);
     }
 
     public Pixel getParent() {
