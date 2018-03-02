@@ -29,4 +29,11 @@ public class Segment {
         this.edges.add(e);
     }
 
+    public void addAllPixels(ArrayList<Pixel> foundThisSegment) {
+        this.pixels.addAll(foundThisSegment);
+    }
+
+    public void addAllEdges(ArrayList<Edge> foundThisEdges) {
+        this.edges.addAll(foundThisEdges);
+    }
 }

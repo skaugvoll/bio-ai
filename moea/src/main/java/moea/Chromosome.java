@@ -39,10 +39,11 @@ public class Chromosome {
         foundNewSegment.add(root);
 
         for (int i = 0; i < foundNewSegment.size(); i++) {
-            root = foundNewSegment.remove(i);
+            root = foundNewSegment.get(i);
             ArrayList<Pixel> foundThisSegment = new ArrayList<>();
+            ArrayList<Edge> foundThisEdges = new ArrayList<>();
             
-            Segment s = new Segment(root, new Color(10,10,10));
+            Segment s = new Segment(root, new Color(new Random().nextInt(256),new Random().nextInt(256),new Random().nextInt(256)));
 
             for (int j = 0; j < mst.edges.size(); j++) {
                 Edge e = mst.edges.get(j);
@@ -50,15 +51,36 @@ public class Chromosome {
                     mst.edges.remove(e);
                     if (e.getDistance() <= teta) {
                         foundThisSegment.add(e.getNeighbourPixel());
+                        foundThisEdges.add(e);
                     } else {
                         foundNewSegment.add(e.getNeighbourPixel());
                     }
 
                 }
             }
+            // nå har vi funent alle "rettninger ut av rootnoden for dette segmentet. nå vil vi følge så langt som mulig (så langt tetta lar oss)
+            for(int n = 0; n < foundThisSegment.size(); n++){
+                Pixel np = foundThisSegment.get(n);
+
+                for (int jj = 0; jj < mst.edges.size(); jj++) {
+                    Edge e = mst.edges.get(jj);
+                    if (e.getCurrentPixel() == np) {
+                        mst.edges.remove(e);
+                        if (e.getDistance() <= teta) {
+                            foundThisSegment.add(e.getNeighbourPixel());
+                            foundThisEdges.add(e);
+                        } else {
+                            foundNewSegment.add(e.getNeighbourPixel());
+                        }
+                    }
+                }
+            }
+
+            // Nå har vi funnet det vi trenger til segmentet.
+            s.addAllPixels(foundThisSegment);
+            s.addAllEdges(foundThisEdges);
+            this.segments.add(s);
         }
-
-
     }
 
 
