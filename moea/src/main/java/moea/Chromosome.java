@@ -29,7 +29,41 @@ public class Chromosome {
 
     }
 
-    private void generateSegments(){
+
+    private void generateSegments() {
+        ArrayList<Pixel> foundNewSegment = new ArrayList<>();
+
+        double teta = 5;
+
+        Pixel root = mst.rootnode;
+        foundNewSegment.add(root);
+
+        for (int i = 0; i < foundNewSegment.size(); i++) {
+            root = foundNewSegment.remove(i);
+            ArrayList<Pixel> foundThisSegment = new ArrayList<>();
+            
+            Segment s = new Segment(root, new Color(10,10,10));
+
+            for (int j = 0; j < mst.edges.size(); j++) {
+                Edge e = mst.edges.get(j);
+                if (e.getCurrentPixel() == root) {
+                    mst.edges.remove(e);
+                    if (e.getDistance() <= teta) {
+                        foundThisSegment.add(e.getNeighbourPixel());
+                    } else {
+                        foundNewSegment.add(e.getNeighbourPixel());
+                    }
+
+                }
+            }
+        }
+
+
+    }
+
+
+
+    private void generateSegments2(){
         for(int s = 0; s < minSegments; s++){
 
             int newRoot = new Random().nextInt(numberOfPixels);
