@@ -45,42 +45,11 @@ public class Chromosome {
             
             Segment s = new Segment(root, new Color(new Random().nextInt(256),new Random().nextInt(256),new Random().nextInt(256)));
 
-            int j = 0;
-            while (j < mst.edges.size()) {
-                Edge e = mst.edges.get(j);
-                if (e.getCurrentPixel() == root) {
-                    mst.edges.remove(e);
-                    if (e.getDistance() <= teta) {
-                        foundThisSegment.add(e.getNeighbourPixel());
-                        foundThisEdges.add(e);
-                    } else {
-                        foundNewSegment.add(e.getNeighbourPixel());
-                    }
-                }
-                else{
-                    j++;
-                }
-            }
+            divideIntoSegment(foundNewSegment, teta, root, foundThisSegment, foundThisEdges);
             // nå har vi funent alle "rettninger ut av rootnoden for dette segmentet. nå vil vi følge så langt som mulig (så langt tetta lar oss)
             for(int n = 0; n < foundThisSegment.size(); n++){
                 Pixel np = foundThisSegment.get(n);
-
-                int jj = 0;
-                while(jj < mst.edges.size()){
-                    Edge e = mst.edges.get(jj);
-                    if (e.getCurrentPixel() == np) {
-                        mst.edges.remove(e);
-                        if (e.getDistance() <= teta) {
-                            foundThisSegment.add(e.getNeighbourPixel());
-                            foundThisEdges.add(e);
-                        } else {
-                            foundNewSegment.add(e.getNeighbourPixel());
-                        }
-                    }
-                    else{
-                        jj++;
-                    }
-                }
+                divideIntoSegment(foundNewSegment, teta, np, foundThisSegment, foundThisEdges);
             }
 
             // Nå har vi funnet det vi trenger til segmentet.
@@ -90,6 +59,24 @@ public class Chromosome {
         }
     }
 
+    private void divideIntoSegment(ArrayList<Pixel> foundNewSegment, double teta, Pixel root, ArrayList<Pixel> foundThisSegment, ArrayList<Edge> foundThisEdges) {
+        int j = 0;
+        while (j < mst.edges.size()) {
+            Edge e = mst.edges.get(j);
+            if (e.getCurrentPixel() == root) {
+                mst.edges.remove(e);
+                if (e.getDistance() <= teta) {
+                    foundThisSegment.add(e.getNeighbourPixel());
+                    foundThisEdges.add(e);
+                } else {
+                    foundNewSegment.add(e.getNeighbourPixel());
+                }
+            }
+            else{
+                j++;
+            }
+        }
+    }
 
 
     private void generateSegments2(){
