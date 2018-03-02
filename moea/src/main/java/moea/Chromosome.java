@@ -33,7 +33,7 @@ public class Chromosome {
     private void generateSegments() {
         ArrayList<Pixel> foundNewSegment = new ArrayList<>();
 
-        double teta = 5;
+        double teta = 10;
 
         Pixel root = mst.rootnode;
         foundNewSegment.add(root);
@@ -65,7 +65,6 @@ public class Chromosome {
             for(int n = 0; n < foundThisSegment.size(); n++){
                 Pixel np = foundThisSegment.get(n);
 
-//                for (int jj = 0; jj < mst.edges.size(); jj++) {
                 int jj = 0;
                 while(jj < mst.edges.size()){
                     Edge e = mst.edges.get(jj);

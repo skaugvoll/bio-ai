@@ -151,7 +151,7 @@ public class DataGenerator {
 
     public void drawSegments(ArrayList<Segment> segments){
 //        BufferedImage newImage = new BufferedImage(5, 5, BufferedImage.TYPE_INT_ARGB);
-        BufferedImage newImage = new BufferedImage(3, 3, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage newImage = new BufferedImage(481, 321, BufferedImage.TYPE_INT_ARGB);
         File f = null;
 
         for(Segment s : segments){

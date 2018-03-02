@@ -22,7 +22,10 @@ public class GA {
 
         ArrayList<Chromosome> population = new ArrayList<>();
         for(MST mst : MSTs){
+            long startTime = System.currentTimeMillis();
             population.add(new Chromosome(mst, mst.fuckersVisited.size(), 30));
+            long endTime = System.currentTimeMillis();
+            System.out.println("Time used on one segmenting one chromsome: ..." + (endTime-startTime));
         }
 
         System.out.println("populationSize: " + MSTs.size());
@@ -71,7 +74,7 @@ public class GA {
 
     public static void main(String[] args) {
         GA g = new GA();
-        g.run(9, 1);
+        g.run(1, 1);
     }
 
 }
