@@ -45,7 +45,8 @@ public class Chromosome {
             
             Segment s = new Segment(root, new Color(new Random().nextInt(256),new Random().nextInt(256),new Random().nextInt(256)));
 
-            for (int j = 0; j < mst.edges.size(); j++) {
+            int j = 0;
+            while (j < mst.edges.size()) {
                 Edge e = mst.edges.get(j);
                 if (e.getCurrentPixel() == root) {
                     mst.edges.remove(e);
@@ -55,14 +56,18 @@ public class Chromosome {
                     } else {
                         foundNewSegment.add(e.getNeighbourPixel());
                     }
-
+                }
+                else{
+                    j++;
                 }
             }
             // nå har vi funent alle "rettninger ut av rootnoden for dette segmentet. nå vil vi følge så langt som mulig (så langt tetta lar oss)
             for(int n = 0; n < foundThisSegment.size(); n++){
                 Pixel np = foundThisSegment.get(n);
 
-                for (int jj = 0; jj < mst.edges.size(); jj++) {
+//                for (int jj = 0; jj < mst.edges.size(); jj++) {
+                int jj = 0;
+                while(jj < mst.edges.size()){
                     Edge e = mst.edges.get(jj);
                     if (e.getCurrentPixel() == np) {
                         mst.edges.remove(e);
@@ -72,6 +77,9 @@ public class Chromosome {
                         } else {
                             foundNewSegment.add(e.getNeighbourPixel());
                         }
+                    }
+                    else{
+                        jj++;
                     }
                 }
             }
