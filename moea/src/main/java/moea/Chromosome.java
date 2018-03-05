@@ -19,7 +19,7 @@ public class Chromosome {
 
     double overallDeviation = 0;
     double edgeValue = 0;
-    double fitness;
+    double fitness; // the lower the better!
 
     double[] weights = {0.5,0.5};
 
@@ -34,8 +34,8 @@ public class Chromosome {
 
         this.generateSegments();
         this.concatenateSegments();
-//        DataGenerator dg = new DataGenerator();
-//        dg.drawSegments(this.segments);
+        DataGenerator dg = new DataGenerator();
+        dg.drawSegments(this.segments);
         calculateOverallDeviation();
         calculateEdgeValue();
         this.fitness = calculateFitness();
@@ -158,4 +158,7 @@ public class Chromosome {
     }
 
 
+    public double getFitness() {
+        return fitness;
+    }
 }

@@ -25,6 +25,7 @@ public class GA {
 
 
         System.out.println("populationSize: " + MSTs.size());
+        System.out.println("Score bitch: " + population.get(0).getFitness());
     }
 
 
