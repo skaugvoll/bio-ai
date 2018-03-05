@@ -66,14 +66,13 @@ public class Chromosome {
     }
 
     private void divideIntoSegment(Segment s, ArrayList<Pixel> foundNewSegment, double teta, Pixel root, ArrayList<Pixel> foundThisSegment, ArrayList<Edge> foundThisEdges) {
-        int j = 0;
 
-        while (j < mst.edges.size()) {
-            ValueRange range = ValueRange.of((long) (s.avgSegCol - teta), (long) (s.avgSegCol + teta));
-            Edge e = mst.edges.get(j);
-            if (e.getCurrentPixel() == root) {
+        ValueRange range = ValueRange.of((long) (s.avgSegCol - teta), (long) (s.avgSegCol + teta));
+        if(mst.pixelEdges.containsKey(root)){
+            ArrayList<Edge> edges = mst.pixelEdges.get(root);
+            for(Edge e : edges){
+
                 mst.edges.remove(e);
-//                if (e.getDistance() <= teta) {
                 if (range.isValidValue((long) IntStream.of(e.getNeighbourPixel().getRGB()).sum())) {
                     foundThisSegment.add(e.getNeighbourPixel());
 //                    System.out.println("FOUND ANOTHER ONE");
@@ -84,10 +83,9 @@ public class Chromosome {
 //                    System.out.println("ANOTHER ONE BITES THE DUST");
                 }
             }
-            else{
-                j++;
-            }
+            mst.pixelEdges.remove(root);
         }
+
     }
 
     private void concatenateSegments(){
@@ -100,30 +98,36 @@ public class Chromosome {
         ).collect(Collectors.toList());
 
         int i = 0;
+        int j = 1;
         while(! segs.isEmpty() && i < segs.size()-1){
             int temp = 0;
             Segment s1 = segs.get(i);
 
             temp += s1.getSegmentSize();
 
-            int j = 1;
-            while(j < segs.size()-1 && temp < minPixels){
+            while(j < segs.size() && temp < minPixels){
                 Segment s2 = segs.get(j);
-                if(temp + s2.getSegmentSize() < minPixels){
+                if(temp + s2.getSegmentSize() >= minPixels){
+                    s1.addAllPixels(s2.pixels);
+                    s1.addAllEdges(s2.edges);
+
+
+                    segs.remove(s2);
+                    this.segments.remove(s2);
+                    break;
+                }
+                else{
                     temp += s2.getSegmentSize();
                     s1.addAllPixels(s2.pixels);
                     s1.addAllEdges(s2.edges);
 
 
                     segs.remove(s2);
-                    this.segments.remove(s2); // hmm. er dette bra mon tro?
-
-                }
-                else{
-                    j++;
+                    this.segments.remove(s2);
                 }
             }
             i++;
+            j++;
         }
     }
 
