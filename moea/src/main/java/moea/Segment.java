@@ -2,6 +2,8 @@ package moea;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Segment {
 
@@ -11,18 +13,26 @@ public class Segment {
     public ArrayList<Pixel> pixels;
     public ArrayList<Edge> edges;
 
+    public int avgSegCol = 0;
+    private int tempSum = 0;
+
     public Segment(Pixel root, Color color){
         this.root = root;
         this.color = color;
 
         this.pixels = new ArrayList<>();
-        this.pixels.add(root);
+        this.addPixel(root);
+        this.tempSum = IntStream.of(root.getRGB()).sum();
 
         this.edges = new ArrayList<>();
     }
 
     void addPixel(Pixel pix){
         this.pixels.add(pix);
+        int pc = IntStream.of(pix.getRGB()).sum();
+        tempSum = tempSum + pc;
+        this.avgSegCol = (tempSum) / pixels.size();
+
     }
 
     void addEdge(Edge e){
@@ -31,9 +41,18 @@ public class Segment {
 
     public void addAllPixels(ArrayList<Pixel> foundThisSegment) {
         this.pixels.addAll(foundThisSegment);
+
+        int avgSum = pixels.stream().mapToInt(p -> IntStream.of(p.getRGB()).sum()).sum();
+        tempSum += avgSum;
+        this.avgSegCol = tempSum / pixels.size();
+
     }
 
     public void addAllEdges(ArrayList<Edge> foundThisEdges) {
         this.edges.addAll(foundThisEdges);
+    }
+
+    public int getSegmentSize() {
+        return this.pixels.size();
     }
 }

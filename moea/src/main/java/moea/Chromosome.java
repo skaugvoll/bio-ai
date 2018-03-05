@@ -1,8 +1,13 @@
 package moea;
 
 import java.awt.*;
+import java.time.temporal.ValueRange;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Chromosome {
     // In most cases, pixels are stored as corresponding color values (RGB or CIE L*a*b as the color space [1]).
@@ -22,6 +27,7 @@ public class Chromosome {
         this.segments = new ArrayList<>();
 
         this.generateSegments();
+        this.concatenateSegments();
         System.out.println("faen");
         DataGenerator dg = new DataGenerator();
         dg.drawSegments(this.segments);
@@ -33,7 +39,7 @@ public class Chromosome {
     private void generateSegments() {
         ArrayList<Pixel> foundNewSegment = new ArrayList<>();
 
-        double teta = 10;
+        double teta = 50;
 
         Pixel root = mst.rootnode;
         foundNewSegment.add(root);
@@ -45,31 +51,37 @@ public class Chromosome {
             
             Segment s = new Segment(root, new Color(new Random().nextInt(256),new Random().nextInt(256),new Random().nextInt(256)));
 
-            divideIntoSegment(foundNewSegment, teta, root, foundThisSegment, foundThisEdges);
+            divideIntoSegment(s, foundNewSegment, teta, root, foundThisSegment, foundThisEdges);
             // nå har vi funent alle "rettninger ut av rootnoden for dette segmentet. nå vil vi følge så langt som mulig (så langt tetta lar oss)
             for(int n = 0; n < foundThisSegment.size(); n++){
                 Pixel np = foundThisSegment.get(n);
-                divideIntoSegment(foundNewSegment, teta, np, foundThisSegment, foundThisEdges);
+                divideIntoSegment(s, foundNewSegment, teta, np, foundThisSegment, foundThisEdges);
             }
 
             // Nå har vi funnet det vi trenger til segmentet.
-            s.addAllPixels(foundThisSegment);
+//            s.addAllPixels(foundThisSegment);
             s.addAllEdges(foundThisEdges);
             this.segments.add(s);
         }
     }
 
-    private void divideIntoSegment(ArrayList<Pixel> foundNewSegment, double teta, Pixel root, ArrayList<Pixel> foundThisSegment, ArrayList<Edge> foundThisEdges) {
+    private void divideIntoSegment(Segment s, ArrayList<Pixel> foundNewSegment, double teta, Pixel root, ArrayList<Pixel> foundThisSegment, ArrayList<Edge> foundThisEdges) {
         int j = 0;
+
         while (j < mst.edges.size()) {
+            ValueRange range = ValueRange.of((long) (s.avgSegCol - teta), (long) (s.avgSegCol + teta));
             Edge e = mst.edges.get(j);
             if (e.getCurrentPixel() == root) {
                 mst.edges.remove(e);
-                if (e.getDistance() <= teta) {
+//                if (e.getDistance() <= teta) {
+                if (range.isValidValue((long) IntStream.of(e.getNeighbourPixel().getRGB()).sum())) {
                     foundThisSegment.add(e.getNeighbourPixel());
+//                    System.out.println("FOUND ANOTHER ONE");
+                    s.addPixel(e.getNeighbourPixel());
                     foundThisEdges.add(e);
                 } else {
                     foundNewSegment.add(e.getNeighbourPixel());
+//                    System.out.println("ANOTHER ONE BITES THE DUST");
                 }
             }
             else{
@@ -78,50 +90,40 @@ public class Chromosome {
         }
     }
 
+    private void concatenateSegments(){
+        // burde kansje bruke en form for k-nearest Neighbours tror det er ett bra utg.punkt.
+        System.out.println("Now concatenating...");
+        int minPixels = 1000;
 
-    private void generateSegments2(){
-        for(int s = 0; s < minSegments; s++){
+        List<Segment> segs = this.segments.stream().filter(
+                segment -> segment.getSegmentSize() < minPixels
+        ).collect(Collectors.toList());
 
-            int newRoot = new Random().nextInt(numberOfPixels);
-            Pixel currentRoot = mst.fuckersVisited.get(newRoot);
+        int i = 0;
+        while(! segs.isEmpty() && i < segs.size()-1){
+            int temp = 0;
+            Segment s1 = segs.get(i);
 
-            while(rootNodes.contains(currentRoot)){
-                currentRoot = mst.fuckersVisited.get(new Random().nextInt(numberOfPixels));
-            }
+            temp += s1.getSegmentSize();
 
-            for(int i = 0; i < mst.edges.size(); i++){
-                Edge e = mst.edges.get(i);
-                if(e.getNeighbourPixel() == currentRoot){
-                    mst.edges.remove(e);
-                    rootNodes.add(currentRoot);
-                    break;
+            int j = 1;
+            while(j < segs.size()-1 && temp < minPixels){
+                Segment s2 = segs.get(j);
+                if(temp + s2.getSegmentSize() < minPixels){
+                    temp += s2.getSegmentSize();
+                    s1.addAllPixels(s2.pixels);
+                    s1.addAllEdges(s2.edges);
+
+
+                    segs.remove(s2);
+                    this.segments.remove(s2); // hmm. er dette bra mon tro?
+
+                }
+                else{
+                    j++;
                 }
             }
-        }
-
-        if (!rootNodes.contains(mst.rootnode)){
-            rootNodes.add(mst.rootnode);
-        }
-
-        // brutt opp MST inn i segmenter, vi vet hva som er rot nodene til segmentene, men ikke hvilke edges som tilhører hvilke segmenter
-        for(Pixel p : rootNodes){
-            Segment segment = new Segment(p, new Color(new Random().nextInt(256),new Random().nextInt(256),new Random().nextInt(256)));
-
-            for(int i = 0; i < segment.pixels.size(); i++){
-//                for(int edg = 0; edg < mst.edges.size(); edg++){
-                int edg = 0;
-                while(edg < mst.edges.size()){
-                    Edge e = mst.edges.get(edg);
-                    if(segment.pixels.get(i) == e.getCurrentPixel()){
-                        segment.addPixel(e.getNeighbourPixel());
-                        segment.addEdge(e);
-                        mst.edges.remove(e); // reduce the searchtime for each segment.
-                        continue;
-                    }
-                    edg++;
-                }
-            }
-        this.segments.add(segment);
+            i++;
         }
     }
 
