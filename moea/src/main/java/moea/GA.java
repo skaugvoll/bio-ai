@@ -21,16 +21,11 @@ public class GA {
         threadGenerateMST(popSize, MSTs);
 
         ArrayList<Chromosome> population = new ArrayList<>();
-        for(MST mst : MSTs){
-            long startTime = System.currentTimeMillis();
-            population.add(new Chromosome(mst, mst.fuckersVisited.size(), 30));
-            long endTime = System.currentTimeMillis();
-            System.out.println("Time used on one segmenting one chromsome: ..." + (endTime-startTime));
-        }
+        threadGenerateIndividuals(MSTs, population);
+
 
         System.out.println("populationSize: " + MSTs.size());
     }
-
 
 
     private void threadGenerateMST(int popSize, ArrayList<MST> MSTs) {
@@ -69,6 +64,43 @@ public class GA {
         while(! pool.isTerminated()){
 
         }
+    }
+
+
+    private void threadGenerateIndividuals(ArrayList<MST> MSTs, ArrayList<Chromosome> population) {
+        pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+        List<Callable<Chromosome>> callableTasks = new ArrayList<>();
+        for (int t = 0; t < MSTs.size(); t++) {
+            int finalT = t;
+            callableTasks.add(() -> {
+                MST mst = MSTs.get(finalT);
+                return new Chromosome(mst, mst.fuckersVisited.size(), 30);
+            });
+            System.out.println("creating segmenting task :" + t);
+        }
+
+        try {
+            long startTime = System.currentTimeMillis();
+            List<Future<Chromosome>> futures = pool.invokeAll(callableTasks);
+
+            for(int i = 0; i < futures.size(); i++){
+                try {
+                    System.out.println(futures.get(i).get());
+                    population.add(futures.get(i).get());
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            long endTime = System.currentTimeMillis();
+            System.out.println("Time used in total: " + (endTime-startTime));
+        } catch (InterruptedException e) {
+            System.out.println("Futures invokeAll fucked up\n" + e);
+        }
+
+        pool.shutdown();
+        while(! pool.isTerminated()){ }
     }
 
 
