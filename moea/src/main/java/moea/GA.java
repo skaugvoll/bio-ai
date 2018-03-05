@@ -74,7 +74,7 @@ public class GA {
             int finalT = t;
             callableTasks.add(() -> {
                 MST mst = MSTs.get(finalT);
-                return new Chromosome(mst, mst.fuckersVisited.size(), 30);
+                return new Chromosome(mst, mst.fuckersVisited.size(), 30, new double[]{0.5,0.5});
             });
             System.out.println("creating segmenting task :" + t);
         }

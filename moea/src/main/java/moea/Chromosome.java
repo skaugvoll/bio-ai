@@ -19,22 +19,28 @@ public class Chromosome {
 
     double overallDeviation = 0;
     double edgeValue = 0;
+    double fitness;
 
-    public Chromosome(MST mst, int numberOfPixels, int minSegments){
+    double[] weights = {0.5,0.5};
+
+    public Chromosome(MST mst, int numberOfPixels, int minSegments, double[] weights){
         this.mst = mst;
         this.numberOfPixels = numberOfPixels;
         this.minSegments = minSegments;
+        this.weights = weights;
 
         rootNodes = new ArrayList<>();
         this.segments = new ArrayList<>();
 
         this.generateSegments();
         this.concatenateSegments();
-        DataGenerator dg = new DataGenerator();
-        dg.drawSegments(this.segments);
+//        DataGenerator dg = new DataGenerator();
+//        dg.drawSegments(this.segments);
         calculateOverallDeviation();
         calculateEdgeValue();
-        System.out.println("Hellu Thomas og Eirik");
+        this.fitness = calculateFitness();
+
+
 
     }
 
@@ -145,6 +151,10 @@ public class Chromosome {
                     segment -> segment.getSegmentSize() < minPixels
             ).collect(Collectors.toList());
         }
+    }
+
+    public double calculateFitness(){
+        return (this.overallDeviation * weights[0]) - (this.edgeValue * weights[1]);
     }
 
 
