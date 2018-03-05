@@ -4,7 +4,7 @@ import java.awt.*;
 import java.time.temporal.ValueRange;
 import java.util.*;
 import java.util.List;
-import java.util.stream.Collector;
+
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -18,6 +18,7 @@ public class Chromosome {
     ArrayList<Segment> segments;
 
     double overallDeviation = 0;
+    double edgeValue = 0;
 
     public Chromosome(MST mst, int numberOfPixels, int minSegments){
         this.mst = mst;
@@ -32,6 +33,8 @@ public class Chromosome {
         DataGenerator dg = new DataGenerator();
         dg.drawSegments(this.segments);
         calculateOverallDeviation();
+        calculateEdgeValue();
+        System.out.println("Hellu Thomas og Eirik");
 
     }
 
@@ -39,6 +42,24 @@ public class Chromosome {
         for(Segment s : segments){
             overallDeviation += s.deviation;
         }
+    }
+
+    public void calculateEdgeValue(){
+        double value = 0;
+
+        for(Segment s : segments){
+            for(Pixel p : s.pixels){
+                for(Edge nbrs : p.getNeighbours()){
+                    Pixel nbr = nbrs.getNeighbourPixel();
+                    if( s.pixels.contains(nbr) ){
+                        value += 0;
+                        continue;
+                    }
+                    value += s.RGBdistance(p, nbr);
+                }
+            }
+        }
+        this.edgeValue = -value; // tar negative verdien fordi da kan vi forholde oss til kun minimalisering av fitness objektiver.
     }
 
     private void generateSegments() {
