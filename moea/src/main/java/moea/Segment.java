@@ -2,6 +2,7 @@ package moea;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -13,6 +14,7 @@ public class Segment {
     public ArrayList<Pixel> pixels;
     public ArrayList<Edge> edges;
 
+    public double deviation = 0;
     public int avgSegCol = 0;
     private int tempSum = 0;
 
@@ -72,5 +74,15 @@ public class Segment {
         this.centroid = new int[] {x/pixels.size(), y/pixels.size()};
     }
 
+    public void calculateDeviation(){
+        Pixel centroidPixel = this.pixels.stream().filter(pixel -> pixel.coordinates == centroid).collect(Collectors.toList()).get(0);
+        for(Pixel p : pixels){
+            deviation += RGBdistance(centroidPixel, p);
+        }
+    }
+
+    private double RGBdistance(Pixel p1, Pixel p2){
+        return Math.sqrt(Math.pow(p1.getRGB()[0] - p2.getRGB()[0], 2) + Math.pow(p1.getRGB()[1] - p2.getRGB()[1], 2) + Math.pow(p1.getRGB()[2] - p2.getRGB()[2], 2));
+    }
 
 }

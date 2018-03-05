@@ -17,6 +17,8 @@ public class Chromosome {
     ArrayList<Pixel> rootNodes;
     ArrayList<Segment> segments;
 
+    double overallDeviation = 0;
+
     public Chromosome(MST mst, int numberOfPixels, int minSegments){
         this.mst = mst;
         this.numberOfPixels = numberOfPixels;
@@ -29,9 +31,15 @@ public class Chromosome {
         this.concatenateSegments();
         DataGenerator dg = new DataGenerator();
         dg.drawSegments(this.segments);
+        calculateOverallDeviation();
 
     }
 
+    public void calculateOverallDeviation(){
+        for(Segment s : segments){
+            overallDeviation += s.deviation;
+        }
+    }
 
     private void generateSegments() {
         ArrayList<Pixel> foundNewSegment = new ArrayList<>();
