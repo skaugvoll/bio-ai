@@ -85,7 +85,6 @@ public class GA {
 
             for(int i = 0; i < futures.size(); i++){
                 try {
-                    System.out.println(futures.get(i).get());
                     population.add(futures.get(i).get());
                 } catch (ExecutionException e) {
                     e.printStackTrace();

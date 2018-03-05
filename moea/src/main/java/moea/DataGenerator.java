@@ -159,9 +159,8 @@ public class DataGenerator {
         }
 
         try{
-//            f = new File(this.getClass().getResource("Output/out.png").getPath());
-//            f = new File("/Users/sigveskaugvoll/Documents/Skole/2018V/Bio-Insipred Artificial intelligence/Assignments/bio-ai/moea/src/main/resources/Output/out.png");
-            f = new File("C:\\Users\\thmwl\\Documents\\git\\bio-ai\\moea\\src\\main\\resources\\Output\\out.png");
+            f = new File(System.getProperty("user.dir") + "/src/main/resources/Output/out.png");
+
             ImageIO.write(newImage, "png", f);
         }catch(IOException e){
             System.out.println("Kunne ikke skrive ut fil");

@@ -30,7 +30,6 @@ public class Chromosome {
         DataGenerator dg = new DataGenerator();
         dg.drawSegments(this.segments);
 
-
     }
 
 
@@ -57,14 +56,12 @@ public class Chromosome {
             }
 
             // Nå har vi funnet det vi trenger til segmentet.
-//            s.addAllPixels(foundThisSegment);
             s.addAllEdges(foundThisEdges);
             this.segments.add(s);
         }
     }
 
     private void divideIntoSegment(Segment s, ArrayList<Pixel> foundNewSegment, double teta, Pixel root, ArrayList<Pixel> foundThisSegment, ArrayList<Edge> foundThisEdges) {
-
         ValueRange range = ValueRange.of((long) (s.avgSegCol - teta), (long) (s.avgSegCol + teta));
         if(mst.pixelEdges.containsKey(root)){
             ArrayList<Edge> edges = mst.pixelEdges.get(root);
@@ -83,7 +80,6 @@ public class Chromosome {
             }
             mst.pixelEdges.remove(root);
         }
-
     }
 
     private void concatenateSegments() {
@@ -97,13 +93,10 @@ public class Chromosome {
 
 
         while (segs.size() > 3) {
-
-//            System.out.println("Seg size: " + segs.size());
-
+            // Choose one random, find its distance to all other segments, merge with the closest one
             Segment s1 = segs.get(new Random().nextInt(segs.size()));
 
             PriorityQueue<SegmentEdge> pq = new PriorityQueue<>();
-            // Choose one random, find its distance to all other segments, merge with the closest one
 
             for (int i = 0; i < segs.size(); i++) {
                 Segment s2 = segs.get(i);
@@ -118,10 +111,6 @@ public class Chromosome {
                 segs.remove(se.s2); // fjern s2 fra segs slik at vi ikke kan adde til den, men da heller til s1.
                 this.segments.remove(se.s2);
             }
-//            SegmentEdge se = pq.remove(); // get the two closest.
-//            se.s1.addAllPixels(se.s2.pixels); // merge the 2 segments
-//            segs.remove(se.s2); // fjern s2 fra segs slik at vi ikke kan adde til den, men da heller til s1.
-//            this.segments.remove(se.s2);
 
             segs = this.segments.stream().filter(
                     segment -> segment.getSegmentSize() < minPixels
