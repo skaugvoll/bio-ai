@@ -90,7 +90,7 @@ public class Chromosome {
     private void concatenateSegments() {
         // burde kansje bruke en form for k-nearest Neighbours tror det er ett bra utg.punkt.
         System.out.println("Now concatenating...");
-        int minPixels = 1000;
+        int minPixels = 10000;
 
         List<Segment> segs = this.segments.stream().filter(
                 segment -> segment.getSegmentSize() < minPixels
