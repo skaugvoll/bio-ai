@@ -2,9 +2,8 @@ package moea;
 
 import java.awt.*;
 import java.time.temporal.ValueRange;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -39,7 +38,7 @@ public class Chromosome {
     private void generateSegments() {
         ArrayList<Pixel> foundNewSegment = new ArrayList<>();
 
-        double teta = 35;
+        double teta = 25;
 
         Pixel root = mst.rootnode;
         foundNewSegment.add(root);
@@ -88,7 +87,7 @@ public class Chromosome {
 
     }
 
-    private void concatenateSegments(){
+    private void concatenateSegments() {
         // burde kansje bruke en form for k-nearest Neighbours tror det er ett bra utg.punkt.
         System.out.println("Now concatenating...");
         int minPixels = 1000;
@@ -97,61 +96,39 @@ public class Chromosome {
                 segment -> segment.getSegmentSize() < minPixels
         ).collect(Collectors.toList());
 
-        int i = 0;
-        double teta = 20;
 
-        while(! segs.isEmpty() && i < segs.size()-1){
-            Segment s1 = segs.get(i);
-            ValueRange range = ValueRange.of((long) (s1.avgSegCol - teta), (long) (s1.avgSegCol + teta));
+        while (segs.size() > 3) {
 
+//            System.out.println("Seg size: " + segs.size());
 
-            ArrayList<Segment> toBeRemoved = new ArrayList<>();
-            for (int j = 1; i < segs.size(); i++){
-                Segment s2 = segs.get(j);
-                if (range.isValidValue(s2.avgSegCol)) {
-                    s1.addAllPixels(s2.pixels);
-                    s1.addAllEdges(s2.edges);
-                    toBeRemoved.add(s2);
+            Segment s1 = segs.get(new Random().nextInt(segs.size()));
+
+            PriorityQueue<SegmentEdge> pq = new PriorityQueue<>();
+            // Choose one random, find its distance to all other segments, merge with the closest one
+
+            for (int i = 0; i < segs.size(); i++) {
+                Segment s2 = segs.get(i);
+                if (s2 == s1) {
+                    continue;
                 }
+                pq.add(new SegmentEdge(s1, s2));
             }
-            segs.removeAll(toBeRemoved);
-            this.segments.removeAll(toBeRemoved);
-            i++;
+            for(int k = 0; k < 10 && !pq.isEmpty(); k++){
+                SegmentEdge se = pq.remove(); // get the two closest.
+                se.s1.addAllPixels(se.s2.pixels); // merge the 2 segments
+                segs.remove(se.s2); // fjern s2 fra segs slik at vi ikke kan adde til den, men da heller til s1.
+                this.segments.remove(se.s2);
+            }
+//            SegmentEdge se = pq.remove(); // get the two closest.
+//            se.s1.addAllPixels(se.s2.pixels); // merge the 2 segments
+//            segs.remove(se.s2); // fjern s2 fra segs slik at vi ikke kan adde til den, men da heller til s1.
+//            this.segments.remove(se.s2);
+
+            segs = this.segments.stream().filter(
+                    segment -> segment.getSegmentSize() < minPixels
+            ).collect(Collectors.toList());
         }
-
-
-
-
-//        while(! segs.isEmpty() && i < segs.size()-1){
-//            int temp = 0;
-//            Segment s1 = segs.get(i);
-//
-//            temp += s1.getSegmentSize();
-//
-//            while(j < segs.size() && temp < minPixels){
-//                Segment s2 = segs.get(j);
-//                if(temp + s2.getSegmentSize() >= minPixels){
-//                    s1.addAllPixels(s2.pixels);
-//                    s1.addAllEdges(s2.edges);
-//
-//
-//                    segs.remove(s2);
-//                    this.segments.remove(s2);
-//                    break;
-//                }
-//                else{
-//                    temp += s2.getSegmentSize();
-//                    s1.addAllPixels(s2.pixels);
-//                    s1.addAllEdges(s2.edges);
-//
-//
-//                    segs.remove(s2);
-//                    this.segments.remove(s2);
-//                }
-//            }
-//            i++;
-//            j++;
-//        }
     }
+
 
 }

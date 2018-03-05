@@ -16,12 +16,16 @@ public class Segment {
     public int avgSegCol = 0;
     private int tempSum = 0;
 
+
+    public int[] centroid = new int[2];
+
     public Segment(Pixel root, Color color){
         this.root = root;
         this.color = color;
 
         this.pixels = new ArrayList<>();
         this.addPixel(root);
+        calcualteCentroid();
         this.tempSum = IntStream.of(root.getRGB()).sum();
 
         this.edges = new ArrayList<>();
@@ -55,4 +59,18 @@ public class Segment {
     public int getSegmentSize() {
         return this.pixels.size();
     }
+
+    private void calcualteCentroid(){
+        int x = 0;
+        int y = 0;
+
+        for(Pixel p : pixels){
+            x += p.coordinates[0];
+            y += p.coordinates[1];
+        }
+
+        this.centroid = new int[] {x/pixels.size(), y/pixels.size()};
+    }
+
+
 }
