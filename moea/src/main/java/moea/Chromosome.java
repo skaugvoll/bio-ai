@@ -39,7 +39,7 @@ public class Chromosome {
     private void generateSegments() {
         ArrayList<Pixel> foundNewSegment = new ArrayList<>();
 
-        double teta = 50;
+        double teta = 35;
 
         Pixel root = mst.rootnode;
         foundNewSegment.add(root);
@@ -98,37 +98,60 @@ public class Chromosome {
         ).collect(Collectors.toList());
 
         int i = 0;
-        int j = 1;
+        double teta = 20;
+
         while(! segs.isEmpty() && i < segs.size()-1){
-            int temp = 0;
             Segment s1 = segs.get(i);
+            ValueRange range = ValueRange.of((long) (s1.avgSegCol - teta), (long) (s1.avgSegCol + teta));
 
-            temp += s1.getSegmentSize();
 
-            while(j < segs.size() && temp < minPixels){
+            ArrayList<Segment> toBeRemoved = new ArrayList<>();
+            for (int j = 1; i < segs.size(); i++){
                 Segment s2 = segs.get(j);
-                if(temp + s2.getSegmentSize() >= minPixels){
+                if (range.isValidValue(s2.avgSegCol)) {
                     s1.addAllPixels(s2.pixels);
                     s1.addAllEdges(s2.edges);
-
-
-                    segs.remove(s2);
-                    this.segments.remove(s2);
-                    break;
-                }
-                else{
-                    temp += s2.getSegmentSize();
-                    s1.addAllPixels(s2.pixels);
-                    s1.addAllEdges(s2.edges);
-
-
-                    segs.remove(s2);
-                    this.segments.remove(s2);
+                    toBeRemoved.add(s2);
                 }
             }
+            segs.removeAll(toBeRemoved);
+            this.segments.removeAll(toBeRemoved);
             i++;
-            j++;
         }
+
+
+
+
+//        while(! segs.isEmpty() && i < segs.size()-1){
+//            int temp = 0;
+//            Segment s1 = segs.get(i);
+//
+//            temp += s1.getSegmentSize();
+//
+//            while(j < segs.size() && temp < minPixels){
+//                Segment s2 = segs.get(j);
+//                if(temp + s2.getSegmentSize() >= minPixels){
+//                    s1.addAllPixels(s2.pixels);
+//                    s1.addAllEdges(s2.edges);
+//
+//
+//                    segs.remove(s2);
+//                    this.segments.remove(s2);
+//                    break;
+//                }
+//                else{
+//                    temp += s2.getSegmentSize();
+//                    s1.addAllPixels(s2.pixels);
+//                    s1.addAllEdges(s2.edges);
+//
+//
+//                    segs.remove(s2);
+//                    this.segments.remove(s2);
+//                }
+//            }
+//            i++;
+//            j++;
+//        }
     }
 
 }
