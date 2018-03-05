@@ -17,12 +17,9 @@ public class DataGenerator {
 
         try{
             BufferedImage hugeImage = ImageIO.read(DataGenerator.class.getResourceAsStream(resourcePath));
-            System.out.println("okay, now bufferdImage");
 
             pixels = convertTo2DWithoutUsingGetRGB(hugeImage); // height x width
             this.createNeighbours(pixels);
-//            System.out.println(Arrays.toString(pixels[0][1].getRGB()));
-//            System.out.println(pixels[0][1]);
             return pixels;
         }
         catch (IOException e){
@@ -40,7 +37,6 @@ public class DataGenerator {
         final int width = image.getWidth();
         final int height = image.getHeight();
         final boolean hasAlphaChannel = image.getAlphaRaster() != null;
-        System.out.println("hasAlphaCHannel: " + hasAlphaChannel);
 
         Pixel[][] result = new Pixel[height][width];
         if (hasAlphaChannel) {
@@ -164,8 +160,8 @@ public class DataGenerator {
 
         try{
 //            f = new File(this.getClass().getResource("Output/out.png").getPath());
-            f = new File("/Users/sigveskaugvoll/Documents/Skole/2018V/Bio-Insipred Artificial intelligence/Assignments/bio-ai/moea/src/main/resources/Output/out.png");
-//            f = new File("C:\\Users\\thmwl\\Documents\\git\\bio-ai\\moea\\src\\main\\resources\\Output\\out.png");
+//            f = new File("/Users/sigveskaugvoll/Documents/Skole/2018V/Bio-Insipred Artificial intelligence/Assignments/bio-ai/moea/src/main/resources/Output/out.png");
+            f = new File("C:\\Users\\thmwl\\Documents\\git\\bio-ai\\moea\\src\\main\\resources\\Output\\out.png");
             ImageIO.write(newImage, "png", f);
         }catch(IOException e){
             System.out.println("Kunne ikke skrive ut fil");
