@@ -16,6 +16,7 @@ public class Chromosome {
 
     ArrayList<Pixel> rootNodes;
     ArrayList<Segment> segments;
+    ArrayList<Pixel> edges;
 
     double overallDeviation = 0;
     double edgeValue = 0;
@@ -31,6 +32,7 @@ public class Chromosome {
 
         rootNodes = new ArrayList<>();
         this.segments = new ArrayList<>();
+        this.edges = new ArrayList<>();
 
         this.generateSegments();
         this.concatenateSegments();
@@ -161,4 +163,22 @@ public class Chromosome {
     public double getFitness() {
         return fitness;
     }
+
+    public void findEdgePixels(){
+        for(Segment s : segments){
+            for(Pixel p : s.pixels){
+                for(Edge nbrs : p.getNeighbours()){
+                    Pixel nbr = nbrs.getNeighbourPixel();
+                    if( s.pixels.contains(nbr) ){
+                        continue;
+                    } else {
+                        this.edges.add(p);
+                    }
+                }
+            }
+        }
+
+    }
+
+
 }
