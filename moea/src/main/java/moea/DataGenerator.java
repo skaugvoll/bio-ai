@@ -1,6 +1,7 @@
 package moea;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.File;
@@ -185,6 +186,49 @@ public class DataGenerator {
         try{
 //            f = new File(this.getClass().getResource("Output/out.png").getPath());
             f = new File("/Users/sigveskaugvoll/Documents/Skole/2018V/Bio-Insipred Artificial intelligence/Assignments/bio-ai/moea/src/main/resources/Output/out.png");
+            ImageIO.write(newImage, "png", f);
+        }catch(IOException e){
+            System.out.println("Kunne ikke skrive ut fil");
+        }
+    }
+
+    public void drawTrace(Chromosome chromosome, boolean colors){
+//        BufferedImage newImage = new BufferedImage(5, 5, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage newImage = new BufferedImage(481, 321, BufferedImage.TYPE_INT_ARGB);
+        File f = null;
+
+        Color traceColor =  new Color(0,0,0);
+
+        if(colors){
+            traceColor =  new Color(10,250,10);
+        }
+
+        int traceClr =  (255 << 24) | (traceColor.getRed() << 16) | (traceColor.getGreen() << 8) | traceColor.getBlue();
+
+        for(Segment s : chromosome.segments){
+            for(Pixel p : s.pixels){
+                if(chromosome.edges.contains(p)){
+                    newImage.setRGB(p.coordinates[1], p.coordinates[0], traceClr);
+                } else {
+                    int color = (255 << 24) | (255 << 16) | (255 << 8) | 255; // white color
+                    if(colors) {
+                        color = (255 << 24) | (p.getRGB()[0] << 16) | (p.getRGB()[1] << 8) | p.getRGB()[2];
+                    }
+
+                    newImage.setRGB(p.coordinates[1], p.coordinates[0], color);
+                }
+            }
+        }
+
+        try{
+
+            if(colors){
+                f = new File(System.getProperty("user.dir") + "/src/main/resources/Output/out_color_trace.png");
+            } else {
+                f = new File(System.getProperty("user.dir") + "/src/main/resources/Output/out_BW_Trace.png");
+            }
+
+
             ImageIO.write(newImage, "png", f);
         }catch(IOException e){
             System.out.println("Kunne ikke skrive ut fil");

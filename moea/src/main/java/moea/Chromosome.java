@@ -41,6 +41,9 @@ public class Chromosome {
         calculateOverallDeviation();
         calculateEdgeValue();
         this.fitness = calculateFitness();
+        findEdgePixels();
+        dg.drawTrace(this, true);
+        dg.drawTrace(this, false);
 
 
 
@@ -177,7 +180,6 @@ public class Chromosome {
                 }
             }
         }
-
     }
 
 

@@ -23,7 +23,6 @@ public class GA {
         ArrayList<Chromosome> population = new ArrayList<>();
         threadGenerateIndividuals(MSTs, population);
 
-
         System.out.println("populationSize: " + MSTs.size());
         System.out.println("Score bitch: " + population.get(0).getFitness());
     }
