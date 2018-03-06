@@ -18,8 +18,14 @@ public class Segment {
     public int avgSegCol = 0;
     private int tempSum = 0;
 
-
     public int[] centroid = new int[2];
+
+    ///////
+    //
+    public int[] avgSegColors = new int[3];
+    //
+    ///////
+
 
     public Segment(Pixel root, Color color){
         this.root = root;
@@ -35,6 +41,12 @@ public class Segment {
 
     void addPixel(Pixel pix){
         this.pixels.add(pix);
+
+        for(int i = 0; i < pix.getRGB().length; i++){
+            this.avgSegColors[i] += pix.getRGB()[i];
+            this.avgSegColors[i] /= this.pixels.size();
+        }
+
         int pc = IntStream.of(pix.getRGB()).sum();
         tempSum = tempSum + pc;
         this.avgSegCol = (tempSum) / pixels.size();
@@ -47,6 +59,13 @@ public class Segment {
 
     public void addAllPixels(ArrayList<Pixel> foundThisSegment) {
         this.pixels.addAll(foundThisSegment);
+
+        for(Pixel pix : foundThisSegment){
+            for(int i = 0; i < pix.getRGB().length; i++){
+                this.avgSegColors[i] += pix.getRGB()[i];
+                this.avgSegColors[i] /= this.pixels.size();
+            }
+        }
 
         int avgSum = pixels.stream().mapToInt(p -> IntStream.of(p.getRGB()).sum()).sum();
         tempSum += avgSum;
