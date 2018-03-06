@@ -30,18 +30,22 @@ public class Chromosome {
         this.minSegments = minSegments;
         this.weights = weights;
 
-        rootNodes = new ArrayList<>();
+        this.rootNodes = new ArrayList<>();
         this.segments = new ArrayList<>();
         this.edges = new ArrayList<>();
 
         this.generateSegments();
         this.concatenateSegments();
-        DataGenerator dg = new DataGenerator();
-        dg.drawSegments(this.segments);
+
+
         calculateOverallDeviation();
         calculateEdgeValue();
         this.fitness = calculateFitness();
+
+        // TODO: move out of this constructor into the GA
         findEdgePixels();
+        DataGenerator dg = new DataGenerator();
+        dg.drawSegments(this.segments);
         dg.drawTrace(this, true);
         dg.drawTrace(this, false);
 
@@ -168,11 +172,27 @@ public class Chromosome {
     }
 
     public void findEdgePixels(){
+        int maxRow = Integer.MIN_VALUE;
+        int maxCol = Integer.MIN_VALUE;
+
+        for(Segment s  : segments){
+            for( Pixel p : s.pixels){
+                if(p.coordinates[0] > maxRow){
+                    maxRow = p.coordinates[0];
+                }
+                else if(p.coordinates[1] > maxCol){
+                    maxCol = p.coordinates[1];
+                }
+            }
+        }
+
         for(Segment s : segments){
             for(Pixel p : s.pixels){
                 for(Edge nbrs : p.getNeighbours()){
                     Pixel nbr = nbrs.getNeighbourPixel();
-                    if( s.pixels.contains(nbr) ){
+                    if (p.coordinates[0] == 0 || p.coordinates[0] == maxRow || p.coordinates[1] == 0 || p.coordinates[1] == maxCol) {
+                        this.edges.add(p);
+                    } else if( s.pixels.contains(nbr) ){
                         continue;
                     } else {
                         this.edges.add(p);

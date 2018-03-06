@@ -199,9 +199,7 @@ public class DataGenerator {
 
         Color traceColor =  new Color(0,0,0);
 
-        if(colors){
-            traceColor =  new Color(10,250,10);
-        }
+        if(colors){ traceColor =  new Color(10,250,10); }
 
         int traceClr =  (255 << 24) | (traceColor.getRed() << 16) | (traceColor.getGreen() << 8) | traceColor.getBlue();
 
@@ -212,9 +210,8 @@ public class DataGenerator {
                 } else {
                     int color = (255 << 24) | (255 << 16) | (255 << 8) | 255; // white color
                     if(colors) {
-                        color = (255 << 24) | (p.getRGB()[0] << 16) | (p.getRGB()[1] << 8) | p.getRGB()[2];
+                        color = (255 << 24) | (p.getRGB()[0] << 16) | (p.getRGB()[1] << 8) | p.getRGB()[2]; // pixel org. color
                     }
-
                     newImage.setRGB(p.coordinates[1], p.coordinates[0], color);
                 }
             }
