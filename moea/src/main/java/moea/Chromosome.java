@@ -22,6 +22,14 @@ public class Chromosome {
     double edgeValue = 0;
     double fitness; // the lower the better!
 
+    ///////// NSGA-II shit
+    //
+    int rank;
+    ArrayList<Chromosome> sp = new ArrayList<>();  // a set of solutions that the solution 'ch' dominates.
+    int np = 0;// np = domination count. How many CH is dominated by
+    //
+    /////////
+
     double[] weights = {0.5,0.5};
 
     public Chromosome(MST mst, int numberOfPixels, int minSegments, double[] weights){
@@ -43,11 +51,11 @@ public class Chromosome {
         this.fitness = calculateFitness();
 
         // TODO: move out of this constructor into the GA
-        findEdgePixels();
-        DataGenerator dg = new DataGenerator();
-        dg.drawSegments(this.segments);
-        dg.drawTrace(this, true);
-        dg.drawTrace(this, false);
+//        findEdgePixels();
+//        DataGenerator dg = new DataGenerator();
+//        dg.drawSegments(this.segments);
+//        dg.drawTrace(this, true);
+//        dg.drawTrace(this, false);
 
 
 
