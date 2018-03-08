@@ -16,12 +16,14 @@ public class GA {
     public void run(int imgNbr, int popSize) {
         pixels = dg.readImage(String.valueOf(imgNbr));
 
-
         ArrayList<MST> MSTs = new ArrayList<>();
         threadGenerateMST(popSize, MSTs);
 
         ArrayList<Chromosome> population = new ArrayList<>();
         threadGenerateIndividuals(MSTs, population);
+
+        // we have found population, but not sorted!
+        fastNonDominatedSort(population);
 
         System.out.println("populationSize: " + MSTs.size());
         System.out.println("Score bitch: " + population.get(0).getFitness());
@@ -102,9 +104,65 @@ public class GA {
     }
 
 
+    private void fastNonDominatedSort(ArrayList<Chromosome> population){
+        ArrayList<Chromosome> F1 = new ArrayList<>(); // this is the first pareto front.
+
+
+        // find the first front line
+        for(Chromosome ch : population){
+            ch.np = 0;
+            ch.sp.clear();
+
+            for(Chromosome q : population){
+                if(q.equals(ch)){
+                    continue;
+                }
+
+                if(dominates(ch,q)){
+                    ch.sp.add(q);
+                }
+                else if(dominates(q,ch)){
+                    ch.np += 1;
+                }
+            }
+            if (ch.np == 0){
+               ch.rank = 1;
+               F1.add(ch);
+            }
+        }
+        // now we are done with finding the first front line
+        ArrayList<ArrayList<Chromosome>> Fi = new ArrayList<>(); // this should hold all pareto fronts.
+        Fi.add(F1);
+
+        int i = 1;
+        while(!Fi.get(i-1).isEmpty()){
+            ArrayList<Chromosome> currentFront = Fi.get(i-1);
+            ArrayList<Chromosome>  newFront = new ArrayList<>();
+
+            for(Chromosome ch : currentFront){
+                for(Chromosome q : ch.sp){
+                    q.np -= 1;
+                    if(q.np == 0){
+                        q.rank = i + 1;
+                        newFront.add(q);
+                    }
+                }
+            }
+            i++;
+            Fi.add(newFront);
+        }
+        System.out.println("smook smook smook");
+//        return Fi;
+    }
+
+    private boolean dominates(Chromosome ch, Chromosome q) {
+        return true;
+    }
+
+
     public static void main(String[] args) {
         GA g = new GA();
-        g.run(1, 1);
+        g.run(1, 10);
     }
 
 }
