@@ -23,10 +23,24 @@ public class GA {
         threadGenerateIndividuals(MSTs, population);
 
         // we have found population, but not sorted!
-        fastNonDominatedSort(population);
+        population = fastNonDominatedSort(population);
 
-        System.out.println("populationSize: " + MSTs.size());
-        System.out.println("Score bitch: " + population.get(0).getFitness());
+
+        //Then at first:
+        // usual binary tournement selection
+        // crossover
+        // mutation
+
+        // Q = offsprings = result of these 3.  | Q | = | population |
+
+        // Then Combine Parents and offsprings --> R
+        // Sort R based on fast-non-dominating-sort
+        
+
+
+
+
+
     }
 
 
@@ -104,8 +118,9 @@ public class GA {
     }
 
 
-    private void fastNonDominatedSort(ArrayList<Chromosome> population){
-        ArrayList<Chromosome> F1 = new ArrayList<>(); // this is the first pareto front.
+    private ArrayList<Chromosome> fastNonDominatedSort(ArrayList<Chromosome> population){
+//        ArrayList<Chromosome> F1 = new ArrayList<>(); // this is the first pareto front.
+        ArrayList<Chromosome> Fi = new ArrayList<>(); // this should hold all pareto fronts.
 
 
         // find the first front line
@@ -127,32 +142,30 @@ public class GA {
             }
             if (ch.np == 0){
                ch.rank = 1;
-               F1.add(ch);
+               Fi.add(ch);
             }
         }
         // now we are done with finding the first front line
-        ArrayList<ArrayList<Chromosome>> Fi = new ArrayList<>(); // this should hold all pareto fronts.
-        Fi.add(F1);
 
         int i = 1;
-        while(!Fi.get(i-1).isEmpty()){
-            ArrayList<Chromosome> currentFront = Fi.get(i-1);
+        while(!Fi.get(i-1).sp.isEmpty()){ // vi vil ha size hær kansje, siden flere kan få sp = ø ??
+            Chromosome currentFront = Fi.get(i-1);
             ArrayList<Chromosome>  newFront = new ArrayList<>();
 
-            for(Chromosome ch : currentFront){
-                for(Chromosome q : ch.sp){
+//            for(Chromosome ch : currentFront){
+                for(Chromosome q : currentFront.sp){
                     q.np -= 1;
                     if(q.np == 0){
                         q.rank = i + 1;
-                        newFront.add(q);
+                        Fi.add(q);
                     }
                 }
-            }
+//            }
             i++;
-            Fi.add(newFront);
+
         }
         System.out.println("smook smook smook");
-//        return Fi;
+        return Fi;
     }
 
     /***
@@ -160,9 +173,9 @@ public class GA {
      if both the following conditions are true:
      1. The solution x(1) is no worse than x(2) in all objectives.
      2. The solution x(1) is strictly better than x(2) in at least one objective.
-     * @param ch
-     * @param q
-     * @return
+     * @param ch: Chromosome :
+     * @param q: Chromosme :
+     * @return : boolean : True if ch dominates q
      */
 
     private boolean dominates(Chromosome ch, Chromosome q) {
