@@ -27,6 +27,7 @@ public class Chromosome {
     int rank;
     ArrayList<Chromosome> sp = new ArrayList<>();  // a set of solutions that the solution 'ch' dominates.
     int np = 0;// np = domination count. How many CH is dominated by
+    double crowdingDistance = 0;
     //
     /////////
 

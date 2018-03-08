@@ -3,6 +3,7 @@ package moea;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.*;
 
 public class GA {
@@ -10,8 +11,10 @@ public class GA {
     DataGenerator dg = new DataGenerator();
     Prims prim = new Prims();
     private ExecutorService pool;
-
+    Random r = new Random();
     private Pixel[][] pixels = {};
+
+    ArrayList<ArrayList<Chromosome>> populationFronts = new ArrayList<ArrayList<Chromosome>>();
 
     public void run(int imgNbr, int popSize) {
         pixels = dg.readImage(String.valueOf(imgNbr));
@@ -23,7 +26,8 @@ public class GA {
         ArrayList<Chromosome> population = new ArrayList<>();
         threadGenerateIndividuals(MSTs, population);
 
-        fastNonDominatedSort(population);
+        populationFronts = fastNonDominatedSort(population);
+        ArrayList<Chromosome> parents = tournamentSelection(population);
 
         System.out.println("populationSize: " + MSTs.size());
         System.out.println("Score bitch: " + population.get(0).getFitness());
@@ -152,6 +156,7 @@ public class GA {
 
         }
         System.out.println("smook smook smook");
+        calculateCrowdingDistance(Fi);
         return Fi;
     }
 
@@ -171,9 +176,44 @@ public class GA {
         return dominates;
     }
 
+    private void calculateCrowdingDistance(ArrayList<ArrayList<Chromosome>> Fi) {
+        for(ArrayList<Chromosome> front: Fi){
+            ArrayList<Chromosome> overallDeviation = front;
+            ArrayList<Chromosome> edgeValue = front;
+            overallDeviation.sort(new OverallDeviationComparator());
+            edgeValue.sort(new EdgeValueComparator());
+            front.get(0).crowdingDistance = Double.MAX_VALUE;
+            front.get(front.size()-1).crowdingDistance = Double.MAX_VALUE;
+            for(int i = 1; i <front.size(); i++){
+                
+            }
+        }
+    }
+
+    private ArrayList<Chromosome> tournamentSelection(ArrayList<Chromosome> population) {
+        ArrayList<Chromosome> parents = new ArrayList<>();
+        for(int i = 0; i < 2; i++){
+            Chromosome p1 = population.get(r.nextInt(population.size()));
+            Chromosome p2 = population.get(r.nextInt(population.size()));
+            if(p1.rank < p2.rank){
+                parents.add(p1);
+            }
+            else if(p2.rank < p1.rank){
+                parents.add(p2);
+            }
+            else{
+
+            }
+        }
+        return parents;
+    }
+
+
+
+
     public static void main(String[] args) {
         GA g = new GA();
-        g.run(1, 10);
+        g.run(1, 5);
     }
 
 }
