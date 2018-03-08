@@ -138,14 +138,27 @@ public class Chromosome {
     private void concatenateSegments() {
         // burde kansje bruke en form for k-nearest Neighbours tror det er ett bra utg.punkt.
         System.out.println("Now concatenating...");
-        int minPixels = 10000;
+//        int minPixels = 10000;
+        int minPixels = this.numberOfPixels / minSegments;
 
-        List<Segment> segs = this.segments.stream().filter(
+//        List<Segment> segs = this.segments.stream().filter(
+//                segment -> segment.getSegmentSize() < minPixels
+//        ).collect(Collectors.toList());
+
+        boolean run = true;
+//        while (segs.size() > minSegments) {
+        while (run) {
+
+            List<Segment> segs = this.segments.stream().filter(
                 segment -> segment.getSegmentSize() < minPixels
-        ).collect(Collectors.toList());
+            ).collect(Collectors.toList());
 
+            // check if we are allowed to remove // concatenate segments
+            if(this.segments.size() -1 < minSegments){
+                run = false;
+                break;
+            }
 
-        while (segs.size() > 3) {
             // Choose one random, find its distance to all other segments, merge with the closest one
             Segment s1 = segs.get(new Random().nextInt(segs.size()));
 
@@ -158,16 +171,24 @@ public class Chromosome {
                 }
                 pq.add(new SegmentEdge(s1, s2));
             }
-            for(int k = 0; k < 10 && !pq.isEmpty(); k++){
+            for(int k = 0; k < 1 && !pq.isEmpty(); k++){
                 SegmentEdge se = pq.remove(); // get the two closest.
                 se.s1.addAllPixels(se.s2.pixels); // merge the 2 segments
                 segs.remove(se.s2); // fjern s2 fra segs slik at vi ikke kan adde til den, men da heller til s1.
                 this.segments.remove(se.s2);
+
+                // check if after concatination, we can concatinate another one, or have min segments
+                if((this.segments.size()) - 1 < minSegments){
+                    run = false;
+                    break;
+                }
+
+
             }
 
-            segs = this.segments.stream().filter(
-                    segment -> segment.getSegmentSize() < minPixels
-            ).collect(Collectors.toList());
+//            segs = this.segments.stream().filter(
+//                    segment -> segment.getSegmentSize() < minPixels
+//            ).collect(Collectors.toList());
         }
     }
 

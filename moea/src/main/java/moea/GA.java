@@ -22,7 +22,7 @@ public class GA {
         threadGenerateMST(popSize, MSTs);
 
         ArrayList<Chromosome> population = new ArrayList<>();
-        threadGenerateIndividuals(MSTs, population);
+        threadGenerateIndividuals(MSTs, population, 3);
 
         System.out.println("populationSize: " + MSTs.size());
         System.out.println("Score bitch: " + population.get(0).getFitness());
@@ -120,7 +120,7 @@ public class GA {
     }
 
 
-    private void threadGenerateIndividuals(ArrayList<MST> MSTs, ArrayList<Chromosome> population) {
+    private void threadGenerateIndividuals(ArrayList<MST> MSTs, ArrayList<Chromosome> population, int minSegments) {
         pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
         List<Callable<Chromosome>> callableTasks = new ArrayList<>();
@@ -128,7 +128,7 @@ public class GA {
             int finalT = t;
             callableTasks.add(() -> {
                 MST mst = MSTs.get(finalT);
-                return new Chromosome(mst, mst.fuckersVisited.size(), 30, new double[]{0.5,0.5});
+                return new Chromosome(mst, mst.fuckersVisited.size(), minSegments, new double[]{0.5,0.5});
             });
             System.out.println("creating segmenting task :" + t);
         }
