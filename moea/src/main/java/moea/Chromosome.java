@@ -13,6 +13,8 @@ public class Chromosome {
     MST mst;
     int numberOfPixels;
     int minSegments;
+    int maxSegments;
+    int wantedSegments;
 
     ArrayList<Pixel> rootNodes;
     ArrayList<Segment> segments;
@@ -32,10 +34,12 @@ public class Chromosome {
 
     double[] weights = {0.5,0.5};
 
-    public Chromosome(MST mst, int numberOfPixels, int minSegments, double[] weights){
+    public Chromosome(MST mst, int numberOfPixels, int minSegments, int maxSegments, double[] weights){
         this.mst = mst;
         this.numberOfPixels = numberOfPixels;
         this.minSegments = minSegments;
+        this.maxSegments = maxSegments;
+        this.wantedSegments = new Random().nextInt(maxSegments-minSegments) + minSegments; // gives [minsegs, maxSegs)
         this.weights = weights;
 
         this.rootNodes = new ArrayList<>();
@@ -139,7 +143,8 @@ public class Chromosome {
         // burde kansje bruke en form for k-nearest Neighbours tror det er ett bra utg.punkt.
         System.out.println("Now concatenating...");
 //        int minPixels = 10000;
-        int minPixels = this.numberOfPixels / minSegments;
+
+        int minPixels = this.numberOfPixels / wantedSegments;
 
 //        List<Segment> segs = this.segments.stream().filter(
 //                segment -> segment.getSegmentSize() < minPixels
@@ -154,7 +159,7 @@ public class Chromosome {
             ).collect(Collectors.toList());
 
             // check if we are allowed to remove // concatenate segments
-            if(this.segments.size() -1 < minSegments){
+            if(this.segments.size() -1 < wantedSegments){
                 run = false;
                 break;
             }
@@ -178,7 +183,7 @@ public class Chromosome {
                 this.segments.remove(se.s2);
 
                 // check if after concatination, we can concatinate another one, or have min segments
-                if((this.segments.size()) - 1 < minSegments){
+                if((this.segments.size()) - 1 < wantedSegments){
                     run = false;
                     break;
                 }
