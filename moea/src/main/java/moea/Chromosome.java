@@ -55,6 +55,7 @@ public class Chromosome {
 
     public void calculateOverallDeviation(){
         for(Segment s : segments){
+            s.calculateDeviation();
             overallDeviation += s.deviation;
         }
     }
