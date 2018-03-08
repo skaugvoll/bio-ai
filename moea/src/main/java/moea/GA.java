@@ -3,10 +3,12 @@ package moea;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.*;
 
 public class GA {
 
+    Random r = new Random();
     DataGenerator dg = new DataGenerator();
     Prims prim = new Prims();
     private ExecutorService pool;
@@ -23,7 +25,9 @@ public class GA {
         threadGenerateIndividuals(MSTs, population);
 
         // we have found population, but not sorted!
-        population = fastNonDominatedSort(population);
+//        fastNonDominatedSort(population);
+//        ArrayList<Chromosome> offsprings = new ArrayList<>();
+//        ArrayList<Chromosome> parents = tournamentSelection(population);
 
 
         //Then at first:
@@ -41,6 +45,24 @@ public class GA {
 
 
 
+    }
+
+    private ArrayList<Chromosome> tournamentSelection(ArrayList<Chromosome> population) {
+        ArrayList<Chromosome> parents = new ArrayList<>();
+        for(int i = 0; i < 2; i++){
+            Chromosome p1 = population.get(r.nextInt(population.size()));
+            Chromosome p2 = population.get(r.nextInt(population.size()));
+            if(p1.rank < p2.rank){
+                parents.add(p1);
+            }
+            else if(p2.rank < p1.rank){
+                parents.add(p2);
+            }
+            else{
+
+            }
+        }
+        return parents;
     }
 
 
@@ -118,9 +140,8 @@ public class GA {
     }
 
 
-    private ArrayList<Chromosome> fastNonDominatedSort(ArrayList<Chromosome> population){
-//        ArrayList<Chromosome> F1 = new ArrayList<>(); // this is the first pareto front.
-        ArrayList<Chromosome> Fi = new ArrayList<>(); // this should hold all pareto fronts.
+    private ArrayList<ArrayList<Chromosome>> fastNonDominatedSort(ArrayList<Chromosome> population){
+        ArrayList<Chromosome> F1 = new ArrayList<>(); // this is the first pareto front.
 
 
         // find the first front line
@@ -142,26 +163,29 @@ public class GA {
             }
             if (ch.np == 0){
                ch.rank = 1;
-               Fi.add(ch);
+               F1.add(ch);
             }
         }
         // now we are done with finding the first front line
+        ArrayList<ArrayList<Chromosome>> Fi = new ArrayList<>(); // this should hold all pareto fronts.
+        Fi.add(F1);
 
         int i = 1;
-        while(!Fi.get(i-1).sp.isEmpty()){ // vi vil ha size hær kansje, siden flere kan få sp = ø ??
-            Chromosome currentFront = Fi.get(i-1);
+        while(!Fi.get(i-1).isEmpty()){ // vi vil ha size hær kansje, siden flere kan få sp = ø ??
+            ArrayList<Chromosome> currentFront = Fi.get(i-1);
             ArrayList<Chromosome>  newFront = new ArrayList<>();
 
-//            for(Chromosome ch : currentFront){
-                for(Chromosome q : currentFront.sp){
+            for(Chromosome ch : currentFront){
+                for(Chromosome q : currentFront){
                     q.np -= 1;
                     if(q.np == 0){
                         q.rank = i + 1;
-                        Fi.add(q);
+                        newFront.add(q);
                     }
                 }
-//            }
+            }
             i++;
+            Fi.add(newFront);
 
         }
         System.out.println("smook smook smook");
@@ -197,7 +221,7 @@ public class GA {
 
     public static void main(String[] args) {
         GA g = new GA();
-        g.run(1, 10);
+        g.run(1, 1);
     }
 
 }

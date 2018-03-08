@@ -33,7 +33,6 @@ public class Segment {
 
         this.pixels = new ArrayList<>();
         this.addPixel(root);
-        calcualteCentroid();
         this.tempSum = IntStream.of(root.getRGB()).sum();
 
         this.edges = new ArrayList<>();
@@ -59,13 +58,6 @@ public class Segment {
 
     public void addAllPixels(ArrayList<Pixel> foundThisSegment) {
         this.pixels.addAll(foundThisSegment);
-
-        for(Pixel pix : foundThisSegment){
-            for(int i = 0; i < pix.getRGB().length; i++){
-                this.avgSegColors[i] += pix.getRGB()[i];
-                this.avgSegColors[i] /= this.pixels.size();
-            }
-        }
 
         int avgSum = pixels.stream().mapToInt(p -> IntStream.of(p.getRGB()).sum()).sum();
         tempSum += avgSum;
@@ -94,14 +86,27 @@ public class Segment {
     }
 
     public void calculateDeviation(){
-        Pixel centroidPixel = this.pixels.stream().filter(pixel -> pixel.coordinates == centroid).collect(Collectors.toList()).get(0);
+        int red = 0;
+        int green = 0;
+        int blue = 0;
+        for(Pixel pix : pixels){
+            red += pix.getRGB()[0];
+            green += pix.getRGB()[1];
+            blue += pix.getRGB()[2];
+        }
+        this.avgSegColors = new int[] {red/this.pixels.size(), green/this.pixels.size(), blue/this.pixels.size()};
+
         for(Pixel p : pixels){
-            deviation += RGBdistance(centroidPixel, p);
+            deviation += AvgRGBdistance(p);
         }
     }
 
     public double RGBdistance(Pixel p1, Pixel p2){
         return Math.sqrt(Math.pow(p1.getRGB()[0] - p2.getRGB()[0], 2) + Math.pow(p1.getRGB()[1] - p2.getRGB()[1], 2) + Math.pow(p1.getRGB()[2] - p2.getRGB()[2], 2));
     }
+    public double AvgRGBdistance(Pixel p2){
+        return Math.sqrt(Math.pow(avgSegColors[0] - p2.getRGB()[0], 2) + Math.pow(avgSegColors[1] - p2.getRGB()[1], 2) + Math.pow(avgSegColors[2] - p2.getRGB()[2], 2));
+    }
+
 
 }
