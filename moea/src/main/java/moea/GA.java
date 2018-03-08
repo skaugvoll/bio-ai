@@ -155,8 +155,30 @@ public class GA {
 //        return Fi;
     }
 
+    /***
+     A solution x(1) is said to dominate the other solution x(2),
+     if both the following conditions are true:
+     1. The solution x(1) is no worse than x(2) in all objectives.
+     2. The solution x(1) is strictly better than x(2) in at least one objective.
+     * @param ch
+     * @param q
+     * @return
+     */
+
     private boolean dominates(Chromosome ch, Chromosome q) {
-        return true;
+        boolean dominates = true;
+
+        // condition 1:
+        if (! (ch.edgeValue <= q.edgeValue && ch.overallDeviation <= q.overallDeviation)) {
+            dominates = false;
+        }
+
+        // condition 2:
+        if (! (ch.edgeValue < q.edgeValue || ch.overallDeviation < q.overallDeviation)){
+            dominates = false;
+        }
+
+        return dominates;
     }
 
 
