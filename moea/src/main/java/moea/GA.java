@@ -156,6 +156,7 @@ public class GA {
 
         }
         System.out.println("smook smook smook");
+        Fi.remove(Fi.size()-1);
         calculateCrowdingDistance(Fi);
         return Fi;
     }
@@ -178,14 +179,23 @@ public class GA {
 
     private void calculateCrowdingDistance(ArrayList<ArrayList<Chromosome>> Fi) {
         for(ArrayList<Chromosome> front: Fi){
-            ArrayList<Chromosome> overallDeviation = front;
-            ArrayList<Chromosome> edgeValue = front;
+            ArrayList<Chromosome> overallDeviation = new ArrayList<>(front);
+            ArrayList<Chromosome> edgeValue = new ArrayList<>(front);
             overallDeviation.sort(new OverallDeviationComparator());
             edgeValue.sort(new EdgeValueComparator());
-            front.get(0).crowdingDistance = Double.MAX_VALUE;
-            front.get(front.size()-1).crowdingDistance = Double.MAX_VALUE;
-            for(int i = 1; i <front.size(); i++){
-                
+            overallDeviation.get(0).crowdingDistance = Double.MAX_VALUE;
+            overallDeviation.get(front.size()-1).crowdingDistance = Double.MAX_VALUE;
+            edgeValue.get(0).crowdingDistance = Double.MAX_VALUE;
+            edgeValue.get(front.size()-1).crowdingDistance = Double.MAX_VALUE;
+            double minDeviation = overallDeviation.get(0).overallDeviation;
+            double maxDeviation = overallDeviation.get(front.size()-1).overallDeviation;
+            double minEdgeValue = edgeValue.get(front.size()-1).edgeValue;
+            double maxEdgeValue = edgeValue.get(0).edgeValue;
+
+            if(front.size() > 2){
+                for(int i = 1; i <front.size()-1; i++){
+                    overallDeviation.get(i).crowdingDistance = Math.abs((overallDeviation.get(i-1).overallDeviation - overallDeviation.get(i+1).overallDeviation)/(maxDeviation - minDeviation)) + Math.abs((overallDeviation.get(i-1).edgeValue - overallDeviation.get(i+1).edgeValue)/(maxEdgeValue - minEdgeValue));
+                }
             }
         }
     }
@@ -202,7 +212,15 @@ public class GA {
                 parents.add(p2);
             }
             else{
-
+                if(p1.crowdingDistance > p2.crowdingDistance){
+                    parents.add(p1);
+                }
+                else if(p2.crowdingDistance < p1.crowdingDistance){
+                    parents.add(p2);
+                }
+                else{
+                    if (r.nextDouble() > 0.5 ? parents.add(p1) : parents.add(p2));
+                }
             }
         }
         return parents;
@@ -213,7 +231,7 @@ public class GA {
 
     public static void main(String[] args) {
         GA g = new GA();
-        g.run(1, 5);
+        g.run(1, 10);
     }
 
 }
