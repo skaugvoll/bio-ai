@@ -15,7 +15,7 @@ public class Pixel {
 
     private Pixel parent = null;
     private ArrayList<Pixel> children = new ArrayList<Pixel>();
-
+    Segment segment = null;
 
     public Pixel(int[] RGB, int[] coordinates) {
         this.RGB = RGB;

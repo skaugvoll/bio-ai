@@ -24,6 +24,15 @@ public class Chromosome {
     double edgeValue = 0;
     double fitness; // the lower the better!
 
+    ///////// NSGA-II shit
+    //
+    int rank;
+    ArrayList<Chromosome> sp = new ArrayList<>();  // a set of solutions that the solution 'ch' dominates.
+    int np = 0;// np = domination count. How many CH is dominated by
+    double crowdingDistance = 0;
+    //
+    /////////
+
     double[] weights = {0.5,0.5};
 
     public Chromosome(MST mst, int numberOfPixels, int minSegments, int maxSegments, double[] weights){
@@ -41,13 +50,12 @@ public class Chromosome {
         this.generateSegments();
         this.concatenateSegments();
 
-
+        findEdgePixels();
         calculateOverallDeviation();
         calculateEdgeValue();
         this.fitness = calculateFitness();
 
         // TODO: move out of this constructor into the GA
-        findEdgePixels();
         DataGenerator dg = new DataGenerator();
         dg.drawSegments(this.segments);
         dg.drawTrace(this, true);
@@ -58,6 +66,7 @@ public class Chromosome {
     }
 
     public void calculateOverallDeviation(){
+        overallDeviation = 0;
         for(Segment s : segments){
             s.calculateDeviation();
             overallDeviation += s.deviation;
@@ -67,19 +76,20 @@ public class Chromosome {
     public void calculateEdgeValue(){
         double value = 0;
 
-        for(Segment s : segments){
-            for(Pixel p : s.pixels){
-                for(Edge nbrs : p.getNeighbours()){
-                    Pixel nbr = nbrs.getNeighbourPixel();
-                    if( s.pixels.contains(nbr) ){
-                        value += 0;
-                        continue;
-                    }
-                    value += s.RGBdistance(p, nbr);
+
+        for(Pixel p : this.edges){
+            for(Edge nbrs : p.getNeighbours()){
+                Pixel nbr = nbrs.getNeighbourPixel();
+                if( ! p.segment.equals(nbr.segment) && nbr.segment != null){
+                    value += RGBdistance(p, nbr);
                 }
             }
         }
         this.edgeValue = -value; // tar negative verdien fordi da kan vi forholde oss til kun minimalisering av fitness objektiver.
+    }
+
+    public double RGBdistance(Pixel p1, Pixel p2){
+        return Math.sqrt(Math.pow(p1.getRGB()[0] - p2.getRGB()[0], 2) + Math.pow(p1.getRGB()[1] - p2.getRGB()[1], 2) + Math.pow(p1.getRGB()[2] - p2.getRGB()[2], 2));
     }
 
     private void generateSegments() {
@@ -190,9 +200,26 @@ public class Chromosome {
     }
 
     public double calculateFitness(){
+//        double value = 0;
+//
+//        for(Segment s : segments){
+//            s.calculateDeviation();
+//            overallDeviation += s.deviation;
+//            for(Pixel p : s.pixels){
+//                for(Edge nbrs : p.getNeighbours()){
+//                    Pixel nbr = nbrs.getNeighbourPixel();
+//                    if( s.pixels.contains(nbr) ){
+//                        value += 0;
+//                        continue;
+//                    }
+//                    value += s.RGBdistance(p, nbr);
+//                }
+//            }
+//        }
+//        this.edgeValue = -value; // tar negative verdien fordi da kan vi forholde oss til kun minimalisering av fitness objektiver.
+
         return (this.overallDeviation * weights[0]) - (this.edgeValue * weights[1]);
     }
-
 
     public double getFitness() {
         return fitness;
@@ -215,14 +242,15 @@ public class Chromosome {
 
         for(Segment s : segments){
             for(Pixel p : s.pixels){
+                p.segment = s;
                 for(Edge nbrs : p.getNeighbours()){
                     Pixel nbr = nbrs.getNeighbourPixel();
-                    if (p.coordinates[0] == 0 || p.coordinates[0] == maxRow || p.coordinates[1] == 0 || p.coordinates[1] == maxCol) {
-                        this.edges.add(p);
+                    if (p.coordinates[0] == 0 || p.coordinates[0] == maxRow || p.coordinates[1] == 0 || p.coordinates[1] == maxCol || !s.pixels.contains(nbr)) {
+                        if(!edges.contains(p)){
+                            this.edges.add(p);
+                        }
                     } else if( s.pixels.contains(nbr) ){
                         continue;
-                    } else {
-                        this.edges.add(p);
                     }
                 }
             }

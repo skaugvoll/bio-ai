@@ -61,6 +61,7 @@ public class Segment {
         this.pixels.addAll(foundThisSegment);
 
         for(Pixel pix : foundThisSegment){
+            pix.segment = this;
             for(int i = 0; i < pix.getRGB().length; i++){
                 this.avgSegColors[i] += pix.getRGB()[i];
 //                this.avgSegColors[i] /= this.pixels.size();
@@ -94,14 +95,13 @@ public class Segment {
     }
 
     public void calculateDeviation(){
+        deviation = 0;
         for(Pixel p : pixels){
             deviation += avgRGBdistance(p);
         }
     }
 
-    public double RGBdistance(Pixel p1, Pixel p2){
-        return Math.sqrt(Math.pow(p1.getRGB()[0] - p2.getRGB()[0], 2) + Math.pow(p1.getRGB()[1] - p2.getRGB()[1], 2) + Math.pow(p1.getRGB()[2] - p2.getRGB()[2], 2));
-    }
+
 
     public double avgRGBdistance(Pixel p2){
         return Math.sqrt(Math.pow(avgSegColors[0]/pixels.size() - p2.getRGB()[0], 2) + Math.pow(avgSegColors[1]/pixels.size() - p2.getRGB()[1], 2) + Math.pow(avgSegColors[2]/pixels.size() - p2.getRGB()[2], 2));
