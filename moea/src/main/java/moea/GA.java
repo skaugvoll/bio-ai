@@ -81,8 +81,8 @@ public class GA {
                     generationCount++;
                 }
                 ArrayList<Chromosome> chromosomesToDraw = new ArrayList<>();
+                int i = 0;
                 for(Chromosome c: population){
-                    int i = 0;
                     if(i == 5 || c.rank > 1){
                         break;
                     }
@@ -485,7 +485,7 @@ public class GA {
 
     public static void main(String[] args) {
         GA g = new GA();
-        g.run(false,3, 8, 2, 5, 8, new double[] {0.5,0.5}, 200, true);
+        g.run(false,3, 8, 2, 5, 8, new double[] {0.5,0.5}, 100, true);
     }
 
 }
