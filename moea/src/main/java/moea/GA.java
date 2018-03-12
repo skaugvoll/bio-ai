@@ -32,6 +32,11 @@ public class GA {
 
         populationFronts = fastNonDominatedSort(population);
 //        ArrayList<Chromosome> parents = tournamentSelection(population);
+        DataGenerator dg = new DataGenerator();
+        dg.drawSegments(population.get(0).segments);
+        dg.drawTrace(population.get(0), true);
+        dg.drawTrace(population.get(0), false);
+        crossOver(population.get(0), population.get(1));
 //        crossOver(parents.get(0), parents.get(1));
 //        mutateChangePixelSegment(population.get(0));
 
@@ -234,12 +239,31 @@ public class GA {
         return parents;
     }
 
-    private void crossOver(Chromosome parent1, Chromosome parent2) {
+    private Chromosome crossOver(Chromosome parent1, Chromosome parent2) {
         Chromosome temp = new Cloner().deepClone(parent1);
-        ArrayList<Chromosome> pixels = new ArrayList<>();
+        ArrayList<Pixel> pixels = new ArrayList<>();
+        while(pixels.size() < 500){
+            Segment s = parent2.segments.get(r.nextInt(parent2.segments.size()));
+            Pixel p = s.pixels.get(r.nextInt(s.pixels.size()));
+            if(!pixels.contains(p)){
+                pixels.add(p);
+            }
+        }
 
-
-
+        Segment segment = temp.segments.get(r.nextInt(temp.segments.size()));
+        for(Pixel pixel: pixels){
+            Pixel p = temp.coordinateToPixel.get(pixel.coordinates);
+            p.segment = segment;
+        }
+        temp.findEdgePixels();
+        temp.calculateOverallDeviation();
+        temp.calculateEdgeValue();
+        temp.calculateFitness();
+        DataGenerator dg = new DataGenerator();
+        dg.drawSegments(temp.segments);
+        dg.drawTrace(temp, true);
+        dg.drawTrace(temp, false);
+        return temp;
     }
 
 
@@ -275,7 +299,7 @@ public class GA {
 
     public static void main(String[] args) {
         GA g = new GA();
-        g.run(3, 1);
+        g.run(3, 2);
     }
 
 }

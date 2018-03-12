@@ -19,6 +19,7 @@ public class Chromosome {
     ArrayList<Pixel> rootNodes;
     ArrayList<Segment> segments;
     ArrayList<Pixel> edges;
+    public HashMap<int[], Pixel> coordinateToPixel = new HashMap<>();
 
     double overallDeviation = 0;
     double edgeValue = 0;
@@ -56,13 +57,10 @@ public class Chromosome {
         this.fitness = calculateFitness();
 
         // TODO: move out of this constructor into the GA
-        DataGenerator dg = new DataGenerator();
-        dg.drawSegments(this.segments);
-        dg.drawTrace(this, true);
-        dg.drawTrace(this, false);
-
-
-
+//        DataGenerator dg = new DataGenerator();
+//        dg.drawSegments(this.segments);
+//        dg.drawTrace(this, true);
+//        dg.drawTrace(this, false);
     }
 
     public void calculateOverallDeviation(){
@@ -95,7 +93,7 @@ public class Chromosome {
     private void generateSegments() {
         ArrayList<Pixel> foundNewSegment = new ArrayList<>();
 
-        double teta = 25;
+        double teta = 150;
 
         Pixel root = mst.rootnode;
         foundNewSegment.add(root);
@@ -243,6 +241,7 @@ public class Chromosome {
         for(Segment s : segments){
             for(Pixel p : s.pixels){
                 p.segment = s;
+                coordinateToPixel.put(p.coordinates, p);
                 for(Edge nbrs : p.getNeighbours()){
                     Pixel nbr = nbrs.getNeighbourPixel();
                     if (p.coordinates[0] == 0 || p.coordinates[0] == maxRow || p.coordinates[1] == 0 || p.coordinates[1] == maxCol || !s.pixels.contains(nbr)) {
