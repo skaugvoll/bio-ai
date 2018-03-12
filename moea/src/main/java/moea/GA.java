@@ -1,7 +1,10 @@
 package moea;
 
+import com.rits.cloning.Cloner;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.*;
@@ -26,12 +29,17 @@ public class GA {
         ArrayList<Chromosome> population = new ArrayList<>();
         threadGenerateIndividuals(MSTs, population);
 
+
         populationFronts = fastNonDominatedSort(population);
-        ArrayList<Chromosome> parents = tournamentSelection(population);
+//        ArrayList<Chromosome> parents = tournamentSelection(population);
+//        crossOver(parents.get(0), parents.get(1));
+//        mutateChangePixelSegment(population.get(0));
 
         System.out.println("populationSize: " + MSTs.size());
         System.out.println("Score bitch: " + population.get(0).getFitness());
     }
+
+
 
 
     private void threadGenerateMST(int popSize, ArrayList<MST> MSTs) {
@@ -226,12 +234,48 @@ public class GA {
         return parents;
     }
 
+    private void crossOver(Chromosome parent1, Chromosome parent2) {
+        Chromosome temp = new Cloner().deepClone(parent1);
+        ArrayList<Chromosome> pixels = new ArrayList<>();
 
 
+
+    }
+
+
+    public void mutateChangePixelSegment(Chromosome c){
+        Pixel pixel = c.edges.get(r.nextInt(c.edges.size()));
+        Segment pixelSegment = pixel.segment;
+        Segment bestSegment = null;
+        double bestFitness = Double.MAX_VALUE;
+        pixelSegment.pixels.remove(pixel);
+        for(Segment s : c.segments){
+            if(! s.equals(pixelSegment)){
+                s.addAllPixels(new ArrayList<Pixel>(Arrays.asList(pixel)));
+                c.calculateEdgeValue();
+                c.calculateOverallDeviation();
+                double tempFitness = c.calculateFitness();
+                if(tempFitness < bestFitness && tempFitness < c.getFitness()){
+                    bestFitness = tempFitness;
+                    bestSegment = s;
+                }
+                s.pixels.remove(pixel);
+            }
+        }
+        if(bestSegment != null){
+            bestSegment.addPixel(pixel);
+        }
+        else{
+            pixelSegment.addPixel(pixel);
+        }
+        c.calculateEdgeValue();
+        c.calculateOverallDeviation();
+        c.fitness = c.calculateFitness();
+    }
 
     public static void main(String[] args) {
         GA g = new GA();
-        g.run(1, 10);
+        g.run(3, 1);
     }
 
 }
