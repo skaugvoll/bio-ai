@@ -17,9 +17,20 @@ public class GA {
     Random r = new Random();
     private Pixel[][] pixels = {};
 
+    int minSegments;
+    int maxSegments;
+    double[] weights;
+    int colorTeta;
+
     ArrayList<ArrayList<Chromosome>> populationFronts = new ArrayList<ArrayList<Chromosome>>();
 
-    public void run(int imgNbr, int popSize, int maxGeneration) {
+    public void run(int imgNbr, int popSize, int maxGeneration, int minSegments, int maxSegments, double[] weights, int colorTeta) {
+        this.minSegments = minSegments;
+        this.maxSegments = maxSegments;
+        this.weights = weights;
+        this.colorTeta = colorTeta;
+
+
         pixels = dg.readImage(String.valueOf(imgNbr));
 
 
@@ -27,7 +38,7 @@ public class GA {
         threadGenerateMST(popSize, MSTs);
 
         ArrayList<Chromosome> population = new ArrayList<>();
-        threadGenerateIndividuals(MSTs, population);
+        threadGenerateIndividuals(MSTs, population, this.minSegments, this.maxSegments, this.weights, this.colorTeta);
 
 
         populationFronts = fastNonDominatedSort(population);
@@ -120,7 +131,7 @@ public class GA {
     }
 
 
-    private void threadGenerateIndividuals(ArrayList<MST> MSTs, ArrayList<Chromosome> population) {
+    private void threadGenerateIndividuals(ArrayList<MST> MSTs, ArrayList<Chromosome> population, int minSegments, int maxSegments, double[] weights, int colorTeta) {
         pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
         List<Callable<Chromosome>> callableTasks = new ArrayList<>();
@@ -128,7 +139,7 @@ public class GA {
             int finalT = t;
             callableTasks.add(() -> {
                 MST mst = MSTs.get(finalT);
-                return new Chromosome(mst, mst.fuckersVisited.size(), 5, 10, new double[]{0.5,0.5});
+                return new Chromosome(mst, mst.fuckersVisited.size(), minSegments, maxSegments, weights, colorTeta);
             });
             System.out.println("creating segmenting task :" + t);
         }
@@ -334,7 +345,7 @@ public class GA {
 
     public static void main(String[] args) {
         GA g = new GA();
-        g.run(3, 2, 1);
+        g.run(3, 2, 1, 8, 9, new double[] {0.5,0.5}, 50);
     }
 
 }

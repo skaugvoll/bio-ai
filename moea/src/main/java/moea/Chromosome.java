@@ -15,6 +15,7 @@ public class Chromosome {
     int minSegments;
     int maxSegments;
     int wantedSegments;
+    int colorTeta;
 
     ArrayList<Pixel> rootNodes;
     ArrayList<Segment> segments = new ArrayList<>();
@@ -36,13 +37,14 @@ public class Chromosome {
 
     double[] weights = {0.5,0.5};
 
-    public Chromosome(MST mst, int numberOfPixels, int minSegments, int maxSegments, double[] weights){
+    public Chromosome(MST mst, int numberOfPixels, int minSegments, int maxSegments, double[] weights, int colorTeta){
         this.mst = mst;
         this.numberOfPixels = numberOfPixels;
         this.minSegments = minSegments;
         this.maxSegments = maxSegments;
         this.wantedSegments = new Random().nextInt(maxSegments-minSegments) + minSegments; // gives [minsegs, maxSegs)
         this.weights = weights;
+        this.colorTeta = colorTeta;
 
         this.rootNodes = new ArrayList<>();
         this.segments = new ArrayList<>();
@@ -160,7 +162,7 @@ public class Chromosome {
     private void generateSegments() {
         ArrayList<Pixel> foundNewSegment = new ArrayList<>();
 
-        double teta = 150;
+        double teta = this.colorTeta;
 
         Pixel root = mst.rootnode;
         foundNewSegment.add(root);
