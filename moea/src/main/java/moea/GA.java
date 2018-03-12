@@ -89,6 +89,7 @@ public class GA {
                     else {
                         chromosomesToDraw.add(c);
                     }
+                    i++;
                 }
                 drawPictures(chromosomesToDraw);
             }
@@ -484,7 +485,7 @@ public class GA {
 
     public static void main(String[] args) {
         GA g = new GA();
-        g.run(false,3, 8, 2, 5, 8, new double[] {0.5,0.5}, 150, true);
+        g.run(false,3, 8, 2, 5, 8, new double[] {0.5,0.5}, 200, true);
     }
 
 }
