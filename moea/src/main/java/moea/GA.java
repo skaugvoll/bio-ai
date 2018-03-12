@@ -3,10 +3,7 @@ package moea;
 import com.rits.cloning.Cloner;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.*;
 
 public class GA {
@@ -398,10 +395,12 @@ public class GA {
         temp.calculateEdgeValue();
         temp.fitness = temp.calculateFitness();
 
+        this.mutateNijaturtles(temp);
+        dg.drawSegments(temp.segments);
+        dg.drawTrace(temp, false, 10);
 
         return temp;
     }
-
 
     public void mutateChangePixelSegment(Chromosome c){
         Pixel pixel = c.edges.get(r.nextInt(c.edges.size()));
@@ -432,6 +431,38 @@ public class GA {
         c.calculateOverallDeviation();
         c.fitness = c.calculateFitness();
     }
+
+    public void mutateNijaturtles(Chromosome c){
+//        for hver edge, sjekke hver nabo, sjekk hvilket segment naboene tilhører. sett denne pixelen til å tilhø®e segmentet flest naboer tilhører
+        for(Pixel p : c.edges){
+            HashMap<Segment, Integer> counter = new HashMap<>();
+            Segment currentPixelSegment = p.segment;
+
+            for(Edge edge : p.getNeighbours()){
+                int value = counter.containsKey(edge.getNeighbourPixel().segment) ? counter.get(edge.getNeighbourPixel().segment) : 1;
+                counter.put(edge.getNeighbourPixel().segment, value + 1);
+            }
+
+            Segment nearestSegment = Collections.max(counter.entrySet(), (entry1, entry2) -> entry1.getValue() - entry2.getValue()).getKey();
+
+            if(nearestSegment.equals(currentPixelSegment)){
+                continue;
+            }
+
+            p.segment.pixels.remove(p);
+            p.segment = nearestSegment;
+            nearestSegment.addPixel(p);
+
+        }
+
+        c.findEdgePixels();
+        c.calculateEdgeValue();
+        c.calculateOverallDeviation();
+        c.fitness = c.calculateFitness();
+
+    }
+
+
 
     public static void main(String[] args) {
         GA g = new GA();

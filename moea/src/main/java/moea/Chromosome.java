@@ -295,6 +295,7 @@ public class Chromosome {
 
 
     public void findEdgePixels(){
+        edges.clear();
         int maxRow = Integer.MIN_VALUE;
         int maxCol = Integer.MIN_VALUE;
 
