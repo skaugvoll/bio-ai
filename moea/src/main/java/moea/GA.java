@@ -44,7 +44,6 @@ public class GA {
             DataGenerator dg = new DataGenerator();
             dg.drawSegments(population.get(0).segments);
             dg.drawTrace(population.get(0), true, 1);
-            dg.drawTrace(population.get(0), false, 1);
         }
         else{
             // Running weighted sum
@@ -397,7 +396,7 @@ public class GA {
         temp.calculateOverallDeviation();
         temp.calculateEdgeValue();
         temp.fitness = temp.calculateFitness();
-
+        mergeClosestSegments(temp);
 
         return temp;
     }
@@ -433,9 +432,35 @@ public class GA {
         c.fitness = c.calculateFitness();
     }
 
+    public void mergeClosestSegments(Chromosome c){
+        if(c.segments.size() > minSegments){
+            Segment s1 = null;
+            Segment s2 = null;
+            int bestDiff = 1000000000;
+            int j = 1;
+            for(Segment s: c.segments){
+                for(int i = j; i < c.segments.size(); i++){
+                    int diff = Math.abs((s.avgSegColors[0] - c.segments.get(i).avgSegColors[0]) + (s.avgSegColors[1] - c.segments.get(i).avgSegColors[1]) + (s.avgSegColors[2] - c.segments.get(i).avgSegColors[2]));
+                    if(diff < bestDiff){
+                        bestDiff = diff;
+                        s1 = s;
+                        s2 = c.segments.get(j);
+                    }
+                }
+                j++;
+            }
+            s1.addAllPixels(s2.pixels);
+            c.segments.remove(s2);
+            c.findEdgePixels();
+            c.calculateOverallDeviation();
+            c.calculateEdgeValue();
+            c.calculateFitness();
+        }
+    }
+
     public static void main(String[] args) {
         GA g = new GA();
-        g.run(false,3, 6, 1, 10, 11, new double[] {0.5,0.5}, 150, true);
+        g.run(false,3, 8, 1, 10, 11, new double[] {0.5,0.5}, 150, true);
     }
 
 }
