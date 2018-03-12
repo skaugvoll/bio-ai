@@ -24,7 +24,7 @@ public class GA {
 
     ArrayList<ArrayList<Chromosome>> populationFronts = new ArrayList<ArrayList<Chromosome>>();
 
-    public void run(int imgNbr, int popSize, int maxGeneration, int minSegments, int maxSegments, double[] weights, int colorTeta) {
+    public void run(boolean testing, int imgNbr, int popSize, int maxGeneration, int minSegments, int maxSegments, double[] weights, int colorTeta, boolean nsga) {
         this.minSegments = minSegments;
         this.maxSegments = maxSegments;
         this.weights = weights;
@@ -40,57 +40,125 @@ public class GA {
         ArrayList<Chromosome> population = new ArrayList<>();
         threadGenerateIndividuals(MSTs, population, this.minSegments, this.maxSegments, this.weights, this.colorTeta);
 
+        if(testing){
+            DataGenerator dg = new DataGenerator();
+            dg.drawSegments(population.get(0).segments);
+            dg.drawTrace(population.get(0), true, 1);
+            dg.drawTrace(population.get(0), false, 1);
+        }
+        else{
+            // Running weighted sum
+            if(nsga) {
+                populationFronts = fastNonDominatedSort(population);
 
-        populationFronts = fastNonDominatedSort(population);
+                ArrayList<Chromosome> parentsAndChidren = new ArrayList<>();
+                int generationCount = 0;
+                while (generationCount < maxGeneration) {
+                    parentsAndChidren.addAll(population);
+                    while (parentsAndChidren.size() < 2 * popSize) {
+                        ArrayList<Chromosome> parents = nsgaTournamentSelection(population);
+                        parentsAndChidren.add(crossOver(parents.get(0), parents.get(1)));
+                        parentsAndChidren.add(crossOver(parents.get(1), parents.get(0)));
+                    }
+                    populationFronts = fastNonDominatedSort(parentsAndChidren);
 
-        ArrayList<Chromosome> parentsAndChidren = new ArrayList<>();
-        parentsAndChidren.addAll(population);
-        int generationCount = 0;
-        while(generationCount < maxGeneration) {
-
-            while (parentsAndChidren.size() < 2 * popSize) {
-                ArrayList<Chromosome> parents = tournamentSelection(population);
-                parentsAndChidren.add(crossOver(parents.get(0), parents.get(1)));
-                parentsAndChidren.add(crossOver(parents.get(1), parents.get(0)));
-            }
-            populationFronts = fastNonDominatedSort(parentsAndChidren);
-
-            ArrayList<Chromosome> newPopulation = new ArrayList<>();
-            for (ArrayList<Chromosome> front : populationFronts) {
-                if (newPopulation.size() == popSize) {
-                    break;
-                }
-                if (newPopulation.size() + front.size() <= popSize) {
-                    newPopulation.addAll(front);
-                } else {
-                    front.sort(new CrowdingDistanceComparator());
-                    for (Chromosome c : front) {
-                        if (newPopulation.size() < popSize) {
-                            newPopulation.add(c);
-                            continue;
+                    ArrayList<Chromosome> newPopulation = new ArrayList<>();
+                    for (ArrayList<Chromosome> front : populationFronts) {
+                        if (newPopulation.size() == popSize) {
+                            break;
                         }
+                        if (newPopulation.size() + front.size() <= popSize) {
+                            newPopulation.addAll(front);
+                        } else {
+                            front.sort(new CrowdingDistanceComparator());
+                            for (Chromosome c : front) {
+                                if (newPopulation.size() < popSize) {
+                                    newPopulation.add(c);
+                                    continue;
+                                }
+                                break;
+                            }
+                            break;
+                        }
+                    }
+                    population = newPopulation;
+                    generationCount++;
+                }
+                ArrayList<Chromosome> chromosomesToDraw = new ArrayList<>();
+                for(Chromosome c: population){
+                    int i = 0;
+                    if(i == 5 || c.rank > 1){
                         break;
                     }
-                    break;
+                    else {
+                        chromosomesToDraw.add(c);
+                    }
                 }
+                drawPictures(chromosomesToDraw);
             }
+            // Running weighted sum
+            else{
+                ArrayList<Chromosome> parentsAndChidren = new ArrayList<>();
+                int generationCount = 0;
+                while (generationCount < maxGeneration) {
+                    parentsAndChidren.addAll(population);
+                    while (parentsAndChidren.size() < 2 * popSize) {
+                        ArrayList<Chromosome> parents = wsTournamentSelection(population);
+                        parentsAndChidren.add(crossOver(parents.get(0), parents.get(1)));
+                        parentsAndChidren.add(crossOver(parents.get(1), parents.get(0)));
+                    }
 
-            population = newPopulation;
-            generationCount++;
+                    ArrayList<Chromosome> newPopulation = new ArrayList<>();
+                    ArrayList<Chromosome> temp = new ArrayList<>(parentsAndChidren);
+                    temp.sort(new FitnessComparator());
+
+                    int index = 0;
+                    while(index < popSize){
+                        int rank = temp.size();
+                        int totalScore = 0;
+                        for(int i= temp.size(); i>0;i--){
+                            totalScore += i;
+                        }
+                        Double cumulativeProbability = 0.0;
+                        Double p = Math.random();
+                        int listIndex = 0;
+                        while (!temp.isEmpty()){
+
+                            Chromosome c = temp.get(listIndex);
+                            cumulativeProbability += (double) rank/totalScore;
+                            if(p <= cumulativeProbability){
+                                newPopulation.add(temp.remove(listIndex));
+                                index ++;
+                                break;
+                            }
+                            listIndex ++;
+                            rank--;
+
+                        }
+                    }
+                    population = newPopulation;
+                    generationCount++;
+                }
+                population.sort(new FitnessComparator());
+                ArrayList<Chromosome> chromosomesToDraw = new ArrayList<>();
+                for(int i = 0; i < 5; i++){
+                    chromosomesToDraw.add(population.get(i));
+                }
+                drawPictures(chromosomesToDraw);
+            }
         }
 
-        System.out.println(parentsAndChidren.size());
-        DataGenerator dg = new DataGenerator();
-        dg.drawSegments(population.get(0).segments);
-        dg.drawTrace(population.get(0), true);
-        dg.drawTrace(population.get(0), false);
 //        mutateChangePixelSegment(population.get(0));
 
         System.out.println("populationSize: " + MSTs.size());
         System.out.println("Score bitch: " + population.get(0).getFitness());
     }
 
-
+    public void drawPictures(ArrayList<Chromosome> chromosomes){
+        for(int i = 0; i < chromosomes.size(); i++){
+            dg.drawTrace(chromosomes.get(i), false, i);
+        }
+    }
 
 
     private void threadGenerateMST(int popSize, ArrayList<MST> MSTs) {
@@ -259,7 +327,7 @@ public class GA {
         }
     }
 
-    private ArrayList<Chromosome> tournamentSelection(ArrayList<Chromosome> population) {
+    private ArrayList<Chromosome> nsgaTournamentSelection(ArrayList<Chromosome> population) {
         ArrayList<Chromosome> parents = new ArrayList<>();
         for(int i = 0; i < 2; i++){
             Chromosome p1 = population.get(r.nextInt(population.size()));
@@ -279,6 +347,28 @@ public class GA {
                 }
                 else{
                     if (r.nextDouble() > 0.5 ? parents.add(p1) : parents.add(p2));
+                }
+            }
+        }
+        return parents;
+    }
+
+    private ArrayList<Chromosome> wsTournamentSelection(ArrayList<Chromosome> population) {
+        ArrayList<Chromosome> parents = new ArrayList<>();
+        for(int i = 0; i < 2; i++){
+            Chromosome p1 = population.get(r.nextInt(population.size()));
+            Chromosome p2 = population.get(r.nextInt(population.size()));
+            if(p1.fitness < p2.fitness){
+                parents.add(p1);
+            }
+            else if(p2.fitness < p1.fitness) {
+                parents.add(p2);
+            }else {
+                if (r.nextDouble() < 0.5){
+                    parents.add(p1);
+                }
+                else{
+                    parents.add(p2);
                 }
             }
         }
@@ -306,7 +396,7 @@ public class GA {
         temp.findEdgePixels();
         temp.calculateOverallDeviation();
         temp.calculateEdgeValue();
-        temp.calculateFitness();
+        temp.fitness = temp.calculateFitness();
 
 
         return temp;
@@ -345,7 +435,7 @@ public class GA {
 
     public static void main(String[] args) {
         GA g = new GA();
-        g.run(3, 2, 1, 8, 9, new double[] {0.5,0.5}, 50);
+        g.run(false,3, 6, 1, 10, 11, new double[] {0.5,0.5}, 150, true);
     }
 
 }

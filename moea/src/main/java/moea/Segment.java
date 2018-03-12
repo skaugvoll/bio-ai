@@ -49,21 +49,38 @@ public class Segment {
             newPixel.segment = this;
             addPixel(newPixel);
         }
+        calculateAvgSegColor();
 
+
+    }
+
+    void calculateAvgSegColor(){
+        this.avgSegColors[0] = 0;
+        this.avgSegColors[1] = 0;
+        this.avgSegColors[2] = 0;
+
+        for(Pixel pix: this.pixels){
+            for(int i = 0; i < pix.getRGB().length; i++){
+                this.avgSegColors[i] += pix.getRGB()[i];
+            }
+        }
+        this.avgSegColors[0] /= this.pixels.size();
+        this.avgSegColors[1] /= this.pixels.size();
+        this.avgSegColors[2] /= this.pixels.size();
     }
 
     void addPixel(Pixel pix){
         this.pixels.add(pix);
 
-        for(int i = 0; i < pix.getRGB().length; i++){
-            this.avgSegColors[i] += pix.getRGB()[i];
-//            this.avgSegColors[i] /= this.pixels.size();
-        }
+//        for(int i = 0; i < pix.getRGB().length; i++){
+//            this.avgSegColors[i] += pix.getRGB()[i];
+////            this.avgSegColors[i] /= this.pixels.size();
+//        }
 
         int pc = IntStream.of(pix.getRGB()).sum();
         tempSum = tempSum + pc;
         this.avgSegCol = (tempSum) / pixels.size();
-
+//        calculateAvgSegColor();
     }
 
     void addEdge(Edge e){
@@ -75,15 +92,12 @@ public class Segment {
 
         for(Pixel pix : foundThisSegment){
             pix.segment = this;
-            for(int i = 0; i < pix.getRGB().length; i++){
-                this.avgSegColors[i] += pix.getRGB()[i];
-//                this.avgSegColors[i] /= this.pixels.size();
-            }
         }
 
         int avgSum = pixels.stream().mapToInt(p -> IntStream.of(p.getRGB()).sum()).sum();
         tempSum += avgSum;
         this.avgSegCol = tempSum / pixels.size();
+//        calculateAvgSegColor();
 
     }
 

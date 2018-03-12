@@ -192,7 +192,7 @@ public class DataGenerator {
         }
     }
 
-    public void drawTrace(Chromosome chromosome, boolean colors){
+    public void drawTrace(Chromosome chromosome, boolean colors, int index){
 //        BufferedImage newImage = new BufferedImage(5, 5, BufferedImage.TYPE_INT_ARGB);
         BufferedImage newImage = new BufferedImage(481, 321, BufferedImage.TYPE_INT_ARGB);
         File f = null;
@@ -220,9 +220,9 @@ public class DataGenerator {
         try{
 
             if(colors){
-                f = new File(System.getProperty("user.dir") + "/src/main/resources/Output/out_color_trace.png");
+                f = new File(System.getProperty("user.dir") + "/src/main/resources/Output/out_color_trace" + index + ".png");
             } else {
-                f = new File(System.getProperty("user.dir") + "/src/main/resources/Output/out_BW_Trace.png");
+                f = new File(System.getProperty("user.dir") + "/src/main/resources/Output/out_BW_Trace" + index + ".png");
             }
 
 

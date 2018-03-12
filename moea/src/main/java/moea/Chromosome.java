@@ -292,6 +292,8 @@ public class Chromosome {
         return fitness;
     }
 
+
+
     public void findEdgePixels(){
         int maxRow = Integer.MIN_VALUE;
         int maxCol = Integer.MIN_VALUE;
@@ -308,6 +310,7 @@ public class Chromosome {
         }
 
         for(Segment s : segments){
+            s.calculateAvgSegColor();
             for(Pixel p : s.pixels){
                 p.segment = s;
                 if(! coordinateToPixel.containsKey(Arrays.toString(p.coordinates))){
