@@ -390,11 +390,14 @@ public class GA {
             segment.addPixel(p);
         }
         temp.findEdgePixels();
+
+        this.mutateNijaturtles(temp);
+        this.mergeClosestSegments(temp);
+
+        temp.findEdgePixels();
         temp.calculateOverallDeviation();
         temp.calculateEdgeValue();
         temp.fitness = temp.calculateFitness();
-        this.mutateNijaturtles(temp);
-        this.mergeClosestSegments(temp);
 
         return temp;
     }
@@ -449,9 +452,6 @@ public class GA {
             s1.addAllPixels(s2.pixels);
             c.segments.remove(s2);
             c.findEdgePixels();
-            c.calculateOverallDeviation();
-            c.calculateEdgeValue();
-            c.calculateFitness();
         }
     }
 
@@ -479,15 +479,12 @@ public class GA {
         }
 
         c.findEdgePixels();
-        c.calculateEdgeValue();
-        c.calculateOverallDeviation();
-        c.fitness = c.calculateFitness();
 
     }
 
     public static void main(String[] args) {
         GA g = new GA();
-        g.run(false,3, 8, 1, 10, 11, new double[] {0.5,0.5}, 150, true);
+        g.run(false,3, 8, 2, 5, 8, new double[] {0.5,0.5}, 150, true);
     }
 
 }
