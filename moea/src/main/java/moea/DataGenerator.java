@@ -13,7 +13,7 @@ import java.util.Arrays;
 public class DataGenerator {
 
     public Pixel[][] readImage(String number) {
-        String resourcePath = "/TestImages/"+number+"/Test image.jpg";
+        String resourcePath = "/TestImages2/"+number+"/Test image.jpg";
         Pixel[][] pixels = {};
 
         try{
