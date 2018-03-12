@@ -16,6 +16,11 @@ public class Edge implements Comparable<Edge> {
 
 
     private double RGBdistance(Pixel p1, Pixel p2){
+        try{
+            return Math.sqrt(Math.pow(p1.getRGB()[0] - p2.getRGB()[0], 2) + Math.pow(p1.getRGB()[1] - p2.getRGB()[1], 2) + Math.pow(p1.getRGB()[2] - p2.getRGB()[2], 2));
+        }catch (NullPointerException e){
+            System.out.println("smook");
+        }
         return Math.sqrt(Math.pow(p1.getRGB()[0] - p2.getRGB()[0], 2) + Math.pow(p1.getRGB()[1] - p2.getRGB()[1], 2) + Math.pow(p1.getRGB()[2] - p2.getRGB()[2], 2));
     }
 

@@ -2,6 +2,8 @@ package moea;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Random;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -9,8 +11,7 @@ import java.util.stream.IntStream;
 public class Segment {
 
     public Color color;
-
-    public final Pixel root;
+    public Pixel root = null;
     public ArrayList<Pixel> pixels;
     public ArrayList<Edge> edges;
 
@@ -37,6 +38,18 @@ public class Segment {
         this.tempSum = IntStream.of(root.getRGB()).sum();
 
         this.edges = new ArrayList<>();
+    }
+
+    public Segment(ArrayList<Pixel> pixels, Chromosome c) {
+        this.color = new Color(new Random().nextInt(256),new Random().nextInt(256),new Random().nextInt(256));
+        this.pixels = new ArrayList<>();
+        for(Pixel p: pixels){
+            Pixel newPixel = (Pixel) p.clone();
+            c.coordinateToPixel.put(Arrays.toString(newPixel.coordinates), newPixel);
+            newPixel.segment = this;
+            addPixel(newPixel);
+        }
+
     }
 
     void addPixel(Pixel pix){

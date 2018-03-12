@@ -17,9 +17,9 @@ public class Chromosome {
     int wantedSegments;
 
     ArrayList<Pixel> rootNodes;
-    ArrayList<Segment> segments;
-    ArrayList<Pixel> edges;
-    public HashMap<int[], Pixel> coordinateToPixel = new HashMap<>();
+    ArrayList<Segment> segments = new ArrayList<>();
+    ArrayList<Pixel> edges = new ArrayList<>();
+    public HashMap<String, Pixel> coordinateToPixel = new HashMap<>();
 
     double overallDeviation = 0;
     double edgeValue = 0;
@@ -61,6 +61,73 @@ public class Chromosome {
 //        dg.drawSegments(this.segments);
 //        dg.drawTrace(this, true);
 //        dg.drawTrace(this, false);
+    }
+
+    public Chromosome(int numberOfPixels, int minSegments, int maxSegments, ArrayList<Segment> segments) {
+        this.segments = new ArrayList<>();
+        this.numberOfPixels = numberOfPixels;
+        this.minSegments = minSegments;
+        this.maxSegments = maxSegments;
+        ArrayList<Pixel> newPixels = new ArrayList<>();
+        for(Segment s : segments){
+            Segment newSegment = new Segment(s.pixels, this);
+            this.segments.add(newSegment);
+            newPixels.addAll(newSegment.pixels);
+        }
+
+        int numberOfPRows = 321;
+        int numberOfPixelsPerRow = 481;
+        for(Pixel p: newPixels){
+            if(p.coordinates[0] == 0 && p.coordinates[1] == 0){ // øvre venstre hjørne
+                p.addNeighbour(new Edge(p, coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0], p.coordinates[1]+1}))));
+                p.addNeighbour(new Edge(p, coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0]+1, p.coordinates[1]}))));
+            }
+            else if(p.coordinates[0] == 0 && p.coordinates[1] == numberOfPixelsPerRow -1){ // øvre høyre hjørne
+                p.addNeighbour(new Edge(p, coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0]+1, p.coordinates[1]}))));
+                p.addNeighbour(new Edge(p, coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0], p.coordinates[1]-1}))));
+
+            }
+            else if(p.coordinates[0] == 0){ // denne tar alle på øverste rad som ikke er i et hjørne
+                p.addNeighbour(new Edge(p, coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0]+1, p.coordinates[1]}))));
+                p.addNeighbour(new Edge(p, coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0], p.coordinates[1]-1}))));
+
+            }
+            else if(p.coordinates[0] == numberOfPRows -1 && p.coordinates[1] == 0){ // nedre venstre hjørne
+                p.addNeighbour(new Edge(p, coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0]-1, p.coordinates[1]}))));
+                p.addNeighbour(new Edge(p, coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0], p.coordinates[1]+1}))));
+            }
+            else if(p.coordinates[0] == numberOfPRows -1  && p.coordinates[1] == numberOfPixelsPerRow -1) { // nedre høyre hjørne
+                p.addNeighbour(new Edge(p, coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0], p.coordinates[1]-1}))));
+                p.addNeighbour(new Edge(p, coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0]-1, p.coordinates[1]}))));
+            }
+            else if(p.coordinates[0] == numberOfPRows -1) { // denne tar alle på nederste linje som ikke er i hjørne
+                p.addNeighbour(new Edge(p, coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0], p.coordinates[1]+1}))));
+                p.addNeighbour(new Edge(p, coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0], p.coordinates[1]-1}))));
+                p.addNeighbour(new Edge(p, coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0]-1, p.coordinates[1]}))));
+            }
+            else if(p.coordinates[1] == 0){ // denne tar alle som er helt til venstre i bildet.
+                p.addNeighbour(new Edge(p, coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0], p.coordinates[1]+1}))));
+                p.addNeighbour(new Edge(p, coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0]+1, p.coordinates[1]}))));
+                p.addNeighbour(new Edge(p, coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0]-1, p.coordinates[1]}))));
+            }
+            else if(p.coordinates[1] == numberOfPixelsPerRow -1) { // denne tar alle helt til høyre i bildet.
+                p.addNeighbour(new Edge(p, coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0]+1, p.coordinates[1]}))));
+                p.addNeighbour(new Edge(p, coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0], p.coordinates[1]-1}))));
+                p.addNeighbour(new Edge(p, coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0]-1, p.coordinates[1]}))));
+            }
+            else { // denne tar alle som ikke er langs en kant.
+//                Pixel p1 = coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0], p.coordinates[1]+1}));
+//                Pixel p2 = coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0]+1, p.coordinates[1]}));
+//                Pixel p3 = coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0], p.coordinates[1]-1}));
+//                Pixel p4 = coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0]-1, p.coordinates[1]}));
+                p.addNeighbour(new Edge(p, coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0], p.coordinates[1]+1}))));
+                p.addNeighbour(new Edge(p, coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0]+1, p.coordinates[1]}))));
+                p.addNeighbour(new Edge(p, coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0], p.coordinates[1]-1}))));
+                p.addNeighbour(new Edge(p, coordinateToPixel.get(Arrays.toString(new int[] {p.coordinates[0]-1, p.coordinates[1]}))));
+            }
+
+        }
+
     }
 
     public void calculateOverallDeviation(){
@@ -241,7 +308,9 @@ public class Chromosome {
         for(Segment s : segments){
             for(Pixel p : s.pixels){
                 p.segment = s;
-                coordinateToPixel.put(p.coordinates, p);
+                if(! coordinateToPixel.containsKey(Arrays.toString(p.coordinates))){
+                    coordinateToPixel.put(Arrays.toString(p.coordinates), p);
+                }
                 for(Edge nbrs : p.getNeighbours()){
                     Pixel nbr = nbrs.getNeighbourPixel();
                     if (p.coordinates[0] == 0 || p.coordinates[0] == maxRow || p.coordinates[1] == 0 || p.coordinates[1] == maxCol || !s.pixels.contains(nbr)) {

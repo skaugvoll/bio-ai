@@ -4,23 +4,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
-public class Pixel {
+public class Pixel implements Cloneable {
 
     private final String[] directions = {"left", "right", "up", "down", "none"};
 
     public int[] coordinates = new int[2];
-    private String arrow;
     private int[] RGB = new int[3];
     private ArrayList<Edge> neighbours = new ArrayList<>();
 
-    private Pixel parent = null;
-    private ArrayList<Pixel> children = new ArrayList<Pixel>();
     Segment segment = null;
 
     public Pixel(int[] RGB, int[] coordinates) {
         this.RGB = RGB;
         this.coordinates = coordinates;
-        this.arrow = directions[new Random().nextInt(4)];
     }
 
 
@@ -28,7 +24,6 @@ public class Pixel {
         this.RGB = RGB;
         this.neighbours = neighbours;
         this.coordinates = coordinates;
-        this.arrow = directions[new Random().nextInt(4)];
     }
 
 
@@ -49,22 +44,25 @@ public class Pixel {
         return this.neighbours.get(index);
     }
 
-    public void addChild(Pixel child){
-        this.children.add(child);
+    @Override
+    public  Object clone(){
+        Pixel clonedPixel = null;
+        try{
+            clonedPixel = (Pixel) super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        ArrayList<Pixel> cp = new ArrayList<>();
+        for(Edge e: clonedPixel.neighbours){
+
+        }
+        clonedPixel.neighbours = new ArrayList<>();;
+        return clonedPixel;
     }
 
-    public void setParent(Pixel parent) {
-        this.parent = parent;
-    }
-
-    
     @Override
     public String toString() {
         return Arrays.toString(this.getRGB()) + Arrays.toString(this.coordinates);
-    }
-
-    public Pixel getParent() {
-        return parent;
     }
 }
 

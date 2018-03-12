@@ -19,7 +19,7 @@ public class GA {
 
     ArrayList<ArrayList<Chromosome>> populationFronts = new ArrayList<ArrayList<Chromosome>>();
 
-    public void run(int imgNbr, int popSize) {
+    public void run(int imgNbr, int popSize, int maxGeneration) {
         pixels = dg.readImage(String.valueOf(imgNbr));
 
 
@@ -31,13 +31,48 @@ public class GA {
 
 
         populationFronts = fastNonDominatedSort(population);
-//        ArrayList<Chromosome> parents = tournamentSelection(population);
+
+        ArrayList<Chromosome> parentsAndChidren = new ArrayList<>();
+        parentsAndChidren.addAll(population);
+        int generationCount = 0;
+        while(generationCount < maxGeneration) {
+
+            while (parentsAndChidren.size() < 2 * popSize) {
+                ArrayList<Chromosome> parents = tournamentSelection(population);
+                parentsAndChidren.add(crossOver(parents.get(0), parents.get(1)));
+                parentsAndChidren.add(crossOver(parents.get(1), parents.get(0)));
+            }
+            populationFronts = fastNonDominatedSort(parentsAndChidren);
+
+            ArrayList<Chromosome> newPopulation = new ArrayList<>();
+            for (ArrayList<Chromosome> front : populationFronts) {
+                if (newPopulation.size() == popSize) {
+                    break;
+                }
+                if (newPopulation.size() + front.size() <= popSize) {
+                    newPopulation.addAll(front);
+                } else {
+                    front.sort(new CrowdingDistanceComparator());
+                    for (Chromosome c : front) {
+                        if (newPopulation.size() < popSize) {
+                            newPopulation.add(c);
+                            continue;
+                        }
+                        break;
+                    }
+                    break;
+                }
+            }
+
+            population = newPopulation;
+            generationCount++;
+        }
+
+        System.out.println(parentsAndChidren.size());
         DataGenerator dg = new DataGenerator();
         dg.drawSegments(population.get(0).segments);
         dg.drawTrace(population.get(0), true);
         dg.drawTrace(population.get(0), false);
-        crossOver(population.get(0), population.get(1));
-//        crossOver(parents.get(0), parents.get(1));
 //        mutateChangePixelSegment(population.get(0));
 
         System.out.println("populationSize: " + MSTs.size());
@@ -240,7 +275,7 @@ public class GA {
     }
 
     private Chromosome crossOver(Chromosome parent1, Chromosome parent2) {
-        Chromosome temp = new Cloner().deepClone(parent1);
+        Chromosome temp = new Chromosome(parent1.numberOfPixels, parent1.minSegments, parent1.maxSegments, parent1.segments);
         ArrayList<Pixel> pixels = new ArrayList<>();
         while(pixels.size() < 500){
             Segment s = parent2.segments.get(r.nextInt(parent2.segments.size()));
@@ -252,17 +287,17 @@ public class GA {
 
         Segment segment = temp.segments.get(r.nextInt(temp.segments.size()));
         for(Pixel pixel: pixels){
-            Pixel p = temp.coordinateToPixel.get(pixel.coordinates);
+            Pixel p = temp.coordinateToPixel.get(Arrays.toString(pixel.coordinates));
+            p.segment.pixels.remove(p);
             p.segment = segment;
+            segment.addPixel(p);
         }
         temp.findEdgePixels();
         temp.calculateOverallDeviation();
         temp.calculateEdgeValue();
         temp.calculateFitness();
-        DataGenerator dg = new DataGenerator();
-        dg.drawSegments(temp.segments);
-        dg.drawTrace(temp, true);
-        dg.drawTrace(temp, false);
+
+
         return temp;
     }
 
@@ -299,7 +334,7 @@ public class GA {
 
     public static void main(String[] args) {
         GA g = new GA();
-        g.run(3, 2);
+        g.run(3, 2, 1);
     }
 
 }
