@@ -485,7 +485,7 @@ public class GA {
 
     public static void main(String[] args) {
         GA g = new GA();
-        g.run(false,3, 8, 2, 5, 8, new double[] {0.5,0.5}, 100, true);
+        g.run(false,9, 6, 2, 5, 8, new double[] {0,1}, 200, false);
     }
 
 }

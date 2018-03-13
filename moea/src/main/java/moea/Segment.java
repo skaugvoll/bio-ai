@@ -64,9 +64,11 @@ public class Segment {
                 this.avgSegColors[i] += pix.getRGB()[i];
             }
         }
-        this.avgSegColors[0] /= this.pixels.size();
-        this.avgSegColors[1] /= this.pixels.size();
-        this.avgSegColors[2] /= this.pixels.size();
+        if(this.pixels.size() > 0){
+            this.avgSegColors[0] /= this.pixels.size();
+            this.avgSegColors[1] /= this.pixels.size();
+            this.avgSegColors[2] /= this.pixels.size();
+        }
     }
 
     void addPixel(Pixel pix){
