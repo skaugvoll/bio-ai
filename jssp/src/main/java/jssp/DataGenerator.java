@@ -54,7 +54,8 @@ public class DataGenerator {
                 line_number++;
             }
 
-            System.out.println("All jobs:" + this.jobs);
+            System.out.println("All machines:\n" + this.machines +'\n');
+            System.out.println("All jobs:\n" + this.jobs);
 
         }
         catch (Exception e){

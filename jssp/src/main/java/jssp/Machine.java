@@ -9,4 +9,8 @@ public class Machine {
     }
 
 
+    @Override
+    public String toString() {
+        return String.format("Machine-%d", this.id);
+    }
 }

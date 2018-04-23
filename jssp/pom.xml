@@ -8,5 +8,17 @@
     <artifactId>JSSP</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <properties>
+        <nd4j.version>0.9.1</nd4j.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>nd4j-native-platform</artifactId>
+            <version>${nd4j.version}</version>
+        </dependency>
+    </dependencies>
+
 
 </project>
