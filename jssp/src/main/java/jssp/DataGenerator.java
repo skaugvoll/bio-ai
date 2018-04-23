@@ -12,6 +12,7 @@ public class DataGenerator {
     private int num_machines;
 
     private ArrayList<Job> jobs = new ArrayList<Job>();
+    private ArrayList<Machine> machines = new ArrayList<Machine>();
 
     public DataGenerator(int task){
         this.task = task;
@@ -39,38 +40,17 @@ public class DataGenerator {
                     }
                 }
 
-
+                // Process meta-data and create machines
                 if (line_number == 0){
-                    int found = 1;
-
-                    for(int chr : converted_line){
-                            if(found == 1){
-                                this.num_jobs = chr;
-                                found++;
-                            } else {
-                                this.num_machines = chr;
-                            }
-                        }
+                    this.processMetaData(converted_line);
+                    this.createMachines();
                     line_number++;
                     continue;
                     }
 
-//              PROCESS line (machine, time)
-                Job job = new Job(line_number);
-                int counter = 1;
-                int machine = -1;
-                for(int chr : converted_line){
-                    if (counter % 2 == 0 && machine != -1) { // processingtime
-                        job.processingMap.put(machine, chr);
-                    } else{
-                        job.order.add(chr);
-                        machine = chr;
-                    }
-                    counter++;
-                }
-                this.jobs.add(job);
-                job.generateOrderedProcessingTimes();
 
+//              PROCESS line (machine, time)
+                this.processLine(line_number, converted_line);
                 line_number++;
             }
 
@@ -81,6 +61,41 @@ public class DataGenerator {
             System.out.println("exception: " + e);
         }
 
+    }
+
+    private void createMachines() {
+        for(int m=0; m < this.num_machines; m++){
+            this.machines.add(new Machine(m));
+        }
+    }
+
+    private void processLine(int line_number, ArrayList<Integer> converted_line) {
+        Job job = new Job(line_number);
+        int counter = 1;
+        int machine = -1;
+        for(int chr : converted_line){
+            if (counter % 2 == 0 && machine != -1) { // processingtime
+                job.processingMap.put(machine, chr);
+            } else{
+                job.order.add(chr);
+                machine = chr;
+            }
+            counter++;
+        }
+        this.jobs.add(job);
+        job.generateOrderedProcessingTimes();
+    }
+
+    private void processMetaData(ArrayList<Integer> converted_line) {
+        int found = 1;
+        for(int chr : converted_line){
+            if(found == 1){
+                this.num_jobs = chr;
+                found++;
+            } else {
+                this.num_machines = chr;
+            }
+        }
     }
 
 
