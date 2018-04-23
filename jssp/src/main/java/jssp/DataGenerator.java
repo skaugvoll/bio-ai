@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 
 public class DataGenerator {
@@ -89,6 +88,13 @@ public class DataGenerator {
         return this.jobs;
     }
 
+    public int getNum_jobs() {
+        return num_jobs;
+    }
+
+    public int getNum_machines() {
+        return num_machines;
+    }
 
     public static void main(String[] args) {
         DataGenerator dg = new DataGenerator(1);

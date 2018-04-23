@@ -30,9 +30,9 @@ public class Job {
     public String toString() {
         return String.format("" +
                 "\nJob #%d" +
-                "\nOrder: %s" +
+                "\nMachine-Order: %s" +
                 "\nProcessingMap: %s" +
-                "\nProcessingTimes: %s" +
+                "\nProcessingTimes-Ordered: %s" +
                 "\n",
                 this.job_number,
                 Arrays.toString(this.order.toArray()),
