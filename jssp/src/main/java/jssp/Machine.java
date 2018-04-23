@@ -9,8 +9,14 @@ public class Machine {
     }
 
 
+
+    public int getID(){
+        return this.id;
+    }
+
     @Override
     public String toString() {
         return String.format("Machine-%d", this.id);
     }
+
 }
