@@ -9,3 +9,8 @@ mvdpr/.DS_Store
 mvdpr/target/
 .xml
 
+# Asignment 3
+jssp/.idea/*
+jssp/target/
+jssp/.DS_Store/*
+jssp/*/*.xml
