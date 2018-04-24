@@ -13,6 +13,9 @@ public class Ant {
     // "1,2,3,4,1,1,2,3,4  --> read (job,operation) -->(1,1), (2,1) (3,1) (4,1) (1,2) (1,3) (2,2) (3,2) (4,2)
     private ArrayList<Integer> schedule;
 
+    // consumedTime :
+    private int consumedTime;
+
     // pheromone : list indicating the pheromone strength between jobs or operations ?? will be quite many
     // TODO: implement some smart way to represent the pheromone
 
@@ -29,6 +32,7 @@ public class Ant {
     public Ant(ArrayList<Job> jobs){
         this.schedule = new ArrayList<Integer>();
         this.operations = new HashMap<Job, Integer>();
+        this.consumedTime = 0;
         this.rg = new Random();
         this.jobs = jobs;
 
@@ -57,12 +61,17 @@ public class Ant {
 
         // add to the schedule that this job-operation is execute
         schedule.add(jobNumber);
+
+        // add to the consumedTime, the amount of time used on this operation, remember to think || - and not sequential.
+        // TODO: figure out something smart on how to count counsumedTime
+
+
         // update the operations index for this job, letting it know that we executed it.
         this.operations.put(currentJob, this.operations.get(currentJob) + 1);
 
-        // TODO: Then the ant iteratively appends an unscheduled job to the partial sequence constructed so far until a complete solution is built.
-        /*T
-        he ant decides where to go from that node,
+        // TODO: Then the ant iteratively appends an unscheduled operation to the partial sequence constructed so far until a complete solution is built.
+        /*
+        The ant decides where to go from that node,
         based on probabilities calculated from:
             - pheromone strengths, :: not sure random at first?
             - next-hop distances. :: perhaps operation time?
