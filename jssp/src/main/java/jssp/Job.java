@@ -14,6 +14,7 @@ public class Job {
 
     public Job(int job_number){
         this.job_number = job_number;
+        
     }
 
     public void generateOrderedProcessingTimes(){
@@ -24,6 +25,17 @@ public class Job {
         }
 
     }
+    
+    
+    public int getOperation_machine_number(int number){
+        return this.order.get(number);
+    }
+
+    public int getMachineTime(int machineID){
+        return this.processingMap.get(machineID);
+    }
+    
+    
 
 
     @Override
@@ -39,5 +51,9 @@ public class Job {
                 this.processingMap,
                 Arrays.toString(processingtimesOrdered)
         );
+    }
+
+    public ArrayList<Integer> getOrder() {
+        return order;
     }
 }
