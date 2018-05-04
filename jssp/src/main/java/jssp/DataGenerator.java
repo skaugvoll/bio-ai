@@ -35,13 +35,12 @@ public class DataGenerator {
                 int[][] operations = new int[num_machines][2];
                 for(int j = 0; j < num_machines; j++){
                     int index = j * 2;
+                    operations[j][0] = Integer.valueOf(data[index]);
+                    operations[j][1] = Integer.valueOf(data[index + 1]);
                 }
+
+                jobs[i] = new Job(i, operations);
             }
-
-
-
-
-
 
         }
         catch (Exception e){

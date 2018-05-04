@@ -6,8 +6,15 @@ import java.util.HashMap;
 
 
 public class Job {
-    int job_number;
-    int [][] operations;
+    public int job_number;
+
+    /*
+        Operations:
+        [x][0] = Machine Number
+        [x][1] = Time required for the operation
+        Following representation in assignment description.
+    */
+    public int [][] operations;
 
 
     public Job(int job_number, int[][] operations){
