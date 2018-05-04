@@ -58,20 +58,36 @@ public class DataGenerator {
 
     private int findAcceptableMakespan() {
         String filename = "/Test_Data/acceptableValues.txt.txt";
-        try{
+        try {
             InputStream in = getClass().getResourceAsStream(filename);
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 
-            while(reader.readLine() != null){
+            while (reader.readLine() != null) {
                 String[] data = reader.readLine().split(" ");
-                if(Integer.parseInt(data[0]) == this.task){
+                if (Integer.parseInt(data[0]) == this.task) {
                     return Integer.parseInt(data[1]);
                 }
             }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             System.out.println("exception: " + e);
         }
         return -1;
     }
+
+    public int getBestPossibleMakespan() {
+        return bestPossibleMakespan;
+    }
+
+    public Job[] getJobs() {
+        return jobs;
+    }
+
+    public int getNumMachines() {
+        return this.num_machines;
+    }
+
+    public int getNumJobs() {
+        return num_jobs;
+    }
+
 }
