@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 
 public class Job {
-    int job_number;
+    public int job_number;
     ArrayList<Integer> order = new ArrayList<Integer>();
     HashMap<Integer, Integer> processingMap = new HashMap<Integer, Integer>();
     int[] processingtimesOrdered;
