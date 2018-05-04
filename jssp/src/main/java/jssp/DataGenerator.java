@@ -57,7 +57,7 @@ public class DataGenerator {
 
 
     private int findAcceptableMakespan() {
-        String filename = "/Test_Data/acceptableValues.txt.txt";
+        String filename = "/Test_Data/acceptableValues.txt";
         try {
             InputStream in = getClass().getResourceAsStream(filename);
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
@@ -69,7 +69,7 @@ public class DataGenerator {
                 }
             }
         } catch (Exception e) {
-            System.out.println("exception: " + e);
+            System.out.println("exception2: " + e);
         }
         return -1;
     }
