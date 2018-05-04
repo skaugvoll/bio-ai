@@ -1,5 +1,7 @@
 package jssp.ACO;
 
+import java.util.Arrays;
+
 public class Solution {
 
     /*
@@ -26,14 +28,13 @@ public class Solution {
         makespan = max;
     }
 
-    int getMakespan() {
+    public int getMakespan() {
         return makespan;
     }
 
-    int[][][] getSchedule() {
+    public int[][][] getSchedule() {
         return schedule;
     }
-
 
 
 }

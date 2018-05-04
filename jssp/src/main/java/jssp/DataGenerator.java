@@ -53,4 +53,15 @@ public class DataGenerator {
         DataGenerator dg = new DataGenerator(1);
     }
 
+    public Job[] getJobs() {
+        return jobs;
+    }
+
+    public int getNumMachines() {
+        return this.num_machines;
+    }
+
+    public int getNumJobs() {
+        return num_jobs;
+    }
 }
