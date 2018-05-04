@@ -10,12 +10,14 @@ public class DataGenerator {
     private int task;
     private int num_jobs;
     private int num_machines;
+    private int bestPossibleMakespan;
 
     Job[] jobs;
 
     public DataGenerator(int task){
         this.task = task;
         String filename = "/Test_Data/"+this.task+".txt";
+        bestPossibleMakespan = findAcceptableMakespan();
 
         try{
             InputStream in = getClass().getResourceAsStream(filename);
@@ -53,4 +55,23 @@ public class DataGenerator {
         DataGenerator dg = new DataGenerator(1);
     }
 
+
+    private int findAcceptableMakespan() {
+        String filename = "/Test_Data/acceptableValues.txt.txt";
+        try{
+            InputStream in = getClass().getResourceAsStream(filename);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+
+            while(reader.readLine() != null){
+                String[] data = reader.readLine().split(" ");
+                if(Integer.parseInt(data[0]) == this.task){
+                    return Integer.parseInt(data[1]);
+                }
+            }
+        }
+        catch (Exception e){
+            System.out.println("exception: " + e);
+        }
+        return -1;
+    }
 }
