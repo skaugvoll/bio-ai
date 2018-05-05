@@ -113,7 +113,7 @@ public class Main extends Application{
     public void start(Stage primaryStage) throws Exception {
 
         // JavaFX Initialization
-        gantt = new GanttChart(primaryStage, num_machines, makespan, schedule);
+        gantt = new GanttChart(primaryStage, num_machines, num_jobs, makespan, schedule);
 
 
         //Dev

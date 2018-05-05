@@ -10,14 +10,24 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.stage.Stage;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Random;
+
 public class GanttChart {
 
-    String[] job_colors = {"#000000;", "#4d4dff;", "#a6a6a6;", "#008000;", "#80ff80;", "#bf8040;"};
+    String[] job_colors;
 
-    public GanttChart(Stage primaryStage, int num_machines, int makespan, int[][][] schedule) throws Exception {
+    public GanttChart(Stage primaryStage, int num_machines, int num_jobs, int makespan, int[][][] schedule) throws Exception {
         super();
         GridPane grid = new GridPane();
         grid.setGridLinesVisible(true);
+
+        job_colors = new String[num_jobs];
+        for(int i=0; i < num_jobs; i++){
+            job_colors[i] = colorGenerator();
+        }
+
 
         int height = 40;
         int scale = 1;
@@ -37,19 +47,6 @@ public class GanttChart {
             grid.getRowConstraints().add(rowConst);
 
         }
-
-//        for(int m = 1; m < schedule.length+1; m++){
-//            for(int j = 0; j < schedule[m-1].length; j++){
-//                for(int pixelPos = schedule[m-1][j][0]*scale; pixelPos < schedule[m-1][j][0]*scale + schedule[m-1][j][1]*scale; pixelPos++){
-//                    for(int row = currentRow; row < currentRow + 10; row++){
-//                        int p = (255 << 24) | (job_colors[j][0] << 16) | (job_colors[j][1] << 8) | job_colors[j][2];
-//                        newImage.setRGB(pixelPos, row, p);
-//                    }
-//                }
-//            }
-//            currentRow += 10;
-//        }
-
 
         for(int m = 0; m < schedule.length; m++) {
             for (int j = 0; j < schedule[m].length+1; j++) {
@@ -73,49 +70,22 @@ public class GanttChart {
         primaryStage.setScene(new Scene(grid, makespan*10, height*num_machines ));
         primaryStage.show();
     }
+
+    public String colorGenerator(){
+        Random rg = new Random();
+        int stringLength = 6;
+        char[] chars = new char[]{'a','b','c','d','e','f','0','1','2','3','4','5','6','7','8','9'};
+        String color = "#";
+        int idx;
+        for(int i = 0; i < stringLength; i++){
+            Collections.shuffle(Arrays.asList(chars));
+            idx = rg.nextInt(chars.length);
+            color += chars[idx];
+        }
+        return color;
+    }
+
+
+
 }
 
-//
-//        for(int i = 0; i < board.size(); i++) {
-//            for (int j = 0; j < board.get(0).size(); j++) {
-//                HBox cellbox = new HBox();
-//                if(path.contains(board.get(i).get(j))){
-//                    javafx.scene.control.Label inPath = new javafx.scene.control.Label("");
-//                    javafx.scene.image.Image image = new javafx.scene.image.Image(getClass().getResourceAsStream("dot.png"));
-//                    inPath.setGraphic(new ImageView(image));
-//                    cellbox.getChildren().add(inPath);
-//                }
-//                if((closedSet.contains(board.get(i).get(j)) || openSet.contains(board.get(i).get(j))) && !path.contains(board.get(i).get(j))){
-//                    if (closedSet.contains(board.get(i).get(j))){
-//                        javafx.scene.control.Label inClosed = new javafx.scene.control.Label("");
-//                        javafx.scene.image.Image image = new javafx.scene.image.Image(getClass().getResourceAsStream("cross.png"));
-//                        inClosed.setGraphic(new ImageView(image));
-//
-//                        cellbox.getChildren().add(inClosed);
-//                    }else{
-//                        javafx.scene.control.Label inOpen = new Label("");
-//                        javafx.scene.image.Image image = new Image(getClass().getResourceAsStream("star.png"));
-//                        inOpen.setGraphic(new ImageView(image));
-//                        cellbox.getChildren().add(inOpen);
-//                    }
-//                }
-//                if(board.get(i).get(j).getType() == '#') {
-//                    cellbox.setStyle("-fx-background-color: #000000;");
-//                }if(board.get(i).get(j).getType() == 'w'){
-//                    cellbox.setStyle("-fx-background-color: #4d4dff;");
-//                }if(board.get(i).get(j).getType() == 'm'){
-//                    cellbox.setStyle("-fx-background-color: #a6a6a6;");
-//                }if(board.get(i).get(j).getType() == 'f'){
-//                    cellbox.setStyle("-fx-background-color: #008000;");
-//                }if(board.get(i).get(j).getType() == 'g'){
-//                    cellbox.setStyle("-fx-background-color: #80ff80;");
-//                }if(board.get(i).get(j).getType() == 'r'){
-//                    cellbox.setStyle("-fx-background-color: #bf8040;");
-//                }if(board.get(i).get(j).getType() == 'A'){
-//                    cellbox.setStyle("-fx-background-color: #ff0000;");
-//                }if(board.get(i).get(j).getType() == 'B'){
-//                    cellbox.setStyle("-fx-background-color: #00ff00;");
-//                }
-//                grid.add(cellbox, j, i);
-//            }
-//        }
