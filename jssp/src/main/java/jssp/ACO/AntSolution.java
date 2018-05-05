@@ -1,5 +1,7 @@
 package jssp.ACO;
 
+import jssp.Solution;
+
 import java.util.ArrayList;
 
 public class AntSolution {

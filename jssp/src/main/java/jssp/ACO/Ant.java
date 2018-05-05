@@ -1,6 +1,8 @@
 package jssp.ACO;
 
 import jssp.Job;
+import jssp.Node;
+import jssp.Solution;
 
 import java.util.ArrayList;
 import java.util.Arrays;

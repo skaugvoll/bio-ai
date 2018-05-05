@@ -1,4 +1,4 @@
-package jssp.ACO;
+package jssp;
 
 import java.util.Arrays;
 
@@ -13,7 +13,7 @@ public class Solution {
     private final int[][][] schedule;
     private final int makespan;
 
-    Solution(int[][][] schedule) {
+    public Solution(int[][][] schedule) {
         this.schedule = schedule;
 
         int max = Integer.MIN_VALUE;

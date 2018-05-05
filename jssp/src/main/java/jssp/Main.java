@@ -1,7 +1,7 @@
 package jssp;
 
 import jssp.ACO.ACO;
-import jssp.ACO.Solution;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;

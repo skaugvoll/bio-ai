@@ -1,13 +1,13 @@
-package jssp.ACO;
+package jssp;
 
 public class Node {
 
-    int machine_number;
-    int job_number;
-    int duration;
+    public int machine_number;
+    public int job_number;
+    public int duration;
 
-    Node[] edges;
-    double[] pheromones;
+    public Node[] edges;
+    public double[] pheromones;
 
 
 
