@@ -1,5 +1,15 @@
 package jssp;
 
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.RowConstraints;
+import javafx.stage.Stage;
 import jssp.ACO.ACO;
 
 import javax.imageio.ImageIO;
@@ -7,9 +17,20 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Random;
+import java.util.Scanner;
 
-public class Main {
+import static javafx.application.Application.launch;
+
+public class Main extends Application{
+
+    GanttChart gantt;
+    static int num_machines;
+    static int num_jobs;
+    static int bestPossibleMakespan;
+    static int makespan;
+    static int[][][] schedule;
 
     public static void greetings(){
         System.out.println("Hello jssp, lets get you solved");
@@ -21,13 +42,17 @@ public class Main {
         DataGenerator dg = new DataGenerator(1);
         Job[] jobs = dg.getJobs();
 
-        int num_machines = dg.getNumMachines();
-        int num_jobs = dg.getNumJobs();
-        int bestPossibleMakespan = dg.getBestPossibleMakespan();
+        Main.num_machines = dg.getNumMachines();
+        Main.num_jobs = dg.getNumJobs();
+        Main.bestPossibleMakespan = dg.getBestPossibleMakespan();
 
         Solution solution = new ACO(jobs, num_machines, num_jobs, bestPossibleMakespan, 100).solve(10);
-        drawImage(solution.getSchedule(), num_jobs, num_machines, solution.getMakespan());
-        openImage("gant");
+
+        Main.makespan = solution.getMakespan();
+        Main.schedule = solution.getSchedule();
+        drawImage(schedule, num_jobs, num_machines, makespan);
+//        openImage("gant");
+        launch(args);
 
     }
 
@@ -51,15 +76,15 @@ public class Main {
         }
 
         for(int m = 1; m < schedule.length+1; m++){
-            for(int j = 0; j < schedule[m-1].length; j++){
-                for(int pixelPos = schedule[m-1][j][0]*scale; pixelPos < schedule[m-1][j][0]*scale + schedule[m-1][j][1]*scale; pixelPos++){
-                    for(int row = currentRow; row < currentRow + 10; row++){
-                        int p = (255 << 24) | (job_colors[j][0] << 16) | (job_colors[j][1] << 8) | job_colors[j][2];
-                        newImage.setRGB(pixelPos, row, p);
+                for(int j = 0; j < schedule[m-1].length; j++){
+                    for(int pixelPos = schedule[m-1][j][0]*scale; pixelPos < schedule[m-1][j][0]*scale + schedule[m-1][j][1]*scale; pixelPos++){
+                        for(int row = currentRow; row < currentRow + 10; row++){
+                            int p = (255 << 24) | (job_colors[j][0] << 16) | (job_colors[j][1] << 8) | job_colors[j][2];
+                            newImage.setRGB(pixelPos, row, p);
+                        }
                     }
                 }
-            }
-            currentRow += 10;
+                currentRow += 10;
         }
 
         try{
@@ -83,6 +108,16 @@ public class Main {
         }
 
 
+    }
+
+    public void start(Stage primaryStage) throws Exception {
+
+        // JavaFX Initialization
+        gantt = new GanttChart(primaryStage, num_machines, makespan, schedule);
+
+
+        //Dev
+//        run("ACO", "1");
     }
 
 
