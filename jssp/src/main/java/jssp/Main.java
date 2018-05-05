@@ -3,6 +3,7 @@ package jssp;
 import jssp.ACO.ACO;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +27,8 @@ public class Main {
 
         Solution solution = new ACO(jobs, num_machines, num_jobs, bestPossibleMakespan, 100).solve(10);
         drawImage(solution.getSchedule(), num_jobs, num_machines, solution.getMakespan());
+        openImage("gant");
+
     }
 
     public static void drawImage(int[][][] schedule, int num_jobs, int num_machines, int makespan){
@@ -66,4 +69,21 @@ public class Main {
             System.out.println("Kunne ikke skrive ut fil");
         }
     }
+
+
+    public static void openImage(String filename){
+        if (Desktop.isDesktopSupported()) {
+            try {
+                File img = new File(System.getProperty("user.dir") + "/src/main/resources/Output/"+filename+".png");
+                Desktop.getDesktop().open(img);
+            } catch (IOException ex) {
+                // no application registered for PDFs
+                System.out.println("Could not launch the image");
+            }
+        }
+
+
+    }
+
+
 }
