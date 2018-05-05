@@ -12,6 +12,8 @@ import javafx.stage.Stage;
 
 public class GanttChart {
 
+    String[] job_colors = {"#000000;", "#4d4dff;", "#a6a6a6;", "#008000;", "#80ff80;", "#bf8040;"};
+
     public GanttChart(Stage primaryStage, int num_machines, int makespan, int[][][] schedule) throws Exception {
         super();
         GridPane grid = new GridPane();
@@ -48,6 +50,7 @@ public class GanttChart {
 //            currentRow += 10;
 //        }
 
+
         for(int m = 0; m < schedule.length; m++) {
             for (int j = 0; j < schedule[m].length+1; j++) {
                 if(j == 0){
@@ -58,56 +61,12 @@ public class GanttChart {
                     cellbox.setAlignment(Pos.CENTER);
                     grid.add(cellbox, j, m);
                 }else{
-                    for(int operation = 0; operation < schedule[m][j].length; operation++){
-                        int[] op = schedule[m][operation];
-                        
-
-
+                    for(int cell = schedule[m][j-1][0]; cell < schedule[m][j-1][0] + schedule[m][j-1][1]; cell++){
+                        HBox cellbox = new HBox();
+                        cellbox.setStyle("-fx-background-color: " + job_colors[j-1]);
+                        grid.add(cellbox, cell+1, m);
                     }
                 }
-//                    for(int cell = schedule[m][j+1][0]; pixelPos < schedule[m][j+1][0] + schedule[m][j+1][1]; pixelPos++){
-//                        HBox cellbox = new HBox();
-//                        cellbox.setStyle("-fx-background-color: #80ff80;");
-//                        grid.add(cellbox, j, pixelPos);
-//                    }
-//                if(path.contains(board.get(i).get(j))){
-//                    javafx.scene.control.Label inPath = new javafx.scene.control.Label("");
-//                    javafx.scene.image.Image image = new javafx.scene.image.Image(getClass().getResourceAsStream("dot.png"));
-//                    inPath.setGraphic(new ImageView(image));
-//                    cellbox.getChildren().add(inPath);
-//                }
-//                if((closedSet.contains(board.get(i).get(j)) || openSet.contains(board.get(i).get(j))) && !path.contains(board.get(i).get(j))){
-//                    if (closedSet.contains(board.get(i).get(j))){
-//                        javafx.scene.control.Label inClosed = new javafx.scene.control.Label("");
-//                        javafx.scene.image.Image image = new javafx.scene.image.Image(getClass().getResourceAsStream("cross.png"));
-//                        inClosed.setGraphic(new ImageView(image));
-//
-//                        cellbox.getChildren().add(inClosed);
-//                    }else{
-//                        javafx.scene.control.Label inOpen = new Label("");
-//                        javafx.scene.image.Image image = new Image(getClass().getResourceAsStream("star.png"));
-//                        inOpen.setGraphic(new ImageView(image));
-//                        cellbox.getChildren().add(inOpen);
-//                    }
-//                }
-//                if(board.get(i).get(j).getType() == '#') {
-//                    cellbox.setStyle("-fx-background-color: #000000;");
-//                }if(board.get(i).get(j).getType() == 'w'){
-//                    cellbox.setStyle("-fx-background-color: #4d4dff;");
-//                }if(board.get(i).get(j).getType() == 'm'){
-//                    cellbox.setStyle("-fx-background-color: #a6a6a6;");
-//                }if(board.get(i).get(j).getType() == 'f'){
-//                    cellbox.setStyle("-fx-background-color: #008000;");
-//                }if(board.get(i).get(j).getType() == 'g'){
-//                    cellbox.setStyle("-fx-background-color: #80ff80;");
-//                }if(board.get(i).get(j).getType() == 'r'){
-//                    cellbox.setStyle("-fx-background-color: #bf8040;");
-//                }if(board.get(i).get(j).getType() == 'A'){
-//                    cellbox.setStyle("-fx-background-color: #ff0000;");
-//                }if(board.get(i).get(j).getType() == 'B'){
-//                    cellbox.setStyle("-fx-background-color: #00ff00;");
-//                }
-
             }
         }
 
