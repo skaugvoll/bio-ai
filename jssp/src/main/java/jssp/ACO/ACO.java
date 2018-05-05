@@ -1,11 +1,8 @@
 package jssp.ACO;
 
 import jssp.Job;
-import sun.security.provider.certpath.Vertex;
-
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
+
 
 public class ACO {
 
