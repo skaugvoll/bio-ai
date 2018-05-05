@@ -27,7 +27,7 @@ public class Main {
         int num_jobs = dg.getNumJobs();
         int bestPossibleMakespan = dg.getBestPossibleMakespan();
 
-        Solution solution = new ACO(jobs, num_machines, num_jobs, bestPossibleMakespan).solve(10, 100);
+        Solution solution = new ACO(jobs, num_machines, num_jobs, bestPossibleMakespan, 100).solve(10);
         drawImage(solution.getSchedule(), num_jobs, num_machines, solution.getMakespan());
     }
 
