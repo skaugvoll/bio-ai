@@ -6,14 +6,6 @@ import jssp.ACO.ACO;
 import jssp.BA.BA;
 import org.apache.commons.cli.CommandLine;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.Random;
-
-import static javafx.application.Application.launch;
 
 public class Main extends Application{
 
