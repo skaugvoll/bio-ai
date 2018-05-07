@@ -29,21 +29,23 @@ public class GanttChart {
         }
 
 
-        int height = 40;
-        int scale = 1;
+        int height = 50;
+        int width = 1;
 
         for (int i = 0; i < makespan + 1; i++) {
             ColumnConstraints colConst = new ColumnConstraints();
             if(i == 0){
-                colConst.setPrefWidth(40);
+                colConst.setPrefWidth(50);
+                colConst.setMinWidth(50);
             }else {
-                colConst.setPrefWidth(10);
+                colConst.setPrefWidth(width);
+                colConst.setMinWidth(width);
             }
             grid.getColumnConstraints().add(colConst);
         }
         for (int i = 0; i < num_machines+1; i++) {
             RowConstraints rowConst = new RowConstraints();
-            rowConst.setPrefHeight(40);
+            rowConst.setMinHeight(height);
             grid.getRowConstraints().add(rowConst);
 
         }
@@ -66,8 +68,15 @@ public class GanttChart {
                 }
             }
         }
+        for(int t = 5; t < makespan; t += 5){
+            HBox cellbox = new HBox();
+            Label timeSting = new Label(Integer.toString(t));
+            cellbox.getChildren().add(timeSting);
+            cellbox.setAlignment(Pos.CENTER);
+            grid.add(cellbox, t, num_machines);
+        }
 
-        primaryStage.setScene(new Scene(grid, makespan*10, height*num_machines ));
+        primaryStage.setScene(new Scene(grid, makespan*width+50, height*(num_machines+1) ));
         primaryStage.show();
     }
 

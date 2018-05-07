@@ -39,7 +39,7 @@ public class Main extends Application{
     public static void main(String[] args) {
         Main.greetings();
 
-        DataGenerator dg = new DataGenerator(1);
+        DataGenerator dg = new DataGenerator(2);
         Job[] jobs = dg.getJobs();
 
         Main.num_machines = dg.getNumMachines();
