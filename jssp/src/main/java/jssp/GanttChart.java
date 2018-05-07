@@ -1,13 +1,10 @@
 package jssp;
 
-import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.util.Arrays;
@@ -20,67 +17,67 @@ public class GanttChart {
 
     public GanttChart(Stage primaryStage, int num_machines, int num_jobs, int makespan, int[][][] schedule) throws Exception {
         super();
-        GridPane grid = new GridPane();
-        grid.setGridLinesVisible(true);
+        Pane pane = new Pane();
+
 
         job_colors = new String[num_jobs];
         for(int i=0; i < num_jobs; i++){
-            job_colors[i] = colorGenerator();
+            job_colors[i] = colorHexGenerator();
         }
 
 
         int height = 50;
-        int width = 1;
+        int width = 1200;
+        double widthInterval = width /makespan;
 
-        for (int i = 0; i < makespan + 1; i++) {
-            ColumnConstraints colConst = new ColumnConstraints();
-            if(i == 0){
-                colConst.setPrefWidth(50);
-                colConst.setMinWidth(50);
-            }else {
-                colConst.setPrefWidth(width);
-                colConst.setMinWidth(width);
-            }
-            grid.getColumnConstraints().add(colConst);
+        int timeUnit;
+        if(makespan < 500){
+            timeUnit = 5;
+        }else{
+            timeUnit = 25;
         }
-        for (int i = 0; i < num_machines+1; i++) {
-            RowConstraints rowConst = new RowConstraints();
-            rowConst.setMinHeight(height);
-            grid.getRowConstraints().add(rowConst);
 
+        int y = 0;
+        int interval = 0;
+
+        for(int t = 50; t <= width+50; t += timeUnit*widthInterval){
+            HBox line;
+            Label timeString = new Label( Integer.toString((int)((t-50)/widthInterval)));
+            timeString.setTranslateX(t-10);
+            if(interval % 2 == 0){
+                line = makeHbox(t, 0, 1, (num_machines*height)+10);
+                timeString.setTranslateY((num_machines*50)+10);
+            }else{
+                line = makeHbox(t, 0, 1, (num_machines*height)+20);
+                timeString.setTranslateY((num_machines*50)+20);
+            }
+            interval++;
+            pane.getChildren().add(timeString);
+            line.setStyle("-fx-background-color: gray" );
+            pane.getChildren().add(line);
         }
 
         for(int m = 0; m < schedule.length; m++) {
-            for (int j = 0; j < schedule[m].length+1; j++) {
-                if(j == 0){
-                    HBox cellbox = new HBox();
-                    int number = m +1;
-                    Label machine = new Label("M" + number);
-                    cellbox.getChildren().add(machine);
-                    cellbox.setAlignment(Pos.CENTER);
-                    grid.add(cellbox, j, m);
-                }else{
-                    for(int cell = schedule[m][j-1][0]; cell < schedule[m][j-1][0] + schedule[m][j-1][1]; cell++){
-                        HBox cellbox = new HBox();
-                        cellbox.setStyle("-fx-background-color: " + job_colors[j-1]);
-                        grid.add(cellbox, cell+1, m);
-                    }
-                }
-            }
-        }
-        for(int t = 5; t < makespan; t += 5){
-            HBox cellbox = new HBox();
-            Label timeSting = new Label(Integer.toString(t));
-            cellbox.getChildren().add(timeSting);
-            cellbox.setAlignment(Pos.CENTER);
-            grid.add(cellbox, t, num_machines);
-        }
+            HBox machine = makeHbox(0, y, height, height);
+            machine.setStyle("-fx-background-color: lightgrey" );
+            int number = m +1;
+            Label mLabl = new Label("M" + number);
+            machine.getChildren().add(mLabl);
+            machine.setAlignment(Pos.CENTER);
+            pane.getChildren().add(machine);
 
-        primaryStage.setScene(new Scene(grid, makespan*width+50, height*(num_machines+1) ));
+            for (int j = 0; j < schedule[m].length; j++) {
+                HBox operation = makeHbox((schedule[m][j][0]*widthInterval)+50 , y, schedule[m][j][1]*widthInterval, height);
+                operation.setStyle("-fx-background-color: " + job_colors[j]);
+                pane.getChildren().add(operation);
+            }
+            y += 50;
+        }
+        primaryStage.setScene(new Scene(pane, width, height*(num_machines+1) ));
         primaryStage.show();
     }
 
-    public String colorGenerator(){
+    public String colorHexGenerator(){
         Random rg = new Random();
         int stringLength = 6;
         char[] chars = new char[]{'a','b','c','d','e','f','0','1','2','3','4','5','6','7','8','9'};
@@ -94,7 +91,14 @@ public class GanttChart {
         return color;
     }
 
-
+    public HBox makeHbox(double x, int y, double width, int height){
+        HBox hbox = new HBox();
+        hbox.setTranslateX(x);
+        hbox.setTranslateY(y);
+        hbox.setPrefWidth(width);
+        hbox.setPrefHeight(height);
+        return hbox;
+    }
 
 }
 
