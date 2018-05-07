@@ -1,25 +1,16 @@
 package jssp;
 
 import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.RowConstraints;
 import javafx.stage.Stage;
 import jssp.ACO.ACO;
+import jssp.BA.BA;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Random;
-import java.util.Scanner;
 
 import static javafx.application.Application.launch;
 
@@ -46,11 +37,12 @@ public class Main extends Application{
         Main.num_jobs = dg.getNumJobs();
         Main.bestPossibleMakespan = dg.getBestPossibleMakespan();
 
-        Solution solution = new ACO(jobs, num_machines, num_jobs, bestPossibleMakespan, 100).solve(10);
+//        Solution solution = new ACO(jobs, num_machines, num_jobs, 100).solve(10);
+        Solution solution = new BA(jobs, num_machines, num_jobs, 100).solve(10);
 
         Main.makespan = solution.getMakespan();
         Main.schedule = solution.getSchedule();
-        drawImage(schedule, num_jobs, num_machines, makespan);
+//        drawImage(schedule, num_jobs, num_machines, makespan);
 //        openImage("gant");
         launch(args);
 

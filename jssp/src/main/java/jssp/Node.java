@@ -9,8 +9,6 @@ public class Node {
     public Node[] edges;
     public double[] pheromones;
 
-
-
     public Node(int mn, int jn, int dur){
         this.machine_number = mn;
         this.job_number = jn;

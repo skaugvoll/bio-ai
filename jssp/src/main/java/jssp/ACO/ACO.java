@@ -10,21 +10,20 @@ import java.util.ArrayList;
 public class ACO {
 
 
-    private int total, bestPossibleMakespan;
+    private int total;
     Ant[] ants;
     private AntSolution bestGlobalAntSolution = null;
-    private final ArrayList<Node> vertices = new ArrayList<Node>();
+    private final ArrayList<Node> nodes = new ArrayList<Node>();
     private Node root;
 
     private double evaporationRate = 0.1;
 
-    public ACO(Job[] jobs, int num_machines, int num_jobs, int bestPossibleMakespan, int num_ants){
+    public ACO(Job[] jobs, int num_machines, int num_jobs, int num_ants){
         ants = new Ant[num_ants];
-        this.bestPossibleMakespan = bestPossibleMakespan;
         this.total = num_machines * num_jobs; // total number of tasks or operations to be performed
         // Make the pheromone trail from root to other jobs.
         root = new Node(-1,-1,-1);
-        vertices.add(root); // start building the graph / schedule
+        nodes.add(root); // start building the graph / schedule
 
         root.edges = new Node[num_jobs]; // init the root edges array
         root.pheromones = new double[num_jobs]; // init the root pheromone trails.
@@ -35,7 +34,7 @@ public class ACO {
             final int timeRequired = jobs[i].operations[0][1];
             final int jobNumber = jobs[i].job_number;
             final Node neighbour = new Node(machineNumber, jobNumber, timeRequired);
-            vertices.add(neighbour);
+            nodes.add(neighbour);
             root.edges[i] = neighbour;
             root.pheromones[i] = 1.0;
         }
@@ -52,7 +51,7 @@ public class ACO {
         for(int i = 0; i < num_iterations; i++){
             AntSolution[] solutions = new AntSolution[ants.length];
             for(int ant = 0; ant < ants.length; ant++){
-                solutions[ant] = ants[i].findSolution(vertices);
+                solutions[ant] = ants[i].findSolution(nodes);
             }
 
             int bestMakeSpan = Integer.MAX_VALUE;
@@ -70,7 +69,7 @@ public class ACO {
 
             double delta = 1.0;
 
-            for(Node node: vertices){
+            for(Node node: nodes){
                 if(node.edges != null){
                     for(int j = 0; j < node.edges.length; j++){
                         if(node.pheromones[j] == 0.0){
