@@ -68,6 +68,9 @@ public class GanttChart {
 
             for (int j = 0; j < schedule[m].length; j++) {
                 HBox operation = makeHbox((schedule[m][j][0]*widthInterval)+50 , y, schedule[m][j][1]*widthInterval, height);
+                Label jobString = new Label(Integer.toString(j));
+                operation.getChildren().add(jobString);
+                operation.setAlignment(Pos.CENTER);
                 operation.setStyle("-fx-background-color: " + job_colors[j]);
                 pane.getChildren().add(operation);
             }
