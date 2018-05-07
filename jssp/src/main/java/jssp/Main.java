@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 import jssp.ACO.ACO;
 import jssp.BA.BA;
+import org.apache.commons.cli.CommandLine;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -30,77 +31,43 @@ public class Main extends Application{
     public static void main(String[] args) {
         Main.greetings();
 
-        DataGenerator dg = new DataGenerator(1);
+        CommandLine cmd = Utils.cli(args);
+        int task = Integer.valueOf(cmd.getOptionValue('t'));
+        String algorithm = cmd.getOptionValue('a');
+        int workers = Integer.valueOf(cmd.getOptionValue('w'));
+        int iterations = Integer.valueOf(cmd.getOptionValue('i'));
+
+
+        DataGenerator dg = new DataGenerator(task);
         Job[] jobs = dg.getJobs();
 
         Main.num_machines = dg.getNumMachines();
         Main.num_jobs = dg.getNumJobs();
         Main.bestPossibleMakespan = dg.getBestPossibleMakespan();
 
-//        Solution solution = new ACO(jobs, num_machines, num_jobs, 100).solve(10);
-        Solution solution = new BA(jobs, num_machines, num_jobs, 100).solve(10);
+        Solution solution = null;
+        if (algorithm.equals("aco")){
+            System.out.println("Solving aco...");
+            solution = new ACO(jobs, num_machines, num_jobs, workers).solve(iterations);
+        }
+        else if(algorithm.equals("ba")){
+            System.out.println("Solving ba...");
+            solution = new BA(jobs, num_machines, num_jobs, workers).solve(iterations);
+        }
+        else {
+            System.out.println("Not valid algorithm specified\n -a <algo>\nAlgo {aco, ba}");
+            System.exit(0);
+        }
 
         Main.makespan = solution.getMakespan();
         Main.schedule = solution.getSchedule();
-//        drawImage(schedule, num_jobs, num_machines, makespan);
-//        openImage("gant");
+//        Utils.drawImage(schedule, num_jobs, num_machines, makespan);
+//        Utils.openImage("gant");
         launch(args);
 
-    }
-
-    public static void drawImage(int[][][] schedule, int num_jobs, int num_machines, int makespan){
-        System.out.println(makespan);
-        int width = makespan * 10;
-        int height = num_machines * 10 + 10;
-        int scale = 10;
-        BufferedImage newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        File f = null;
-
-        int currentRow = 5;
-
-        int[][] job_colors = new int[num_jobs][3];
-        Random rg = new Random();
-        for(int jc = 0; jc < num_jobs; jc++){
-            int r = rg.nextInt(256);
-            int g = rg.nextInt(256);
-            int b = rg.nextInt(256);
-            job_colors[jc] = new int[]{r,g,b};
-        }
-
-        for(int m = 1; m < schedule.length+1; m++){
-                for(int j = 0; j < schedule[m-1].length; j++){
-                    for(int pixelPos = schedule[m-1][j][0]*scale; pixelPos < schedule[m-1][j][0]*scale + schedule[m-1][j][1]*scale; pixelPos++){
-                        for(int row = currentRow; row < currentRow + 10; row++){
-                            int p = (255 << 24) | (job_colors[j][0] << 16) | (job_colors[j][1] << 8) | job_colors[j][2];
-                            newImage.setRGB(pixelPos, row, p);
-                        }
-                    }
-                }
-                currentRow += 10;
-        }
-
-        try{
-            f = new File(System.getProperty("user.dir") + "/src/main/resources/Output/gant.png");
-            ImageIO.write(newImage, "png", f);
-        }catch(IOException e){
-            System.out.println("Kunne ikke skrive ut fil");
-        }
-    }
-
-
-    public static void openImage(String filename){
-        if (Desktop.isDesktopSupported()) {
-            try {
-                File img = new File(System.getProperty("user.dir") + "/src/main/resources/Output/"+filename+".png");
-                Desktop.getDesktop().open(img);
-            } catch (IOException ex) {
-                // no application registered for PDFs
-                System.out.println("Could not launch the image");
-            }
-        }
-
 
     }
+
 
     public void start(Stage primaryStage) throws Exception {
 
