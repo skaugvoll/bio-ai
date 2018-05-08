@@ -83,7 +83,7 @@ public class GanttChart {
     public String colorHexGenerator(){
         Random rg = new Random();
         int stringLength = 6;
-        char[] chars = new char[]{'a','b','c','d','e','f','0','1','2','3','4','5','6','7','8','9'};
+        char[] chars = new char[]{'a','b','c','d','e','f','3','4','5','6','7','8','9'};
         String color = "#";
         int idx;
         for(int i = 0; i < stringLength; i++){
