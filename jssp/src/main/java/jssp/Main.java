@@ -40,11 +40,22 @@ public class Main extends Application{
         Solution solution = null;
         if (algorithm.equals("aco")){
             System.out.println("Solving aco...");
+            long startTime = System.nanoTime();
             solution = new ACO(jobs, num_machines, num_jobs, workers).solve(iterations);
+            long endTime = System.nanoTime();
+
+            long duration = (endTime - startTime);
+            System.out.println("Time used : " + duration/1000000 + "ms");
+
         }
         else if(algorithm.equals("ba")){
             System.out.println("Solving ba...");
+            long startTime = System.nanoTime();
             solution = new BA(jobs, num_machines, num_jobs, workers).solve(iterations);
+            long endTime = System.nanoTime();
+
+            long duration = (endTime - startTime);
+            System.out.println("Time used : " + duration/1000000 + "ms");
         }
         else {
             System.out.println("Not valid algorithm specified\n -a <algo>\nAlgo {aco, ba}");
@@ -53,7 +64,7 @@ public class Main extends Application{
 
         Main.makespan = solution.getMakespan();
         Main.schedule = solution.getSchedule();
-        System.out.println("Makespan:" + Main.makespan);
+        System.out.println("\n #Iterations: " + iterations + "\nMakespan:" + Main.makespan + "");
 //        Utils.drawImage(schedule, num_jobs, num_machines, makespan);
 //        Utils.openImage("gant");
         launch(args);

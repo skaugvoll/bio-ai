@@ -99,6 +99,7 @@ public class BA {
             }
         }
 
+        System.out.println("#nodes : " + this.nodes.size());
         return bestGlobalBeeSolution.solution;
     }
 

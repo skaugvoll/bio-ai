@@ -112,6 +112,7 @@ public class ACO {
             }
 
         }
+        System.out.println("#nodes : " + this.nodes.size());
         return  bestGlobalAntSolution.solution;
     }
 
