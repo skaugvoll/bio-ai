@@ -1,43 +1,74 @@
-package jssp.ACO;
+package jssp.BA;
 
 import jssp.Job;
 import jssp.Node;
 import jssp.Solution;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Random;
 
-public class Ant {
+public class Bee {
+
     private Job[] jobs;
     private int num_jobs, num_machines, total;
+    private final Random random;
 
-
-    public Ant(Job[] jobs, int num_jobs, int num_machines, int total) {
+    public Bee(Job[] jobs, int num_jobs, int num_machines, int total) {
         this.jobs = jobs;
         this.num_jobs = num_jobs;
         this.num_machines = num_machines;
         this.total = total;
-
-
+        this.random = new Random();
     }
 
-    AntSolution findSolution(ArrayList<Node> nodes){
-        int[] visited = new int[num_jobs];
-        int[] jobTime = new int[num_jobs];
-        int[] machineTime = new int[num_machines];
-        int[][][] path = new int[num_machines][num_jobs][2];
+
+    BeeSolution findSolution(BeeSolution beeSolution, int neighbourhood, ArrayList<Node> nodes) {
+
+        final int[] visited = new int[num_jobs];
+        final int[] jobTime = new int[num_jobs];
+        final int[] machineTime = new int[num_machines];
+        final int[][][] path = new int[num_machines][num_jobs][2];
 
         int makespan = 0;
 
-        Node current = nodes.get(0); //first element is root-node
-        ArrayList<Integer> nodePath = new ArrayList<Integer>();
+        Node current = nodes.get(0);
+        final ArrayList<Integer> nodePath = new ArrayList<>();
 
-        while(nodePath.size() != total){
-            int index = selectPath(current, jobTime, machineTime, makespan);
+        //if we are performing neighbourhood search, do this first
+        if(beeSolution != null){
+            for(int k = 0; k<beeSolution.path.size() - neighbourhood;k++){
+                nodePath.add(beeSolution.path.get(k));
+                current = current.edges[beeSolution.path.get(k)];
+                visited[current.job_number] ++;
 
-            if(index == -1){
-                return findSolution(nodes);
+                final int machineNumber = current.machine_number;
+                final int jobNumber = current.job_number;
+                final int timeRequired = current.duration;
+
+                // Start time
+                final int startTime = Math.max(jobTime[jobNumber], machineTime[machineNumber]);
+                path[machineNumber][jobNumber][0] = startTime;
+                // Time required
+                path[machineNumber][jobNumber][1] = timeRequired;
+                // Updating variables
+                final int time = startTime + timeRequired;
+                jobTime[jobNumber] = time;
+                machineTime[machineNumber] = time;
+                if (time > makespan) {
+                    makespan = time;
+                }
+            }
+        }
+
+        while (nodePath.size() != total) {
+
+            //Selecting a path
+            final int index = selectPath(current, jobTime, machineTime, makespan);
+
+            //Fixing random exception
+            if (index == -1) {
+                return findSolution(null,0, nodes);
             }
 
             nodePath.add(index);
@@ -60,11 +91,13 @@ public class Ant {
             if (time > makespan) {
                 makespan = time;
             }
+
+
             // New Vertex
             if (current.edges == null) {
 
                 // Adding next option
-                final ArrayList<Node> choices = new ArrayList<Node>();
+                final ArrayList<Node> choices = new ArrayList<>();
                 for (int i = 0; i < num_jobs; i ++) {
                     if (visited[i] < num_machines) {
                         final int neighbourMachineNumber = jobs[i].operations[visited[i]][0];
@@ -75,29 +108,25 @@ public class Ant {
                     }
                 }
                 current.edges = new Node[choices.size()];
-                current.pheromones = new double[current.edges.length];
                 choices.toArray(current.edges);
-                Arrays.fill(current.pheromones, 1.0);
             }
         }
 
-        return new AntSolution(new Solution(path), nodePath, makespan);
+        return new BeeSolution(new Solution(path), nodePath, makespan);
     }
 
+    public int selectPath(Node current, int[] jobTime, int[] machineTime, int makespan) {
 
-    private int selectPath(Node current, int[] jobTime, int[] machineTime, int makespan) {
-
-        double a = 1, b = 1;
+        double a = 1.0, b = 1.0;
         double denominator = 0;
         final double[] probability = new double[current.edges.length];
         for (int i = 0; i < probability.length; i ++) {
-            probability[i] = Math.pow(current.pheromones[i], a) * Math.pow((heuristic(current.edges[i], jobTime, machineTime, makespan)), b);
+            probability[i] = /*Math.pow(current.pheromones[i], a) */ Math.pow((heuristic(current.edges[i], jobTime, machineTime, makespan)), b);
             denominator += probability[i];
         }
 
-
         if (denominator == 0.0) {
-            Random random = new Random();
+            //Random random = new Random();
             return random.nextInt(current.edges.length);
         }
 
@@ -109,8 +138,6 @@ public class Ant {
                 return i;
             }
         }
-
-
         return -1;
     }
 
@@ -125,4 +152,5 @@ public class Ant {
 
         return heuristic;
     }
+
 }

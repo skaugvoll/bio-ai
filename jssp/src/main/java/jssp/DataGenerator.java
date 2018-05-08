@@ -10,52 +10,39 @@ public class DataGenerator {
     private int task;
     private int num_jobs;
     private int num_machines;
+    private int bestPossibleMakespan;
 
-    private ArrayList<Job> jobs = new ArrayList<Job>();
-    private ArrayList<Machine> machines = new ArrayList<Machine>();
+    Job[] jobs;
 
     public DataGenerator(int task){
         this.task = task;
         String filename = "/Test_Data/"+this.task+".txt";
+        bestPossibleMakespan = findAcceptableMakespan();
 
         try{
             InputStream in = getClass().getResourceAsStream(filename);
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            String line = reader.readLine().trim();
+            String[] meta = line.split("\\s+");
+            num_jobs = Integer.valueOf(meta[0]);
+            num_machines = Integer.valueOf(meta[1]);
 
-            String line = null;
-            int line_number = 0;
-            while((line = reader.readLine()) != null){
-                if (line.equals("")){
-                    continue;
+            jobs = new Job[num_jobs];
+
+
+            for(int i = 0; i < num_jobs; i++){
+                line = reader.readLine().trim();
+                String[] data = line.split("\\s+");
+
+                int[][] operations = new int[num_machines][2];
+                for(int j = 0; j < num_machines; j++){
+                    int index = j * 2;
+                    operations[j][0] = Integer.valueOf(data[index]);
+                    operations[j][1] = Integer.valueOf(data[index + 1]);
                 }
-                line = line.trim();
 
-                String[] line_split = line.split(" ");
-                ArrayList<Integer> converted_line = new ArrayList<Integer>();
-
-                for(String s : line_split){
-                    s = s.replaceAll(" ", "");
-                    if(s.length() > 0){
-                        converted_line.add(Integer.parseInt(s));
-                    }
-                }
-
-                // Process meta-data and create machines
-                if (line_number == 0){
-                    this.processMetaData(converted_line);
-                    this.createMachines();
-                    line_number++;
-                    continue;
-                    }
-
-
-//              PROCESS line (machine, time)
-                this.processLine(line_number, converted_line);
-                line_number++;
+                jobs[i] = new Job(i, operations);
             }
-
-            System.out.println("All machines:\n" + this.machines +'\n');
-            System.out.println("All jobs:\n" + this.jobs);
 
         }
         catch (Exception e){
@@ -64,56 +51,43 @@ public class DataGenerator {
 
     }
 
-    private void createMachines() {
-        for(int m=0; m < this.num_machines; m++){
-            this.machines.add(new Machine(m));
-        }
-    }
-
-    private void processLine(int line_number, ArrayList<Integer> converted_line) {
-        Job job = new Job(line_number);
-        int counter = 1;
-        int machine = -1;
-        for(int chr : converted_line){
-            if (counter % 2 == 0 && machine != -1) { // processingtime
-                job.processingMap.put(machine, chr);
-            } else{
-                job.order.add(chr);
-                machine = chr;
-            }
-            counter++;
-        }
-        this.jobs.add(job);
-        job.generateOrderedProcessingTimes();
-    }
-
-    private void processMetaData(ArrayList<Integer> converted_line) {
-        int found = 1;
-        for(int chr : converted_line){
-            if(found == 1){
-                this.num_jobs = chr;
-                found++;
-            } else {
-                this.num_machines = chr;
-            }
-        }
-    }
-
-
-    public ArrayList<Job> getJobs(){
-        return this.jobs;
-    }
-
-    public int getNum_jobs() {
-        return num_jobs;
-    }
-
-    public int getNum_machines() {
-        return num_machines;
-    }
-
     public static void main(String[] args) {
         DataGenerator dg = new DataGenerator(1);
+    }
+
+
+    private int findAcceptableMakespan() {
+        String filename = "/Test_Data/acceptableValues.txt";
+        try {
+            InputStream in = getClass().getResourceAsStream(filename);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+
+            while (reader.readLine() != null) {
+                String[] data = reader.readLine().split(" ");
+                if (Integer.parseInt(data[0]) == this.task) {
+                    return Integer.parseInt(data[1]);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("exception2: " + e);
+        }
+        return -1;
+    }
+
+    public int getBestPossibleMakespan() {
+        return bestPossibleMakespan;
+    }
+
+    public Job[] getJobs() {
+        return jobs;
+    }
+
+    public int getNumMachines() {
+        return this.num_machines;
+    }
+
+    public int getNumJobs() {
+        return num_jobs;
     }
 
 }
