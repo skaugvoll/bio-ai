@@ -67,7 +67,6 @@ public class ACO {
                 bestGlobalAntSolution = bestAntSolution;
             }
 
-            double delta = 1.0;
 
             for(Node node: nodes){
                 if(node.edges != null){
@@ -79,11 +78,37 @@ public class ACO {
                     }
                 }
             }
+
             Node current = root;
+            double delta = 1.0;
+            double low = Double.MAX_VALUE;
+            double high = Double.MIN_VALUE;
+
             for(int j = 0; j < total; j++){
                 int index = bestAntSolution.path.get(j);
-                current.pheromones[index] += delta;
-                current = current.edges[index];
+                double phr =  current.pheromones[index];
+                if(phr <  low){
+                    low = phr;
+                }
+                else if(phr > high){
+                    high = phr;
+                }
+
+//                current.pheromones[index] += delta;
+//                current = current.edges[index];
+            }
+            for(int j = 0; j < total; j++){
+                int index = bestAntSolution.path.get(j);
+                double phr = current.pheromones[index];
+                Node e = current.edges[index];
+                double np = (1 - evaporationRate) * e.duration + 1 / bestMakeSpan;
+                if (np > high) {
+                    np = high;
+                }
+                else if(np < low) {
+                    np = low;
+                }
+                current.pheromones[index] = np;
             }
 
         }

@@ -53,6 +53,7 @@ public class Main extends Application{
 
         Main.makespan = solution.getMakespan();
         Main.schedule = solution.getSchedule();
+        System.out.println("Makespan:" + Main.makespan);
 //        Utils.drawImage(schedule, num_jobs, num_machines, makespan);
 //        Utils.openImage("gant");
         launch(args);
