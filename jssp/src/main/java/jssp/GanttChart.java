@@ -35,6 +35,7 @@ public class GanttChart {
             timeUnit = 5;
         }else{
             timeUnit = 25;
+            width = makespan+50;
         }
 
         int y = 0;
