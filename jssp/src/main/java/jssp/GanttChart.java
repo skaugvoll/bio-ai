@@ -30,10 +30,15 @@ public class GanttChart {
         int width = 1200;
         double widthInterval = width /makespan;
 
-        int timeUnit;
+        int timeUnit = 1;
         if(makespan < 500){
             timeUnit = 5;
-        }else{
+        }
+        if(makespan > 1900){
+            timeUnit = 25;
+            width = 1900;
+        }
+        else{
             timeUnit = 25;
             width = makespan+50;
         }
@@ -78,6 +83,7 @@ public class GanttChart {
             y += 50;
         }
         primaryStage.setScene(new Scene(pane, width, height*(num_machines+1) ));
+//        primaryStage.setScene(new Scene(pane, 1920, 1180 ));
         primaryStage.show();
     }
 
