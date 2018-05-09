@@ -42,7 +42,6 @@ public class ACO {
             ants[i] = new Ant(jobs, num_jobs, num_machines, total);
         }
 
-
     }
 
 

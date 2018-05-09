@@ -27,17 +27,17 @@ public class GanttChart {
 
 
         int height = 50;
-        int width = 1200;
+        int width = 1800;
         double widthInterval = width /makespan;
 
         int timeUnit = 1;
         if(makespan < 500){
             timeUnit = 5;
         }
-        if(makespan > 1900){
-            timeUnit = 25;
-            width = 1900;
-        }
+//        else if(makespan > 1900){
+//            timeUnit = 25;
+//            width = 1900;
+//        }
         else{
             timeUnit = 25;
             width = makespan+50;
