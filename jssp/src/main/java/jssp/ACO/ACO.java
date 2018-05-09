@@ -38,7 +38,6 @@ public class ACO {
             root.edges[i] = neighbour;
             root.pheromones[i] = 1.0;
         }
-
         for(int i = 0; i < num_ants; i++){
             ants[i] = new Ant(jobs, num_jobs, num_machines, total);
         }
@@ -51,7 +50,7 @@ public class ACO {
         for(int i = 0; i < num_iterations; i++){
             AntSolution[] solutions = new AntSolution[ants.length];
             for(int ant = 0; ant < ants.length; ant++){
-                solutions[ant] = ants[i].findSolution(nodes);
+                solutions[ant] = ants[ant].findSolution(nodes);
             }
 
             int bestMakeSpan = Integer.MAX_VALUE;

@@ -1,3 +1,4 @@
+
 package jssp.BA;
 
 import jssp.Solution;
